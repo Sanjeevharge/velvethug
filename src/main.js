@@ -246,6 +246,13 @@ function navigateTo(page, pushHistory = true) {
     }
   }
 
+  // Carousel pause/resume on navigation
+  if (page === 'home') {
+    if (window._resumeHeroCarousel) window._resumeHeroCarousel();
+  } else {
+    if (window._pauseHeroCarousel) window._pauseHeroCarousel();
+  }
+
   // If navigating to a category page, render its contents
   if (['mattresses', 'pillows', 'accessories'].includes(page)) {
     state.activeCategory = page;
@@ -3817,6 +3824,277 @@ function initHomePage() {
 }
 
 // ────────────────────────────────────────────────────────────
+// INTERACTIVE HERO CAROUSEL CONTROLLER (5 SLIDES)
+// ────────────────────────────────────────────────────────────
+let heroCarouselState = {
+  currentIndex: 0,
+  totalSlides: 5,
+  timer: null,
+  intervalMs: 5500,
+  isPaused: false,
+  touchStartX: 0,
+  touchEndX: 0
+};
+
+function initHeroCarousel() {
+  const carouselEl = qs('#heroCarousel');
+  const track = qs('#heroCarouselTrack');
+  const prevBtn = qs('#heroPrevBtn');
+  const nextBtn = qs('#heroNextBtn');
+  const dotsContainer = qs('#heroCarouselDots');
+  const counterEl = qs('#heroSlideCounter');
+
+  if (!carouselEl || !track) return;
+
+  const slides = qsa('.hero-carousel-slide', track);
+  const dots = dotsContainer ? qsa('.hero-dot-bar', dotsContainer) : [];
+  heroCarouselState.totalSlides = slides.length || 5;
+
+  function updateSlide(index) {
+    if (index < 0) {
+      index = heroCarouselState.totalSlides - 1;
+    } else if (index >= heroCarouselState.totalSlides) {
+      index = 0;
+    }
+    heroCarouselState.currentIndex = index;
+
+    // Shift track: each slide is 20% width of a 500% track
+    const shiftPercent = index * 20;
+    track.style.transform = `translateX(-${shiftPercent}%)`;
+
+    // Active classes on slides
+    slides.forEach((slide, idx) => {
+      slide.classList.toggle('active', idx === index);
+    });
+
+    // Active state on dots
+    dots.forEach((dot, idx) => {
+      const isActive = idx === index;
+      dot.classList.toggle('active', isActive);
+      dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    // Update slide counter
+    if (counterEl) {
+      counterEl.textContent = `0${index + 1} / 0${heroCarouselState.totalSlides}`;
+    }
+
+    restartAutoSlide();
+  }
+
+  function nextSlide() {
+    updateSlide(heroCarouselState.currentIndex + 1);
+  }
+
+  function prevSlide() {
+    updateSlide(heroCarouselState.currentIndex - 1);
+  }
+
+  function startAutoSlide() {
+    stopAutoSlide();
+    heroCarouselState.timer = setInterval(() => {
+      if (!heroCarouselState.isPaused && state.currentPage === 'home') {
+        nextSlide();
+      }
+    }, heroCarouselState.intervalMs);
+  }
+
+  function stopAutoSlide() {
+    if (heroCarouselState.timer) {
+      clearInterval(heroCarouselState.timer);
+      heroCarouselState.timer = null;
+    }
+  }
+
+  function restartAutoSlide() {
+    stopAutoSlide();
+    startAutoSlide();
+  }
+
+  // Navigation Arrows
+  if (prevBtn) {
+    prevBtn.onclick = (e) => {
+      e.stopPropagation();
+      prevSlide();
+    };
+  }
+  if (nextBtn) {
+    nextBtn.onclick = (e) => {
+      e.stopPropagation();
+      nextSlide();
+    };
+  }
+
+  // Dots / Bar click
+  dots.forEach((dot, idx) => {
+    dot.onclick = (e) => {
+      e.stopPropagation();
+      updateSlide(idx);
+    };
+  });
+
+  // Pause on hover
+  carouselEl.addEventListener('mouseenter', () => {
+    heroCarouselState.isPaused = true;
+  });
+  carouselEl.addEventListener('mouseleave', () => {
+    heroCarouselState.isPaused = false;
+  });
+
+  // Touch Swipe detection
+  carouselEl.addEventListener('touchstart', (e) => {
+    if (e.touches && e.touches[0]) {
+      heroCarouselState.touchStartX = e.touches[0].screenX;
+      heroCarouselState.isPaused = true;
+    }
+  }, { passive: true });
+
+  carouselEl.addEventListener('touchend', (e) => {
+    if (e.changedTouches && e.changedTouches[0]) {
+      heroCarouselState.touchEndX = e.changedTouches[0].screenX;
+      heroCarouselState.isPaused = false;
+      const diff = heroCarouselState.touchEndX - heroCarouselState.touchStartX;
+      if (diff > 45) {
+        prevSlide();
+      } else if (diff < -45) {
+        nextSlide();
+      }
+    }
+  }, { passive: true });
+
+  // Keyboard navigation
+  window.addEventListener('keydown', (e) => {
+    if (state.currentPage !== 'home') return;
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    if (e.key === 'ArrowLeft') {
+      prevSlide();
+    } else if (e.key === 'ArrowRight') {
+      nextSlide();
+    }
+  });
+
+  // Global hooks
+  window._resumeHeroCarousel = () => {
+    heroCarouselState.isPaused = false;
+    startAutoSlide();
+  };
+  window._pauseHeroCarousel = () => {
+    heroCarouselState.isPaused = true;
+    stopAutoSlide();
+  };
+  window.goToHeroSlide = updateSlide;
+
+  // Initialize first slide and timer
+  updateSlide(0);
+}
+
+// ────────────────────────────────────────────────────────────
+// PROMOTIONAL MODAL POPUP AD CONTROLLER
+// ────────────────────────────────────────────────────────────
+let promoAdCountdownInterval = null;
+
+function initPromoAd() {
+  const modal = qs('#promoAdModal');
+  if (!modal) return;
+
+  // Countdown timer in modal
+  const countdownEl = qs('#promoAdCountdown');
+  if (countdownEl) {
+    const targetEnd = Date.now() + (3 * 86400000) + (14 * 3600000) + (22 * 60000);
+    function updateCountdown() {
+      const remaining = targetEnd - Date.now();
+      if (remaining <= 0) {
+        countdownEl.textContent = 'Ending Soon';
+        return;
+      }
+      const days = Math.floor(remaining / 86400000);
+      const hours = Math.floor((remaining % 86400000) / 3600000);
+      const minutes = Math.floor((remaining % 3600000) / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000);
+      countdownEl.textContent = `${String(days).padStart(2, '0')}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+    }
+    updateCountdown();
+    if (promoAdCountdownInterval) clearInterval(promoAdCountdownInterval);
+    promoAdCountdownInterval = setInterval(updateCountdown, 1000);
+  }
+
+  // Backdrop click dismisses
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closePromoAd();
+    }
+  });
+
+  // Esc key dismisses
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('show')) {
+      closePromoAd();
+    }
+  });
+
+  // Auto trigger after 2 seconds on home page if not seen in session
+  const seen = sessionStorage.getItem('vh_promo_ad_seen');
+  if (!seen) {
+    setTimeout(() => {
+      if (state.currentPage === 'home') {
+        openPromoAd();
+      }
+    }, 2000);
+  }
+}
+
+function openPromoAd() {
+  const modal = qs('#promoAdModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => {
+    modal.classList.add('show');
+  });
+}
+
+function closePromoAd(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  const modal = qs('#promoAdModal');
+  if (!modal) return;
+  modal.classList.remove('show');
+  sessionStorage.setItem('vh_promo_ad_seen', 'true');
+  setTimeout(() => {
+    if (!modal.classList.contains('show')) {
+      modal.style.display = 'none';
+    }
+  }, 350);
+}
+
+function claimPromoAd() {
+  closePromoAd();
+  copyPromoCode('DIWALI30', false);
+  toast('🎉 Voucher DIWALI30 applied! Enjoy 30% OFF.');
+  goToPage('mattresses');
+}
+
+function copyPromoCode(code = 'DIWALI30', showToastMessage = true) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).catch(() => {});
+  }
+  const btnText = qs('#promoCopyBtnText');
+  if (btnText) {
+    const originalText = btnText.textContent;
+    btnText.textContent = 'Copied! ✓';
+    setTimeout(() => {
+      btnText.textContent = originalText;
+    }, 2000);
+  }
+  if (showToastMessage) {
+    toast(`🏷️ Coupon code "${code}" copied to clipboard!`);
+  }
+}
+
+window.openPromoAd = openPromoAd;
+window.closePromoAd = closePromoAd;
+window.claimPromoAd = claimPromoAd;
+window.copyPromoCode = copyPromoCode;
+
+// ────────────────────────────────────────────────────────────
 // CONSUMER THEME CONTROLLER (Dark / Light Mode)
 // ────────────────────────────────────────────────────────────
 function initConsumerTheme() {
@@ -3873,6 +4151,8 @@ function init() {
   initAuth();
   initFoundingCounter();
   initHomePage();
+  initHeroCarousel();
+  initPromoAd();
   initScrollEffects();
 
   // Initial category renders

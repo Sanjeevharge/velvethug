@@ -127,62 +127,294 @@
        ───────────────────────────────────────────── -->
   <div id="view-home" class="page-view active">
 
-    <!-- HERO SECTION -->
-    <section class="hero-section" aria-label="Hero">
-      <div class="hero-bg-media" aria-hidden="true">
-        <img src="./src/assets/images/hero_bedroom.jpg" alt=""
-             onerror="this.parentElement.style.background='linear-gradient(135deg,#0A1128 0%,#1B263B 60%,#4C3F5E 100%)'">
-      </div>
-      <div class="hero-overlay-gradient" aria-hidden="true"></div>
-      <div class="container">
-        <div class="hero-content">
-          <span class="hero-master-line">The Velvet Hug Collection</span>
-          <h1 class="hero-title">Sleep that holds<br>you back together.</h1>
-          <p class="hero-tagline">"Be Held, Every Night"</p>
-          <p class="hero-description">Five precision layers. Zoned for Indian bodies. A sleep system that remembers how exhausted you were and decides to hold you anyway.</p>
-          <div class="hero-cta-group">
-            <button class="btn btn-gold btn-lg" id="heroExploreBtn" onclick="goToPage('mattresses')" data-navigate-category="mattresses">
-              Explore Mattresses →
-            </button>
-            <button class="btn btn-outline-light btn-lg" id="heroQuizBtn" onclick="if(window.openQuiz) openQuiz();" style="display:inline-flex;align-items:center;gap:8px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-              Find My Match
-            </button>
-          </div>
-          <div class="hero-trust-grid" aria-label="Trust indicators">
-            <div class="trust-item">
-              <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 100-Night
-              </span>
-              <span class="trust-item-sub">Free Trial</span>
-            </div>
-            <div class="trust-item">
-              <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg> 10-Year
-              </span>
-              <span class="trust-item-sub">Warranty</span>
-            </div>
-            <div class="trust-item">
-              <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg> Doctor
-              </span>
-              <span class="trust-item-sub">Recommended</span>
-            </div>
-            <div class="trust-item">
-              <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Free
-              </span>
-              <span class="trust-item-sub">Unboxing &amp; Delivery</span>
-            </div>
-          </div>
+    <!-- INTERACTIVE HERO CAROUSEL SECTION (5-SLIDE LUXURY CAROUSEL) -->
+    <section class="hero-carousel-wrapper" id="heroCarousel" role="region" aria-roledescription="carousel" aria-label="Velvet Hug Featured Highlights">
+      <div class="hero-carousel-track" id="heroCarouselTrack">
 
-          <!-- Floating Hero Trust Pills -->
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px;">
-            <span class="floating-hero-pill">✦ 100% Organic Eco-Tencel</span>
-            <span class="floating-hero-pill">✦ Doctor Certified 7-Zone Support</span>
-            <span class="floating-hero-pill">✦ Zero Partner Disturbance</span>
+        <!-- SLIDE 1: Orthopaedic Sleep Engineering & Quality -->
+        <div class="hero-carousel-slide active" role="group" aria-roledescription="slide" aria-label="1 of 5: Orthopaedic Sleep Engineering" data-slide-index="0">
+          <div class="hero-bg-media" aria-hidden="true">
+            <img src="./public/images/crosssection-layers.jpg" alt=""
+                 onerror="this.src='./src/assets/images/hero_bedroom.jpg'">
+          </div>
+          <div class="hero-overlay-gradient" aria-hidden="true"></div>
+          <div class="container">
+            <div class="hero-content">
+              <div class="hero-slide-badge-row">
+                <span class="hero-master-line">Orthopaedic Sleep Engineering</span>
+                <span class="hero-pill-badge">5-Layer Architecture</span>
+              </div>
+              <h1 class="hero-title">Sleep that holds<br>you back together.</h1>
+              <p class="hero-tagline">"Be Held, Every Night"</p>
+              <p class="hero-description">Five precision layers zoned for Indian bodies. Reversible dual firmness, 11x/sec active contouring, and zero partner disturbance.</p>
+              <div class="hero-cta-group">
+                <button class="btn btn-gold btn-lg" onclick="goToPage('mattresses')" data-navigate-category="mattresses">
+                  Explore Mattresses →
+                </button>
+                <button class="btn btn-outline-light btn-lg" onclick="if(window.openQuiz) openQuiz();" style="display:inline-flex;align-items:center;gap:8px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                  Find My Match
+                </button>
+              </div>
+              <div class="hero-trust-grid" aria-label="Trust indicators">
+                <div class="trust-item">
+                  <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 100-Night
+                  </span>
+                  <span class="trust-item-sub">Free Trial</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg> 10-Year
+                  </span>
+                  <span class="trust-item-sub">Warranty</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg> Doctor
+                  </span>
+                  <span class="trust-item-sub">Recommended</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Free
+                  </span>
+                  <span class="trust-item-sub">Unboxing &amp; Delivery</span>
+                </div>
+              </div>
+              <div class="floating-hero-pills-row">
+                <span class="floating-hero-pill">✦ 100% Organic Eco-Tencel</span>
+                <span class="floating-hero-pill">✦ Doctor Certified 7-Zone Support</span>
+                <span class="floating-hero-pill">✦ Zero Partner Disturbance</span>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- SLIDE 2: Exclusive Discounts & Offers -->
+        <div class="hero-carousel-slide" role="group" aria-roledescription="slide" aria-label="2 of 5: Grand Sleep Festival" data-slide-index="1">
+          <div class="hero-bg-media" aria-hidden="true">
+            <img src="./public/images/festival-banner.jpg" alt=""
+                 onerror="this.src='./src/assets/images/hero_bedroom.jpg'">
+          </div>
+          <div class="hero-overlay-gradient" aria-hidden="true"></div>
+          <div class="container">
+            <div class="hero-content">
+              <div class="hero-slide-badge-row">
+                <span class="hero-master-line">Limited Time Festive Celebration</span>
+                <span class="hero-pill-badge gold-badge">Flat 30% OFF</span>
+              </div>
+              <h2 class="hero-title">The Grand Sleep<br><span class="gold-gradient-text">Festival is Live.</span></h2>
+              <p class="hero-tagline">"Luxury Spine Health at Unprecedented Festive Savings"</p>
+              <p class="hero-description">Unlock instant 30% discount with voucher code <strong>DIWALI30</strong>. Includes a complimentary Organic Sleep Suite worth ₹4,999 and 0% No-Cost EMI from ₹1,499/month.</p>
+              <div class="hero-cta-group">
+                <button class="btn btn-gold btn-lg" onclick="goToPage('mattresses')">
+                  Claim Festive Offer →
+                </button>
+                <button class="btn btn-outline-light btn-lg" onclick="goToPage('emi')">
+                  Explore EMI Plans
+                </button>
+              </div>
+              <div class="hero-trust-grid" aria-label="Festival Benefits">
+                <div class="trust-item">
+                  <span class="trust-item-title">🏷️ Code DIWALI30</span>
+                  <span class="trust-item-sub">Instant 30% Checkout Off</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">🎁 Free Suite</span>
+                  <span class="trust-item-sub">Worth ₹4,999 Included</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">💳 0% No-Cost EMI</span>
+                  <span class="trust-item-sub">From ₹1,499/Month</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">🚚 Express Delivery</span>
+                  <span class="trust-item-sub">Priority White-Glove Setup</span>
+                </div>
+              </div>
+              <div class="floating-hero-pills-row">
+                <span class="floating-hero-pill">🏷️ Coupon: DIWALI30</span>
+                <span class="floating-hero-pill">🎁 2 Free Memory Pillows + Protector</span>
+                <span class="floating-hero-pill">✨ 0% Cardless EMI Available</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3: Complete Sleep Ecosystem (Beyond Mattresses) -->
+        <div class="hero-carousel-slide" role="group" aria-roledescription="slide" aria-label="3 of 5: Complete Sleep Ecosystem" data-slide-index="2">
+          <div class="hero-bg-media" aria-hidden="true">
+            <img src="./public/images/cat-accessories.jpg" alt=""
+                 onerror="this.src='./src/assets/images/hero_bedroom.jpg'">
+          </div>
+          <div class="hero-overlay-gradient" aria-hidden="true"></div>
+          <div class="container">
+            <div class="hero-content">
+              <div class="hero-slide-badge-row">
+                <span class="hero-master-line">Beyond Mattresses</span>
+                <span class="hero-pill-badge">Full Sleep Sanctuary</span>
+              </div>
+              <h2 class="hero-title">The Complete<br>Sleep Sanctuary.</h2>
+              <p class="hero-tagline">"Cervical Alignment, Lumbar Cradling & Pure Silk"</p>
+              <p class="hero-description">From orthopaedic cervical pillows and organic body bolsters to ergonomic lumbar cushions and Mulberry silk sleep masks — discover accessories crafted to elevate recovery.</p>
+              <div class="hero-cta-group">
+                <button class="btn btn-gold btn-lg" onclick="goToPage('accessories')">
+                  Explore Accessories →
+                </button>
+                <button class="btn btn-outline-light btn-lg" onclick="goToPage('pillows')">
+                  Shop Ergonomic Pillows
+                </button>
+              </div>
+              <div class="hero-trust-grid" aria-label="Ecosystem benefits">
+                <div class="trust-item">
+                  <span class="trust-item-title">🌿 Natural Latex</span>
+                  <span class="trust-item-sub">100% Hypoallergenic</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">🧘 Cervical Curve</span>
+                  <span class="trust-item-sub">Doctor Designed</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">✨ Mulberry Silk</span>
+                  <span class="trust-item-sub">Grade 6A 22-Momme</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">🛡️ 30-Day Guarantee</span>
+                  <span class="trust-item-sub">Risk-Free Comfort</span>
+                </div>
+              </div>
+              <div class="floating-hero-pills-row">
+                <span class="floating-hero-pill">✦ Orthopaedic Cervical Pillow</span>
+                <span class="floating-hero-pill">✦ Spine-Align Lumbar Bolster</span>
+                <span class="floating-hero-pill">✦ 100% Pure Mulberry Silk Eye Mask</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 4: Flagship Product: Elara Cloud™ Dual-Comfort -->
+        <div class="hero-carousel-slide" role="group" aria-roledescription="slide" aria-label="4 of 5: The Flagship Elara Cloud" data-slide-index="3">
+          <div class="hero-bg-media" aria-hidden="true">
+            <img src="./src/assets/images/mattress_elara_cloud.jpg" alt=""
+                 onerror="this.src='./public/images/hero-mattress.jpg'">
+          </div>
+          <div class="hero-overlay-gradient" aria-hidden="true"></div>
+          <div class="container">
+            <div class="hero-content">
+              <div class="hero-slide-badge-row">
+                <span class="hero-master-line">India's #1 Rated Luxury Mattress</span>
+                <span class="hero-pill-badge flagship-badge">The Flagship</span>
+              </div>
+              <h2 class="hero-title">Elara Cloud™<br><span class="gold-gradient-text">Dual-Comfort Hybrid.</span></h2>
+              <p class="hero-tagline">"Cloud-Plush On Top. Orthopaedic Spine Support Beneath."</p>
+              <p class="hero-description">Reversible dual-sided luxury: flip between Medium-Soft Cloud for side sleepers and Medium-Firm Ortho for back posture. Endorsed by 48+ certified orthopaedic doctors across India.</p>
+              <div class="hero-cta-group">
+                <button class="btn btn-gold btn-lg" onclick="goToPage('mattresses')">
+                  Shop Elara Cloud™ →
+                </button>
+                <button class="btn btn-outline-light btn-lg" onclick="if(window.openQuiz) openQuiz();">
+                  Check Compatibility
+                </button>
+              </div>
+              <div class="hero-trust-grid" aria-label="Elara Cloud Specs">
+                <div class="trust-item">
+                  <span class="trust-item-title">☁️ Reversible</span>
+                  <span class="trust-item-sub">Dual-Firmness Choice</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">🩺 48+ Doctors</span>
+                  <span class="trust-item-sub">Clinical Endorsement</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">❄️ Aero-Breeze</span>
+                  <span class="trust-item-sub">CoolGel Open-Cell Foam</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">⭐ 4.9 / 5.0</span>
+                  <span class="trust-item-sub">1,240+ Verified Reviews</span>
+                </div>
+              </div>
+              <div class="floating-hero-pills-row">
+                <span class="floating-hero-pill">✦ Reversible Cloud &amp; Ortho Firmness</span>
+                <span class="floating-hero-pill">✦ Zero Partner Disturbance</span>
+                <span class="floating-hero-pill">✦ 100-Night In-Bedroom Trial</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 5: Exclusive Founding Partners & 100-Night Trial -->
+        <div class="hero-carousel-slide" role="group" aria-roledescription="slide" aria-label="5 of 5: Founding Sleep Partner Invitation" data-slide-index="4">
+          <div class="hero-bg-media" aria-hidden="true">
+            <img src="./public/images/cat-giftsuites.jpg" alt=""
+                 onerror="this.src='./public/images/corporate-gift.jpg'">
+          </div>
+          <div class="hero-overlay-gradient" aria-hidden="true"></div>
+          <div class="container">
+            <div class="hero-content">
+              <div class="hero-slide-badge-row">
+                <span class="hero-master-line">Exclusive Founding Circle</span>
+                <span class="hero-pill-badge founding-badge">First 1,000 Homes Only</span>
+              </div>
+              <h2 class="hero-title">Founding Sleep<br><span class="gold-gradient-text">Partner Invitation.</span></h2>
+              <p class="hero-tagline">"A Lifetime 15% Lock · An Engraved Digital Number"</p>
+              <p class="hero-description">Be among our first 1,000 verified sleep sanctuaries. Lock in lifetime 15% VIP pricing across all current and future releases, with an unconditional 100-night 100% money-back bedroom trial.</p>
+              <div class="hero-cta-group">
+                <button class="btn btn-gold btn-lg" onclick="goToPage('mattresses')">
+                  Claim Founding Status →
+                </button>
+                <button class="btn btn-outline-light btn-lg" onclick="goToPage('returns')">
+                  100-Night Trial Policy
+                </button>
+              </div>
+              <div class="hero-trust-grid" aria-label="Founding Privileges">
+                <div class="trust-item">
+                  <span class="trust-item-title">🔒 15% For Life</span>
+                  <span class="trust-item-sub">Permanent Price Lock</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">🏅 Digital Certificate</span>
+                  <span class="trust-item-sub">Numbered Collector Badge</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">🛡️ 100-Night Trial</span>
+                  <span class="trust-item-sub">100% Full Money Back</span>
+                </div>
+                <div class="trust-item">
+                  <span class="trust-item-title">📞 Concierge VIP</span>
+                  <span class="trust-item-sub">Direct Founder Support</span>
+                </div>
+              </div>
+              <div class="floating-hero-pills-row">
+                <span class="floating-hero-pill">✦ Lifetime 15% Price Lock</span>
+                <span class="floating-hero-pill">✦ 100-Night Zero-Risk Trial</span>
+                <span class="floating-hero-pill">✦ Free White-Glove Reverse Pickup</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CAROUSEL ARROWS CONTROLS -->
+      <button class="hero-carousel-nav-btn hero-carousel-prev" id="heroPrevBtn" aria-label="Previous Slide" title="Previous Slide">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <button class="hero-carousel-nav-btn hero-carousel-next" id="heroNextBtn" aria-label="Next Slide" title="Next Slide">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+
+      <!-- CAROUSEL PROGRESS & DOT INDICATORS -->
+      <div class="hero-carousel-pagination" id="heroCarouselPagination">
+        <div class="hero-carousel-dots" id="heroCarouselDots" role="tablist" aria-label="Carousel pagination">
+          <button class="hero-dot-bar active" role="tab" aria-selected="true" aria-label="Slide 1: Orthopaedic Sleep Engineering" data-index="0"><span class="hero-dot-fill"></span></button>
+          <button class="hero-dot-bar" role="tab" aria-selected="false" aria-label="Slide 2: Grand Sleep Festival" data-index="1"><span class="hero-dot-fill"></span></button>
+          <button class="hero-dot-bar" role="tab" aria-selected="false" aria-label="Slide 3: Complete Sleep Ecosystem" data-index="2"><span class="hero-dot-fill"></span></button>
+          <button class="hero-dot-bar" role="tab" aria-selected="false" aria-label="Slide 4: The Flagship Elara Cloud" data-index="3"><span class="hero-dot-fill"></span></button>
+          <button class="hero-dot-bar" role="tab" aria-selected="false" aria-label="Slide 5: Founding Partner Invitation" data-index="4"><span class="hero-dot-fill"></span></button>
+        </div>
+        <div class="hero-slide-counter" id="heroSlideCounter" aria-live="polite">01 / 05</div>
       </div>
     </section>
 
@@ -1966,6 +2198,68 @@
         <button type="submit" class="btn btn-gold btn-sm">Generate RMA &amp; Schedule Pickup →</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- PROMOTIONAL MODAL POPUP AD (LIMITED-TIME FESTIVAL OFFER) -->
+<div class="promo-modal-backdrop" id="promoAdModal" role="dialog" aria-modal="true" aria-label="Special Festive Offer" style="display:none;">
+  <div class="promo-modal-card" id="promoAdCard" role="document">
+    <button class="promo-modal-close-btn" id="promoAdCloseBtn" aria-label="Close promotional offer" onclick="window.closePromoAd(event)">✕</button>
+    
+    <div class="promo-modal-banner" onclick="window.claimPromoAd()">
+      <img src="./public/images/festival-banner.jpg" alt="Velvet Hug Grand Sleep Festival" onerror="this.src='./src/assets/images/hero_bedroom.jpg'">
+      <div class="promo-modal-badge">
+        <span class="promo-pulse-dot"></span> LIMITED TIME FESTIVAL
+      </div>
+      <div class="promo-modal-timer-pill" id="promoAdTimerPill">
+        <span>Ends in: </span><strong id="promoAdCountdown">03d 14h 22m</strong>
+      </div>
+    </div>
+    
+    <div class="promo-modal-body">
+      <div class="promo-modal-pretitle">The Velvet Hug Celebration</div>
+      <h3 class="promo-modal-title">Grand Sleep Festival <span class="gold-gradient-text">Flat 30% OFF</span></h3>
+      <p class="promo-modal-subtitle">Wake up restored to zero backache. India's top doctor-recommended orthopaedic mattress at our lowest price ever.</p>
+      
+      <!-- Voucher Box with Click-to-Copy -->
+      <div class="promo-coupon-container" onclick="window.copyPromoCode('DIWALI30')" title="Click to copy coupon code">
+        <div class="promo-code-info">
+          <span class="promo-code-label">Use Voucher Code:</span>
+          <span class="promo-code-val" id="promoAdCodeVal">DIWALI30</span>
+        </div>
+        <button type="button" class="promo-copy-btn" id="promoAdCopyBtn" aria-label="Copy voucher code">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <span id="promoCopyBtnText">Copy</span>
+        </button>
+      </div>
+      
+      <!-- Perk Highlights -->
+      <div class="promo-perks-row">
+        <div class="promo-perk-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><circle cx="18" cy="12" r="2"/></svg>
+          <span>Free ₹4,999 Sleep Suite</span>
+        </div>
+        <div class="promo-perk-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>100-Night Bedroom Trial</span>
+        </div>
+        <div class="promo-perk-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>0% EMI from ₹1,499/mo</span>
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="promo-modal-actions">
+        <button class="btn btn-gold btn-lg w-100 promo-claim-cta" id="promoAdClaimBtn" onclick="window.claimPromoAd()">
+          Claim 30% OFF &amp; Shop Mattresses →
+        </button>
+      </div>
+      
+      <div class="promo-modal-footer-note">
+        <span>*Instant discount applied at checkout. 100% full money-back guarantee.</span>
+      </div>
+    </div>
   </div>
 </div>
 
