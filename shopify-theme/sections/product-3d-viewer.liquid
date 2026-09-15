@@ -1,0 +1,71 @@
+{% comment %}
+  Velvet Hug - Interactive 3D WebGL Mattress Visualizer Section
+{% endcomment %}
+
+<section id="3dVisualizerSection" class="visualizer-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">PROPRIETARY SLEEP ARCHITECTURE</span>
+      <h2>Interactive 3D Layer Anatomy</h2>
+      <p>Inspect the internal engineering of the Velvet Hug Reserve+ mattress before checkout. Rotate 360° and explode the individual layers in real-time.</p>
+    </div>
+
+    <div class="visualizer-card-wrapper">
+      <div class="visualizer-top-toolbar">
+        <div class="visualizer-title-group">
+          <span class="visualizer-badge-3d">3D WebGL</span>
+          <h3 style="font-size:1.15rem; margin:0;">Velvet Hug Reserve+ (12" Eurotop)</h3>
+        </div>
+        <div class="visualizer-select-wrap">
+          <label style="font-size:0.82rem; color:#94a3b8; margin-right:8px;">Model:</label>
+          <select onchange="inspectIn3D(this.value)">
+            <option value="vh-reserve-plus">Reserve+ Founder's Edition (12")</option>
+            <option value="vh-reserve-10">Reserve Complete Experience (10")</option>
+            <option value="vh-signature-8">Signature Deeper Embrace (8")</option>
+            <option value="vh-ortho-pro">Orthopedic Pro Spine Care (8")</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="visualizer-main-viewport">
+        <div id="mattress3dCanvas" class="stage-canvas-container"></div>
+        <div class="visualizer-hud-overlay">
+          <div class="hud-layer-name">✨ 7-Zone Micro-Pocket Springs</div>
+          <div class="hud-layer-benefit">Zero partner motion transfer with targeted lumbar column reinforcement.</div>
+        </div>
+      </div>
+
+      <div class="visualizer-bottom-bar">
+        <div class="view-mode-buttons">
+          <button class="btn-view-mode active" onclick="set3DViewMode('exploded')">
+            <span>💥 Exploded Layers</span>
+          </button>
+          <button class="btn-view-mode" onclick="set3DViewMode('assembled')">
+            <span>🛏️ Assembled Unit</span>
+          </button>
+        </div>
+
+        <div class="visualizer-interactive-toggles">
+          <button id="btnToggleRotate" class="toggle-btn-pill active" onclick="toggle3DRotation()">
+            <span>🔄 360° Auto-Rotate</span>
+          </button>
+          <button class="btn btn-primary" style="padding:8px 18px; font-size:0.85rem;" onclick="quickAddToCart('vh-reserve-plus')">
+            <span>Add This 3D Model to Bag</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "3D Mattress Visualizer",
+  "settings": [],
+  "presets": [
+    {
+      "name": "3D Mattress Visualizer"
+    }
+  ]
+}
+{% endschema %}

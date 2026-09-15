@@ -1,0 +1,50 @@
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="{{ settings.color_primary_bg | default: '#0b0f19' }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+
+    {%- if page_title -%}
+      <title>{{ page_title }} &ndash; Velvet Hug | velvethug.in</title>
+    {%- else -%}
+      <title>Velvet Hug &ndash; Luxury Ergonomic Mattresses & Sleep Wellness</title>
+    {%- endif -%}
+
+    {% if page_description %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+
+    {{ content_for_header }}
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Theme Stylesheets -->
+    {{ 'main.css' | asset_url | stylesheet_tag }}
+    {{ 'components.css' | asset_url | stylesheet_tag }}
+    {{ 'visualizer.css' | asset_url | stylesheet_tag }}
+
+    <!-- Three.js for 3D Layer Visualizer -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+  </head>
+
+  <body class="velvet-hug-theme">
+    {% section 'promo-banner' %}
+    {% section 'header' %}
+
+    <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+
+    {% section 'footer' %}
+    {% render 'whatsapp-widget' %}
+
+    <script src="{{ 'main.js' | asset_url }}" type="module" defer></script>
+  </body>
+</html>

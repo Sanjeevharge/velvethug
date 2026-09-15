@@ -1,0 +1,66 @@
+{% comment %}
+  Velvet Hug - Timed Festival Promo Banner Section
+  Supports Shopify Metaobject or Theme Customizer Settings
+{% endcomment %}
+
+{% if section.settings.show_banner %}
+<div id="promoTopbar" class="promo-topbar">
+  <div class="promo-topbar-inner">
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <span class="promo-tag-badge">{{ section.settings.badge_text | default: '🎉 FESTIVAL GALA' }}</span>
+      <span>{{ section.settings.headline | default: 'Celebrate with Comfort: Flat 40% OFF + 2 Free Pillows' }}</span>
+      <span id="promoCountdown" class="promo-countdown">⏱️ Loading Festive Timer...</span>
+    </div>
+    <div class="promo-actions">
+      <span>Use Coupon:</span>
+      <span class="promo-coupon" onclick="copyPromoCoupon('{{ section.settings.coupon_code | default: 'FESTIVE40' }}')">
+        {{ section.settings.coupon_code | default: 'FESTIVE40' }} 📋
+      </span>
+      <button class="promo-close-btn" onclick="closePromoBanner()" aria-label="Close Announcement">&times;</button>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Festival Promo Banner",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_banner",
+      "label": "Show Timed Promo Banner",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge Text",
+      "default": "🎉 FESTIVAL SPECIAL"
+    },
+    {
+      "type": "text",
+      "id": "headline",
+      "label": "Banner Headline",
+      "default": "Celebrate with Comfort: Flat 40% OFF + 2 Free Luxury Pillows"
+    },
+    {
+      "type": "text",
+      "id": "coupon_code",
+      "label": "Coupon Code",
+      "default": "FESTIVE40"
+    },
+    {
+      "type": "text",
+      "id": "end_datetime",
+      "label": "End Datetime (ISO format)",
+      "default": "2026-11-30T23:59:59"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Festival Promo Banner"
+    }
+  ]
+}
+{% endschema %}

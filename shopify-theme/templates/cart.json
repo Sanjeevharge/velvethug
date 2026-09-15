@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "cart_items": {
+      "type": "categories-rail",
+      "settings": {}
+    }
+  },
+  "order": [
+    "cart_items"
+  ]
+}

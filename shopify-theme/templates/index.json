@@ -1,0 +1,49 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero-slider",
+      "settings": {
+        "badge_tag": "👑 India's Most Advanced Sleep Ergonomics",
+        "title": "The Ultimate Embrace for Restorative Sleep.",
+        "description": "Crafted with 100% Natural Organic Hevea Latex, 7-Zone Zero-Motion Pocket Coils, and Doctor-Certified Spinal Alignment."
+      }
+    },
+    "categories": {
+      "type": "categories-rail",
+      "settings": {}
+    },
+    "mattress_filters": {
+      "type": "mattress-filters",
+      "settings": {}
+    },
+    "viewer_3d": {
+      "type": "product-3d-viewer",
+      "settings": {}
+    },
+    "doctor": {
+      "type": "doctor-consultation",
+      "settings": {
+        "doctor_name": "Dr. Alok Verma, MS Ortho",
+        "doctor_role": "Senior Consultant Spine & Joint Specialist",
+        "doctor_quote": "In my 18 years of clinical orthopedic practice, over 70% of chronic morning lumbar stiffness originates from inadequate spinal counter-pressure."
+      }
+    },
+    "founding": {
+      "type": "founding-partners",
+      "settings": {}
+    },
+    "customer_stories": {
+      "type": "customer-stories",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "categories",
+    "mattress_filters",
+    "viewer_3d",
+    "doctor",
+    "founding",
+    "customer_stories"
+  ]
+}

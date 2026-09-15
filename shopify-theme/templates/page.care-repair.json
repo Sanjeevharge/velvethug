@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "care_repair_main": {
+      "type": "categories-rail",
+      "settings": {}
+    }
+  },
+  "order": [
+    "care_repair_main"
+  ]
+}

@@ -1,0 +1,52 @@
+{% comment %}
+  Velvet Hug - Founding Sleep Partners Live Counter & Community
+{% endcomment %}
+
+<section id="community" class="community-section">
+  <div class="container">
+    <div class="founding-counter-card">
+      <span class="badge-gold">👑 EXCLUSIVE LIFETIME PRIVILEGES</span>
+      <h2 style="font-size:2.2rem; margin-top:10px;">Founding Sleep Partner Circle</h2>
+      <p style="color:#cbd5e1; max-width:600px; margin:0 auto 10px;">
+        Join the exclusive collective of our first 1,000 patrons and receive permanent lifetime privileges, bespoke gifts, and priority doctor access.
+      </p>
+
+      <div id="foundingPartnerCount" class="counter-number-display">847 / 1,000</div>
+      
+      <div class="counter-progress-track">
+        <div class="counter-progress-fill" style="width: 84.7%;"></div>
+      </div>
+
+      <div class="founding-perks-grid">
+        <div class="perk-pill"><span>🌟</span> <span>Lifetime 20% privilege discount on all future orders</span></div>
+        <div class="perk-pill"><span>🩺</span> <span>Direct priority WhatsApp line to Dr. Alok Verma</span></div>
+        <div class="perk-pill"><span>🎁</span> <span>Serialized Solid Brass & Velvet Founding Plaque</span></div>
+        <div class="perk-pill"><span>🥂</span> <span>Invitation to Velvet Hug Annual Rest Conclave</span></div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:28px;" onclick="applyFoundingPartner()">
+        Claim Founding Partner Status
+      </button>
+    </div>
+
+    <div class="section-header" style="margin-bottom:30px;">
+      <span class="section-tag">COMMUNITY REWARDS</span>
+      <h2>Rest Ambassadors Program</h2>
+      <p>Share the gift of restorative sleep with friends and earn direct cash rewards and luxury bedding.</p>
+    </div>
+
+    <div id="ambassadorsGrid" class="ambassador-tiers-grid"></div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Founding Partners",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Founding Partners"
+    }
+  ]
+}
+{% endschema %}

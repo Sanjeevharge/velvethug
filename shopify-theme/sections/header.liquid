@@ -1,0 +1,56 @@
+{% comment %}
+  Velvet Hug - Luxury Header & Navigation Section
+{% endcomment %}
+
+<header class="site-header">
+  <div class="container header-container">
+    <a href="{{ routes.root_url }}" class="brand-logo">
+      <div class="logo-symbol">V</div>
+      <div class="logo-text-wrap">
+        <span class="logo-title">Velvet Hug</span>
+        <span class="logo-subtitle">velvethug.in</span>
+      </div>
+    </a>
+
+    <nav class="nav-desktop">
+      <ul class="nav-links">
+        <li class="nav-item"><a href="/collections/mattresses" class="nav-link">Mattresses</a></li>
+        <li class="nav-item"><a href="/collections/pillows" class="nav-link">Pillows</a></li>
+        <li class="nav-item"><a href="/collections/cushions" class="nav-link">Cushions</a></li>
+        <li class="nav-item"><a href="/collections/bolsters" class="nav-link">Bolsters</a></li>
+        <li class="nav-item"><a href="/collections/accessories" class="nav-link">Accessories</a></li>
+        <li class="nav-item"><a href="#quiz" class="nav-link" onclick="openQuizModal()"><span class="nav-badge-pill">30s</span> Find Your Hug</a></li>
+        <li class="nav-item"><a href="#doctor" class="nav-link">Ask Doctor</a></li>
+        <li class="nav-item"><a href="#b2b" class="nav-link">Corporate Gifting</a></li>
+        <li class="nav-item"><a href="#community" class="nav-link">Ambassadors</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <button class="action-icon-btn" onclick="openQuizModal()" title="Take Sleep Diagnostic">
+        ✨
+      </button>
+      <button class="action-icon-btn" onclick="openDoctorModal('vh-reserve-plus')" title="Doctor WhatsApp">
+        🩺
+      </button>
+      <a href="{{ routes.cart_url }}" class="action-icon-btn" onclick="event.preventDefault(); openCartDrawer();" title="View Bag">
+        🛍️
+        <span id="cartBadgeCount" class="action-badge">{{ cart.item_count | default: 1 }}</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header Navigation",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Main Menu",
+      "default": "main-menu"
+    }
+  ]
+}
+{% endschema %}

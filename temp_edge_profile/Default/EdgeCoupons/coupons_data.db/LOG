@@ -1,0 +1,6 @@
+2026/09/14-17:57:19.578 8478 Reusing MANIFEST C:\Users\Sanjeev\Desktop\velvethug\temp_edge_profile\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/09/14-17:57:19.579 8478 Recovering log #7
+2026/09/14-17:57:19.579 8478 Reusing old log C:\Users\Sanjeev\Desktop\velvethug\temp_edge_profile\Default\EdgeCoupons/coupons_data.db/000007.log 
+2026/09/14-17:57:19.718 8028 Level-0 table #11: started
+2026/09/14-17:57:19.722 8028 Level-0 table #11: 683444 bytes OK
+2026/09/14-17:57:19.725 8028 Delete type=0 #7

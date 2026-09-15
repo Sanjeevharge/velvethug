@@ -1,0 +1,39 @@
+{% comment %}
+  Velvet Hug - Categories Showcase Rail (Core + Accessories)
+{% endcomment %}
+
+<section class="category-showcase-section">
+  <div class="container">
+    <div class="category-group-header">
+      <h2 class="category-group-title">
+        <span>🛋️ Core Sleep Essentials</span>
+      </h2>
+      <span style="color:var(--text-muted); font-size:0.9rem;">Engineered for posture and pressure relief</span>
+    </div>
+    <div id="coreCategoriesGrid" class="category-rail-grid">
+      <!-- Renders dynamically or via Shopify Collections -->
+    </div>
+
+    <div class="category-group-header" style="margin-top:20px;">
+      <h2 class="category-group-title">
+        <span>✨ Luxury Accessories & Bedding</span>
+      </h2>
+      <span style="color:var(--text-muted); font-size:0.9rem;">600TC Bamboo Silk, Waterproof Protectors & Travel Beds</span>
+    </div>
+    <div id="accCategoriesGrid" class="category-rail-grid accessories-grid">
+      <!-- Renders dynamically or via Shopify Collections -->
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Categories Rail",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Categories Rail"
+    }
+  ]
+}
+{% endschema %}

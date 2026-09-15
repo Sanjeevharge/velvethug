@@ -1,0 +1,10 @@
+# Velvet Hug Shopify CLI Configuration
+# Host Domain: velvethug.in
+
+[development]
+theme = "velvet-hug-os2"
+store = "velvethug.myshopify.com"
+
+[production]
+theme = "velvet-hug-live"
+store = "velvethug.myshopify.com"

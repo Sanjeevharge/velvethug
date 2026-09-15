@@ -1,0 +1,47 @@
+{% comment %}
+  Velvet Hug - Reusable Product Card Snippet
+{% endcomment %}
+
+<div class="product-card">
+  <div class="card-badge-container">
+    {% if product.tags contains 'Bestseller' %}
+      <span class="badge-gold">Bestseller</span>
+    {% endif %}
+    {% if product.compare_at_price > product.price %}
+      <span class="badge-burgundy">🎉 FESTIVE SALE</span>
+    {% endif %}
+  </div>
+
+  <div class="product-card-media" onclick="window.location.href='{{ product.url }}'">
+    <img src="{{ product.featured_image | image_url: width: 600 }}" alt="{{ product.title | escape }}" loading="lazy" />
+    <button class="card-floating-3d-btn" onclick="event.stopPropagation(); inspectIn3D('{{ product.id }}')">
+      <span>✨ 3D Layer View</span>
+    </button>
+  </div>
+
+  <div class="product-card-body">
+    <div class="card-tier-height">
+      <span>{{ product.metafields.custom.height | default: '8 Inches' }}</span>
+      <span>⭐ 4.9 (500+)</span>
+    </div>
+
+    <h3 class="card-product-title" onclick="window.location.href='{{ product.url }}'">{{ product.title }}</h3>
+    
+    <div class="card-price-row">
+      <span class="card-current-price">{{ product.price | money }}</span>
+      {% if product.compare_at_price > product.price %}
+        <span class="card-original-price">{{ product.compare_at_price | money }}</span>
+      {% endif %}
+    </div>
+
+    <div class="card-emi-text">
+      No Cost EMI from <strong>{{ product.price | divided_by: 12 | money }}/mo</strong>
+    </div>
+
+    <div class="card-footer-actions">
+      <button class="btn btn-primary" style="width:100%;" onclick="quickAddToCart('{{ product.id }}')">
+        Add to Bag
+      </button>
+    </div>
+  </div>
+</div>

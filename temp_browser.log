@@ -1,0 +1,25 @@
+[5176:17680:0914/175716.354:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[5176:17680:0914/175716.354:WARNING:chrome\browser\extensions\activity_log\activity_log_policy.cc:71] Scheduling init
+[5176:17680:0914/175716.465:WARNING:components\signin\internal\identity_manager\account_fetcher_service.cc:252] Edge does not support fetching account capabilities
+[5176:17680:0914/175716.465:WARNING:components\signin\internal\identity_manager\account_fetcher_service.cc:213] Should not execute: Tests depending on this function may fail
+[5176:17680:0914/175716.471:WARNING:chrome\browser\extensions\external_registry_loader_win.cc:283] Error observing HKLM: 5
+[5176:17680:0914/175716.506:ERROR:chrome\browser\extensions\sync\extension_sync_data.cc:242] Attempt to sync bad ExtensionSpecifics (bad update URL):
+id: ndcileolkflehcjpmjnfbnaibdcgglog
+version: 6.45.5
+update_url: https://edge.microsoft.com/extensionwebstorebase/v1/crx
+enabled: 1
+disable_reasons: 0
+[5176:17680:0914/175716.534:WARNING:chrome\browser\edge_pinned_sites\pinned_sites_cache.cc:240] Cache isn't initialized
+[5176:17680:0914/175716.547:INFO:CONSOLE:1953] "Images loaded lazily and replaced with placeholders. Load events are deferred. See https://go.microsoft.com/fwlink/?linkid=2048113", source: http://127.0.0.1:8080/index.html (1953)
+[5176:17680:0914/175716.776:INFO:CONSOLE:2125] "Uncaught SyntaxError: missing ) after argument list", source: http://127.0.0.1:8080/src/main.js?v=3.5 (2125)
+[5176:17680:0914/175716.890:WARNING:chrome\browser\edge_pinned_sites\pinned_sites_cache.cc:240] Cache isn't initialized
+[5176:17680:0914/175719.195:ERROR:chrome\browser\extensions\sync\extension_sync_data.cc:242] Attempt to sync bad ExtensionSpecifics (bad update URL):
+id: ndcileolkflehcjpmjnfbnaibdcgglog
+version: 6.45.5
+update_url: https://edge.microsoft.com/extensionwebstorebase/v1/crx
+enabled: 1
+disable_reasons: 0
+[5176:17680:0914/175719.196:WARNING:chrome\browser\extensions\sync\extension_sync_service.cc:672] Could not add pending extension for hlnclfeomhfnihcloaaakodcbbkgkkoc
+[5176:17680:0914/175719.197:WARNING:chrome\browser\extensions\sync\extension_sync_service.cc:672] Could not add pending extension for nmigaijibiabddkkmjhlehchpmgbokfj
+[5176:17680:0914/175719.197:WARNING:chrome\browser\extensions\sync\extension_sync_service.cc:672] Could not add pending extension for ehllkhjndgnlokhomdlhgbineffifcbj
+[5176:17680:0914/175719.197:WARNING:chrome\browser\extensions\sync\extension_sync_service.cc:672] Could not add pending extension for ajhbdcgfhlhhmocddefknjjkejcfpbnj

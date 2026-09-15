@@ -1,0 +1,87 @@
+{% comment %}
+  Velvet Hug - Hero Showcase Section
+{% endcomment %}
+
+<section class="hero-section">
+  <div class="hero-bg-media">
+    <img src="{{ 'hero-mattress.jpg' | asset_url }}" alt="Velvet Hug Luxury Bedroom Suite" />
+  </div>
+  <div class="hero-overlay-gradient"></div>
+  <div class="container hero-content">
+    <div class="hero-tag">
+      <span class="badge-gold">{{ section.settings.badge_tag | default: "👑 India's Most Advanced Sleep Ergonomics" }}</span>
+      <span class="badge-burgundy">Diwali Festival Offer Live</span>
+    </div>
+    <h1 class="hero-title">
+      {{ section.settings.title | default: "The Ultimate Embrace for Restorative Sleep." }}
+    </h1>
+    <p class="hero-description">
+      {{ section.settings.description | default: "Crafted with 100% Natural Organic Hevea Latex, 7-Zone Zero-Motion Pocket Coils, and Doctor-Certified Spinal Alignment." }}
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="#mattresses" class="btn btn-primary">
+        <span>Explore Mattresses</span>
+        <span>→</span>
+      </a>
+      <button class="btn btn-outline" onclick="openQuizModal()">
+        <span>Find Your Hug in 30 Seconds</span>
+        <span>✨</span>
+      </button>
+      <button class="btn btn-burgundy" onclick="inspectIn3D('vh-reserve-plus')">
+        <span>Inspect 3D Layers</span>
+        <span>🔬</span>
+      </button>
+    </div>
+
+    <div class="hero-trust-grid">
+      <div class="trust-item">
+        <span class="trust-item-title">🌙 100 Nights</span>
+        <span class="trust-item-sub">Risk-Free In-Home Trial</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-item-title">🛡️ 10 Years</span>
+        <span class="trust-item-sub">Full Replacement Warranty</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-item-title">🩺 Doctor Verified</span>
+        <span class="trust-item-sub">Spine Surgeon Endorsed</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-item-title">⚡ Free Delivery</span>
+        <span class="trust-item-sub">19,000+ PIN Codes</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero Section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "badge_tag",
+      "label": "Badge Tagline",
+      "default": "👑 India's Most Advanced Sleep Ergonomics"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Hero Title",
+      "default": "The Ultimate Embrace for Restorative Sleep."
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Hero Subtitle",
+      "default": "Crafted with 100% Natural Organic Hevea Latex, 7-Zone Zero-Motion Pocket Coils, and Doctor-Certified Spinal Alignment."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Showcase"
+    }
+  ]
+}
+{% endschema %}

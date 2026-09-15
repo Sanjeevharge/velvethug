@@ -1,0 +1,63 @@
+{% comment %}
+  Velvet Hug - Doctor Consultation & Clinical Endorsement Section
+{% endcomment %}
+
+<section id="doctor" class="doctor-section">
+  <div class="container">
+    <div class="doctor-card-container">
+      <div style="text-align:center;">
+        <div class="doctor-avatar-wrap">
+          <div style="font-size:3.5rem;">👨‍⚕️</div>
+        </div>
+        <span class="badge-emerald" style="margin-top:14px;">Verified Spine Consultant</span>
+      </div>
+
+      <div>
+        <h3 class="doctor-name">{{ section.settings.doctor_name | default: 'Dr. Alok Verma, MS Ortho' }}</h3>
+        <div class="doctor-role">{{ section.settings.doctor_role | default: 'Senior Consultant Spine & Joint Specialist · Max Healthcare' }}</div>
+        
+        <div class="doctor-quote-box">
+          {{ section.settings.doctor_quote | default: '"In my 18 years of clinical orthopedic practice, over 70% of chronic morning lumbar stiffness originates from inadequate spinal counter-pressure. Velvet Hug combinations of independent 7-zone microcoils and organic Hevea latex provide the exact biomechanical support required to decompress L4-L5 and L5-S1 vertebrae."' }}
+        </div>
+
+        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+          <button class="btn btn-whatsapp" onclick="openDoctorModal('vh-reserve-plus')">
+            <span>💬 Ask Doctor on WhatsApp</span>
+          </button>
+          <span style="font-size:0.85rem; color:#94a3b8;">Instant responses for personalized lumbar queries</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Doctor Endorsement",
+  "settings": [
+    {
+      "type": "text",
+      "id": "doctor_name",
+      "label": "Doctor Name",
+      "default": "Dr. Alok Verma, MS Ortho"
+    },
+    {
+      "type": "text",
+      "id": "doctor_role",
+      "label": "Doctor Role",
+      "default": "Senior Consultant Spine & Joint Specialist"
+    },
+    {
+      "type": "textarea",
+      "id": "doctor_quote",
+      "label": "Clinical Quote",
+      "default": "In my 18 years of clinical orthopedic practice, over 70% of chronic morning lumbar stiffness originates from inadequate spinal counter-pressure."
+    }
+  ],
+  "presets": [
+    {
+      "name": "Doctor Endorsement"
+    }
+  ]
+}
+{% endschema %}

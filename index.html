@@ -1,0 +1,1987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velvet Hug — Be Held, Every Night</title>
+  <meta name="description" content="Velvet Hug crafts premium mattresses, pillows and sleep accessories for Indian bodies. Sleep engineered for the way you rest.">
+  <meta name="theme-color" content="#0A1128">
+  <link rel="stylesheet" href="./src/styles/main.css?v=3.0">
+  <link rel="stylesheet" href="./src/styles/components.css?v=3.9">
+  <script>
+    window.goToPage = function(page) {
+      if (window.navigateTo) {
+        window.navigateTo(page);
+      } else {
+        document.querySelectorAll('.page-view').forEach(function(v) {
+          v.classList.remove('active');
+          v.style.display = 'none';
+        });
+        var el = document.getElementById('view-' + page);
+        if (el) {
+          el.classList.add('active');
+          el.style.display = 'block';
+        }
+        document.querySelectorAll('.nav-link').forEach(function(l) {
+          l.classList.toggle('active', l.getAttribute('data-page') === page);
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+  </script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     SCROLL PROGRESS BAR
+     ═══════════════════════════════════════════════ -->
+<div id="scrollProgressBar"></div>
+
+<!-- ═══════════════════════════════════════════════
+     PROMO TOP BAR
+     ═══════════════════════════════════════════════ -->
+<div id="promoBanner" class="promo-topbar">
+  <div class="promo-topbar-inner">
+    <div class="promo-actions">
+      <span class="promo-tag-badge" id="promoTag">FOUNDING EXCLUSIVE</span>
+      <span id="promoMessage">First 1,000 Sleep Partners — 15% Lifetime Price Lock (347 Claimed)</span>
+    </div>
+    <div class="promo-actions">
+      <span style="font-size:0.78rem;color:rgba(255,255,255,0.6);">Ends in:</span>
+      <span class="promo-countdown" id="promoCountdown">--h --m</span>
+      <span class="promo-coupon" id="promoCoupon">FOUNDING15</span>
+    </div>
+    <button class="promo-close-btn" id="promoCloseBt" aria-label="Close banner">✕</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SITE HEADER
+     ═══════════════════════════════════════════════ -->
+<header class="site-header" role="banner">
+  <div class="header-container">
+    <!-- Logo -->
+    <a class="brand-logo" href="javascript:void(0)" onclick="goToPage('home')" data-page="home" aria-label="Velvet Hug — Home">
+      <img src="./src/assets/logo.jpeg" alt="Velvet Hug Logo" class="brand-logo-img"
+           onerror="this.style.display='none'">
+      <div class="logo-text-wrap">
+        <span class="logo-title">Velvet Hug</span>
+        <span class="logo-subtitle">Be Held, Every Night</span>
+      </div>
+    </a>
+
+    <!-- Primary Navigation -->
+    <nav aria-label="Main navigation" class="nav-wrapper">
+      <ul class="nav-links" role="list">
+        <li><a class="nav-link active" data-page="home" href="javascript:void(0)" onclick="goToPage('home')">Home</a></li>
+        <li><a class="nav-link" data-page="mattresses" href="javascript:void(0)" onclick="goToPage('mattresses')">Mattresses</a></li>
+        <li><a class="nav-link" data-page="pillows" href="javascript:void(0)" onclick="goToPage('pillows')">Pillows</a></li>
+        <li><a class="nav-link" data-page="accessories" href="javascript:void(0)" onclick="goToPage('accessories')">Accessories</a></li>
+        
+        <li><a class="nav-link" data-page="emi" href="javascript:void(0)" onclick="goToPage('emi')">EMI Plans</a></li>
+        <li>
+          <a class="nav-link" href="javascript:void(0)" id="quizBtn" onclick="if(window.openQuiz) openQuiz();">
+            Sleep Quiz <span class="nav-badge-pill">New</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Header Right Actions -->
+    <div class="header-right-group">
+      <div class="header-actions">
+        <!-- Dark / Light Mode Conversion Button -->
+        <button class="action-icon-btn theme-toggle-btn" id="consumerThemeToggleBtn" title="Switch Dark / Light Mode" aria-label="Toggle dark mode" onclick="window.toggleConsumerTheme()">
+          <span id="themeToggleIcon" style="display:flex;align-items:center;justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </span>
+        </button>
+
+        <!-- Search Button -->
+        <button class="action-icon-btn" id="headerSearchBtn" title="Search catalog" aria-label="Open search">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </button>
+
+        <!-- Account / Profile Button (Person Outline) -->
+        <button class="action-icon-btn" id="accountBtn" title="My Account &amp; Profile" aria-label="My Account" onclick="if(window.navigateTo){navigateTo('account');}">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+
+        <!-- Shopping Cart Button (Amazon/Duroflex Trolley Icon) -->
+        <button class="action-icon-btn" id="cartBtn" title="Shopping Cart" aria-label="Shopping cart" style="position:relative;" onclick="if(window.openCart){openCart();}">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="action-badge" id="cartBadge">0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE VIEWS
+     ═══════════════════════════════════════════════ -->
+<main id="mainContent" role="main">
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: HOME
+       ───────────────────────────────────────────── -->
+  <div id="view-home" class="page-view active">
+
+    <!-- HERO SECTION -->
+    <section class="hero-section" aria-label="Hero">
+      <div class="hero-bg-media" aria-hidden="true">
+        <img src="./src/assets/images/hero_bedroom.jpg" alt=""
+             onerror="this.parentElement.style.background='linear-gradient(135deg,#0A1128 0%,#1B263B 60%,#4C3F5E 100%)'">
+      </div>
+      <div class="hero-overlay-gradient" aria-hidden="true"></div>
+      <div class="container">
+        <div class="hero-content">
+          <span class="hero-master-line">The Velvet Hug Collection</span>
+          <h1 class="hero-title">Sleep that holds<br>you back together.</h1>
+          <p class="hero-tagline">"Be Held, Every Night"</p>
+          <p class="hero-description">Five precision layers. Zoned for Indian bodies. A sleep system that remembers how exhausted you were and decides to hold you anyway.</p>
+          <div class="hero-cta-group">
+            <button class="btn btn-gold btn-lg" id="heroExploreBtn" onclick="goToPage('mattresses')" data-navigate-category="mattresses">
+              Explore Mattresses →
+            </button>
+            <button class="btn btn-outline-light btn-lg" id="heroQuizBtn" onclick="if(window.openQuiz) openQuiz();" style="display:inline-flex;align-items:center;gap:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+              Find My Match
+            </button>
+          </div>
+          <div class="hero-trust-grid" aria-label="Trust indicators">
+            <div class="trust-item">
+              <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> 100-Night
+              </span>
+              <span class="trust-item-sub">Free Trial</span>
+            </div>
+            <div class="trust-item">
+              <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg> 10-Year
+              </span>
+              <span class="trust-item-sub">Warranty</span>
+            </div>
+            <div class="trust-item">
+              <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg> Doctor
+              </span>
+              <span class="trust-item-sub">Recommended</span>
+            </div>
+            <div class="trust-item">
+              <span class="trust-item-title" style="display:inline-flex;align-items:center;gap:4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> Free
+              </span>
+              <span class="trust-item-sub">Unboxing &amp; Delivery</span>
+            </div>
+          </div>
+
+          <!-- Floating Hero Trust Pills -->
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px;">
+            <span class="floating-hero-pill">✦ 100% Organic Eco-Tencel</span>
+            <span class="floating-hero-pill">✦ Doctor Certified 7-Zone Support</span>
+            <span class="floating-hero-pill">✦ Zero Partner Disturbance</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AS FEATURED IN / LUXURY PRESS MARQUEE -->
+    <section class="press-marquee-section" aria-label="Featured in luxury publications">
+      <div class="press-marquee-header">As Featured In &amp; Loved By</div>
+      <div class="press-marquee-track">
+        <div class="press-marquee-list">
+          <div class="press-item">
+            <span>VOGUE INDIA</span>
+            <span class="press-quote">"The sleep sanctuary Indian bedrooms were waiting for."</span>
+          </div>
+          <div class="press-item">
+            <span>ARCHITECTURAL DIGEST</span>
+            <span class="press-quote">"A masterclass in ergonomic restraint &amp; material honesty."</span>
+          </div>
+          <div class="press-item">
+            <span>FORBES INDIA</span>
+            <span class="press-quote">"EnDai's Velvet Hug redefines mindful sleep engineering."</span>
+          </div>
+          <div class="press-item">
+            <span>ELLE DECOR</span>
+            <span class="press-quote">"The feeling of being gently held before sleep takes over."</span>
+          </div>
+          <div class="press-item">
+            <span>ECONOMIC TIMES</span>
+            <span class="press-quote">"Pioneering circular sleep refurbishment &amp; custom sizing."</span>
+          </div>
+        </div>
+        <!-- Duplicate for continuous seamless marquee loop -->
+        <div class="press-marquee-list" aria-hidden="true">
+          <div class="press-item">
+            <span>VOGUE INDIA</span>
+            <span class="press-quote">"The sleep sanctuary Indian bedrooms were waiting for."</span>
+          </div>
+          <div class="press-item">
+            <span>ARCHITECTURAL DIGEST</span>
+            <span class="press-quote">"A masterclass in ergonomic restraint &amp; material honesty."</span>
+          </div>
+          <div class="press-item">
+            <span>FORBES INDIA</span>
+            <span class="press-quote">"EnDai's Velvet Hug redefines mindful sleep engineering."</span>
+          </div>
+          <div class="press-item">
+            <span>ELLE DECOR</span>
+            <span class="press-quote">"The feeling of being gently held before sleep takes over."</span>
+          </div>
+          <div class="press-item">
+            <span>ECONOMIC TIMES</span>
+            <span class="press-quote">"Pioneering circular sleep refurbishment &amp; custom sizing."</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLEEP ECOSYSTEM VISUAL SHOWCASE -->
+    <section class="category-showcase-section">
+      <div class="container">
+        <div class="section-header" style="text-align:center;margin-bottom:38px;">
+          <span class="section-tag" style="letter-spacing:0.12em;text-transform:uppercase;color:var(--champagne-gold);font-weight:700;font-size:0.8rem;display:inline-block;margin-bottom:8px;">Sleep Ecosystem</span>
+          <h2 style="font-family:var(--font-serif);font-size:2.2rem;font-weight:700;color:var(--midnight-blue);margin-bottom:8px;">Every piece of your sleep, perfected.</h2>
+          <p style="font-size:0.95rem;color:var(--text-secondary);max-width:620px;margin:0 auto;">Crafted harmoniously to cradle your spine, soothe your senses, and transform your recovery.</p>
+        </div>
+
+        <!-- HERO CATEGORY BENTO GRID (WITH RICH IMAGES) -->
+        <div class="ecosystem-hero-grid">
+          
+          <!-- 1. Mattresses (Featured Hero Card) -->
+          <div class="ecosystem-card hero-category-card" onclick="goToPage('mattresses')" data-navigate-category="mattresses" role="button" tabindex="0" aria-label="Explore Mattresses">
+            <div class="ecosystem-card-bg">
+              <img src="./public/images/cat-mattresses.jpg" alt="Velvet Hug Orthopedic & Dual-Comfort Mattresses" loading="lazy" onerror="this.src='./public/images/hero-mattress.jpg'">
+              <div class="ecosystem-card-overlay"></div>
+            </div>
+            <div class="ecosystem-card-content">
+              <div class="ecosystem-badge">Flagship 5-Layer System</div>
+              <h3 class="ecosystem-card-title">Adaptive Mattresses</h3>
+              <p class="ecosystem-card-desc">Zero-motion transfer, orthopedic spinal alignment, and breathable natural latex with a 100-night risk-free trial.</p>
+              <div class="ecosystem-card-footer">
+                <span class="ecosystem-card-meta">6 Collections · From ₹18,999</span>
+                <span class="ecosystem-cta-btn">Explore Mattresses <span>→</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Pillows -->
+          <div class="ecosystem-card" onclick="goToPage('pillows')" data-navigate-category="pillows" role="button" tabindex="0" aria-label="Explore Pillows">
+            <div class="ecosystem-card-bg">
+              <img src="./public/images/cat-pillows.jpg" alt="Velvet Hug Ergonomic Pillows" loading="lazy" onerror="this.src='./public/images/pillow-luxury.jpg'">
+              <div class="ecosystem-card-overlay"></div>
+            </div>
+            <div class="ecosystem-card-content">
+              <div class="ecosystem-badge">Cervical &amp; Silk Comfort</div>
+              <h3 class="ecosystem-card-title">Cradle Pillows</h3>
+              <p class="ecosystem-card-desc">Pressure-relieving memory contouring &amp; pure mulberry silk thermoregulation for deep REM sleep.</p>
+              <div class="ecosystem-card-footer">
+                <span class="ecosystem-card-meta">4 Styles · From ₹2,499</span>
+                <span class="ecosystem-cta-btn">Explore Pillows <span>→</span></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Cushions & Bolsters -->
+          <div class="ecosystem-card" onclick="goToPage('cushions')" data-navigate-category="cushions" role="button" tabindex="0" aria-label="Explore Cushions and Bolsters">
+            <div class="ecosystem-card-bg">
+              <img src="./public/images/cat-cushions.jpg" alt="Velvet Hug Ergonomic Cushions and Bolsters" loading="lazy" onerror="this.src='./public/images/cushion-bolster.jpg'">
+              <div class="ecosystem-card-overlay"></div>
+            </div>
+            <div class="ecosystem-card-content">
+              <div class="ecosystem-badge">All-Day Spine Care</div>
+              <h3 class="ecosystem-card-title">Cushions &amp; Bolsters</h3>
+              <p class="ecosystem-card-desc">Contoured lumbar support for long workdays and cylindrical full-body hug bolsters for side sleepers.</p>
+              <div class="ecosystem-card-footer">
+                <span class="ecosystem-card-meta">4 Collections · From ₹1,499</span>
+                <span class="ecosystem-cta-btn">Explore Support <span>→</span></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SUB-CATEGORY RITUAL VISUAL CARDS (PROTECTORS, MASKS, AROMATHERAPY, GIFTING) -->
+        <div class="ecosystem-subgrid">
+          
+          <!-- 1. Mattress Protectors -->
+          <div class="ecosystem-photo-tile" onclick="goToPage('accessories')" data-navigate-category="accessories" role="button" tabindex="0" aria-label="Explore Mattress Protectors">
+            <div class="ecosystem-tile-img-wrap">
+              <img src="./public/images/cat-protectors.jpg" alt="Organic Bamboo Mattress Protectors" loading="lazy">
+              <div class="ecosystem-tile-badge">Waterproof</div>
+            </div>
+            <div class="ecosystem-tile-body">
+              <div class="ecosystem-tile-title">Mattress Protectors</div>
+              <div class="ecosystem-tile-sub">100% Breathable bamboo barrier · Zero noise</div>
+              <div class="ecosystem-tile-link">Explore Protectors <span>→</span></div>
+            </div>
+          </div>
+
+          <!-- 2. Silk Sleep Masks -->
+          <div class="ecosystem-photo-tile" onclick="goToPage('accessories')" data-navigate-category="accessories" role="button" tabindex="0" aria-label="Explore Silk Sleep Masks">
+            <div class="ecosystem-tile-img-wrap">
+              <img src="./public/images/cat-sleepmasks.jpg" alt="22-Momme Mulberry Silk Sleep Masks" loading="lazy">
+              <div class="ecosystem-tile-badge">100% Pure Silk</div>
+            </div>
+            <div class="ecosystem-tile-body">
+              <div class="ecosystem-tile-title">Silk Sleep Masks</div>
+              <div class="ecosystem-tile-sub">Pure 22-Momme mulberry blackout comfort</div>
+              <div class="ecosystem-tile-link">Explore Eye Care <span>→</span></div>
+            </div>
+          </div>
+
+          <!-- 3. Sleep Aromatherapy -->
+          <div class="ecosystem-photo-tile" onclick="goToPage('accessories')" data-navigate-category="accessories" role="button" tabindex="0" aria-label="Explore Sleep Aromatherapy">
+            <div class="ecosystem-tile-img-wrap">
+              <img src="./public/images/cat-aromatherapy.jpg" alt="French Lavender & Sandalwood Pillow Mist" loading="lazy">
+              <div class="ecosystem-tile-badge">Pure Botanicals</div>
+            </div>
+            <div class="ecosystem-tile-body">
+              <div class="ecosystem-tile-title">Sleep Aromatherapy</div>
+              <div class="ecosystem-tile-sub">French Lavender &amp; Mysore Sandalwood mist</div>
+              <div class="ecosystem-tile-link">Explore Mists <span>→</span></div>
+            </div>
+          </div>
+
+                    <!-- 4. Business & Bulk Enquiries -->
+          <div class="ecosystem-photo-tile" onclick="window.openCorporateInquiry()" role="button" tabindex="0" aria-label="Business & Bulk Enquiries">
+            <div class="ecosystem-tile-img-wrap">
+              <img src="./public/images/cat-giftsuites.jpg" alt="Business & Bulk Enquiries" loading="lazy">
+              <div class="ecosystem-tile-badge">WhatsApp / Email</div>
+            </div>
+            <div class="ecosystem-tile-body">
+              <div class="ecosystem-tile-title">Business &amp; Bulk Enquiries</div>
+              <div class="ecosystem-tile-sub">Direct custom proposals &amp; hotel suites via Subashini</div>
+              <div class="ecosystem-tile-link">Connect with Subashini <span>&rarr;</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- MEET VELVET HUG -->
+    <section class="meet-section">
+      <div class="container">
+        <div class="meet-grid">
+          <div class="meet-image-wrap">
+            <img src="./src/assets/images/meet_velvet_hug.jpg" alt="Velvet Hug mattress craftsmanship"
+                 onerror="this.parentElement.innerHTML='<div style=\'height:460px;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary);border-radius:var(--radius-lg);font-size:5rem;\'>🛏️</div>'">
+            <div class="meet-image-badge">
+              <div style="font-family:var(--font-serif);font-size:0.84rem;font-weight:700;color:var(--midnight-blue);">Crafted in India</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);">For Indian bodies. Every body.</div>
+            </div>
+          </div>
+          <div>
+            <span class="section-tag">Our Story</span>
+            <h2 style="font-family:var(--font-serif);font-size:clamp(1.8rem,3vw,2.4rem);color:var(--midnight-blue);margin-bottom:16px;letter-spacing:-0.01em;">We didn't make a mattress.<br>We made a promise.</h2>
+            <p class="meet-text-body">Sleep is where everything gets repaired — the body, the mind, the parts of you that smiled today and the parts that quietly ached. Velvet Hug was built on one conviction: Indian bodies deserve sleep built for them.</p>
+            <p class="meet-text-body">Five years. Eleven engineers. Twenty-three sleep scientists. Two hundred prototype iterations. And one question asked every single day: <em>does this feel like being held?</em></p>
+            <div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:24px;">
+              <div>
+                <div style="font-family:var(--font-serif);font-size:1.8rem;font-weight:700;color:var(--midnight-blue);">50,000+</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">Sleep Partners</div>
+              </div>
+              <div>
+                <div style="font-family:var(--font-serif);font-size:1.8rem;font-weight:700;color:var(--midnight-blue);">4.8★</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">Average Rating</div>
+              </div>
+              <div>
+                <div style="font-family:var(--font-serif);font-size:1.8rem;font-weight:700;color:var(--midnight-blue);">100%</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">Trial Success</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE EMBRACE — MORE THAN A LOGO -->
+    <section class="embrace-brand-section" aria-label="About the Velvet Hug emblem">
+      <div class="container">
+        <div class="embrace-brand-grid">
+          <div class="embrace-mark-container">
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+              <img src="./src/assets/logo.jpeg" alt="The Embrace Emblem" style="height:56px;border-radius:12px;background:#fff;padding:4px;" onerror="this.style.display='none'">
+              <div>
+                <div style="font-family:var(--font-serif);font-size:1.3rem;font-weight:700;color:var(--champagne-gold);">The Embrace</div>
+                <div style="font-size:0.75rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(253,251,247,0.7);">Visual Identity &amp; Meaning</div>
+              </div>
+            </div>
+            <p style="font-size:0.95rem;color:rgba(253,251,247,0.9);line-height:1.65;margin-bottom:16px;">
+              The Velvet Hug emblem isn't only an abstract mark — it's a visual expression of how a Velvet Hug mattress is engineered: <em>support from beneath, comfort from above, meeting to hold the sleeper.</em>
+            </p>
+            <div class="embrace-visual-breakdown">
+              <div class="embrace-part-card">
+                <div class="embrace-part-title">The Crescent</div>
+                <div class="embrace-part-desc"><strong>Support beneath you.</strong> The broad, grounded foundation that carries weight and holds steady through the night.</div>
+              </div>
+              <div class="embrace-part-card">
+                <div class="embrace-part-title">The Swirl</div>
+                <div class="embrace-part-desc"><strong>Comfort around you.</strong> The flowing upper comfort layers that curve inward and gather you in a gentle embrace.</div>
+              </div>
+            </div>
+            <div style="margin-top:24px;text-align:center;font-style:italic;font-family:var(--font-serif);font-size:0.92rem;color:var(--champagne-gold);">
+              "Support beneath you. Comfort around you. Together, a Velvet Hug."
+            </div>
+          </div>
+
+          <div class="embrace-narrative-wrap">
+            <span class="section-tag" style="color:var(--champagne-gold);">Brand Philosophy</span>
+            <h2>More Than a Logo.<br>It's an Embrace.</h2>
+            <p>
+              Under parent company <strong>EnDai</strong>, Velvet Hug is launching in India in October 2026 with international expansion within a year. We frame ourselves as <em>a sleep brand that happens to sell mattresses</em>.
+            </p>
+            <p>
+              A mattress needs both strength and surrender. Support alone is a plank. Comfort alone won't hold you. The emblem captures the relationship in one gesture — <strong>support → comfort → embrace</strong>.
+            </p>
+            <div class="embrace-core-philosophy-list">
+              <span class="philosophy-tag">Returning home</span>
+              <span class="philosophy-tag">Being held</span>
+              <span class="philosophy-tag">Feeling safe</span>
+              <span class="philosophy-tag">Being remembered</span>
+              <span class="philosophy-tag">Healing slowly</span>
+              <span class="philosophy-tag">Resting without guilt</span>
+              <span class="philosophy-tag">Growing old gently</span>
+              <span class="philosophy-tag">Being loved quietly</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ANATOMY OF A HUG — 5 LAYERS -->
+    <section class="anatomy-section" aria-label="Mattress anatomy">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Inside the Hug</span>
+          <h2 style="color:#FDFBF7;">Anatomy of a Velvet Hug</h2>
+          <p>Five layers. Each one named for what it does to you.</p>
+        </div>
+        <div class="anatomy-layers-grid" id="anatomyLayersGrid" role="list">
+          <!-- Rendered by JS -->
+          <div class="anatomy-layer-card" role="listitem">
+            <div class="anatomy-layer-number">1</div>
+            <div>
+              <div class="anatomy-layer-human-name">The Touch</div>
+              <div class="anatomy-layer-desc">Velvet-Woven Tencel™ Cover — Soft as evening breeze. OEKO-TEX® certified. 300 thread count bamboo-blend.</div>
+            </div>
+            <div class="anatomy-layer-spec">0.4cm</div>
+          </div>
+          <div class="anatomy-layer-card" role="listitem">
+            <div class="anatomy-layer-number">2</div>
+            <div>
+              <div class="anatomy-layer-human-name">The Welcome</div>
+              <div class="anatomy-layer-desc">Adaptive Comfort Gel Foam — Greets your body. Gel beads dissipate heat by 3.2°C. You sink in — just enough.</div>
+            </div>
+            <div class="anatomy-layer-spec">4cm</div>
+          </div>
+          <div class="anatomy-layer-card" role="listitem">
+            <div class="anatomy-layer-number">3</div>
+            <div>
+              <div class="anatomy-layer-human-name">The Hold</div>
+              <div class="anatomy-layer-desc">Zoned Transition Foam — 7 micro-zones match shoulder, lumbar and hip. Firmer where pressure peaks.</div>
+            </div>
+            <div class="anatomy-layer-spec">3cm</div>
+          </div>
+          <div class="anatomy-layer-card" role="listitem">
+            <div class="anatomy-layer-number">4</div>
+            <div>
+              <div class="anatomy-layer-human-name">The Deep</div>
+              <div class="anatomy-layer-desc">High-Density Orthopaedic Core — ISO-certified HD foam. Maintains spinal alignment across 10+ years.</div>
+            </div>
+            <div class="anatomy-layer-spec">12cm</div>
+          </div>
+          <div class="anatomy-layer-card" role="listitem">
+            <div class="anatomy-layer-number">5</div>
+            <div>
+              <div class="anatomy-layer-human-name">The Ground</div>
+              <div class="anatomy-layer-desc">Anti-Skid Natural Jute Base — Woven jute base. Prevents slip, allows airflow, 100% biodegradable.</div>
+            </div>
+            <div class="anatomy-layer-spec">1.5cm</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FIND YOUR HUG — TIER SELECTOR SHOWCASE -->
+    <section class="tier-selector-section" aria-label="Mattress tier selector">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" style="color:var(--champagne-gold);">Tier Architecture</span>
+          <h2>Find Your Hug</h2>
+          <p>Four distinct expressions of comfort, tailored to your space, body, and sleep depth.</p>
+        </div>
+        <div class="tier-grid">
+          <!-- Tier 1: Essential -->
+          <div class="tier-card">
+            <span class="tier-badge">Entry Tier</span>
+            <h3 class="tier-name">Essential</h3>
+            <div class="tier-subline">"The Everyday Hug"</div>
+            <div class="tier-height-pill">6" Height</div>
+            <ul class="tier-features">
+              <li>✦ High-resilience base support core</li>
+              <li>✦ Breathable knitted airflow cover</li>
+              <li>✦ Ideal for kids, teens, and guest beds</li>
+              <li>✦ 10-Year peace of mind warranty</li>
+            </ul>
+            <button class="btn btn-outline btn-sm" onclick="goToPage('mattresses')" data-navigate-category="mattresses" style="margin-top:auto;">Explore Essential →</button>
+          </div>
+
+          <!-- Tier 2: Signature -->
+          <div class="tier-card featured-tier">
+            <span class="tier-badge" style="color:var(--champagne-gold);">Most Popular</span>
+            <h3 class="tier-name">Signature</h3>
+            <div class="tier-subline">"The Deeper Embrace"</div>
+            <div class="tier-height-pill">8" Height</div>
+            <ul class="tier-features">
+              <li>✦ 5-Zone contouring memory foam</li>
+              <li>✦ CoolSync™ thermal regulating layer</li>
+              <li>✦ Balanced medium-firm cloud support</li>
+              <li>✦ 100-Night risk-free sleep trial</li>
+            </ul>
+            <button class="btn btn-gold btn-sm" onclick="goToPage('mattresses')" data-navigate-category="mattresses" style="margin-top:auto;">Explore Signature →</button>
+          </div>
+
+          <!-- Tier 3: Reserve -->
+          <div class="tier-card">
+            <span class="tier-badge">Luxury Tier</span>
+            <h3 class="tier-name">Reserve</h3>
+            <div class="tier-subline">"The Complete Experience"</div>
+            <div class="tier-height-pill">10" Height</div>
+            <ul class="tier-features">
+              <li>✦ Multi-zone pocket spring + latex hybrid</li>
+              <li>✦ Zero motion partner transfer</li>
+              <li>✦ Plush European pillow top finish</li>
+              <li>✦ White-glove setup &amp; free removal</li>
+            </ul>
+            <button class="btn btn-outline btn-sm" onclick="goToPage('mattresses')" data-navigate-category="mattresses" style="margin-top:auto;">Explore Reserve →</button>
+          </div>
+
+          <!-- Tier 4: Reserve+ -->
+          <div class="tier-card" style="background: linear-gradient(135deg, #0A1128 0%, #1B263B 100%); color: #FDFBF7; border-color: rgba(212,175,55,0.4);">
+            <span class="tier-badge" style="color:var(--champagne-gold);">Limited Edition</span>
+            <h3 class="tier-name" style="color:#FFFFFF;">Reserve+</h3>
+            <div class="tier-subline" style="color:var(--champagne-gold);">"The Founder's Edition"</div>
+            <div class="tier-height-pill" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);">10"+ Height</div>
+            <ul class="tier-features" style="color:rgba(253,251,247,0.85);">
+              <li>✦ 100% Organic natural Pinche latex</li>
+              <li>✦ Serialized Founding Partner engraving</li>
+              <li>✦ Lifetime refurbishment guarantee</li>
+              <li>✦ Priority concierge 24/7 support</li>
+            </ul>
+            <button class="btn btn-gold btn-sm" onclick="goToPage('mattresses')" data-navigate-category="mattresses" style="margin-top:auto;">Explore Reserve+ →</button>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin-top:32px;">
+          <button class="btn btn-outline-dark" onclick="if(window.openQuiz) openQuiz();" style="display:inline-flex;align-items:center;gap:8px;">
+            <span>Not sure which one? Find your match in 60 seconds</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE FABRIC — 4 FEATURES -->
+    <section class="fabric-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">The Material Promise</span>
+          <h2>What you sleep on matters.</h2>
+          <p>Four fabric technologies working all night while you rest.</p>
+        </div>
+        <div class="fabric-grid">
+          <div class="fabric-card">
+            <div class="fabric-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+            </div>
+            <div class="fabric-title">Tencel™ Certified</div>
+            <div class="fabric-desc">OEKO-TEX® certified. Naturally sourced. No harsh chemicals touch your skin.</div>
+          </div>
+          <div class="fabric-card">
+            <div class="fabric-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="5" y1="5" x2="19" y2="19"/><line x1="5" y1="19" x2="19" y2="5"/></svg>
+            </div>
+            <div class="fabric-title">CoolSync™ Tech</div>
+            <div class="fabric-desc">Phase-change gel micro-capsules regulate bed temperature within ±1.5°C of your body.</div>
+          </div>
+          <div class="fabric-card">
+            <div class="fabric-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            </div>
+            <div class="fabric-title">ProShield Anti-Microbial</div>
+            <div class="fabric-desc">Silver-ion treatment eliminates 99.8% of dust mites and bacteria. Verified by NABL labs.</div>
+          </div>
+          <div class="fabric-card">
+            <div class="fabric-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+            </div>
+            <div class="fabric-title">HydraWick™ Layer</div>
+            <div class="fabric-desc">Moisture drawn away in under 4 seconds. Wake dry, always — even in Indian summers.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE FIVE SACRED MINUTES -->
+    <section class="sacred-minutes-section" aria-label="Five sacred minutes before sleep">
+      <div class="sacred-stars-bg" aria-hidden="true"></div>
+      <div class="container">
+        <div class="sacred-content">
+          <div class="sacred-clock" aria-hidden="true">10:58 PM</div>
+          <h2 class="sacred-title">The Five Sacred Minutes Before Sleep</h2>
+          <p class="sacred-italic">"Sleep isn't where the day ends. It is where tomorrow begins."</p>
+          <p style="font-size:0.92rem;color:rgba(253,251,247,0.6);margin-bottom:24px;">Close your eyes. Let your soundscape in. Let Velvet Hug hold the rest.</p>
+          <div class="sacred-sound-bar" aria-label="Choose your ambience">
+            <span style="font-size:0.8rem;color:rgba(253,251,247,0.5);margin-right:4px;">Play:</span>
+            <button class="sacred-sound-btn" data-sound="rain">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></svg>
+              <span>Rainfall</span>
+            </button>
+            <button class="sacred-sound-btn" data-sound="ocean">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>
+              <span>Ocean</span>
+            </button>
+            <button class="sacred-sound-btn" data-sound="forest">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+              <span>Forest</span>
+            </button>
+            <button class="sacred-sound-btn" data-sound="fireplace">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+              <span>Fireplace</span>
+            </button>
+            <button class="sacred-sound-btn" data-sound="breathing">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>
+              <span>Breathe</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ENGINEERING NUMBERS -->
+    <section class="engineering-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Built Different</span>
+          <h2>The numbers that build your night.</h2>
+        </div>
+        <div class="engineering-grid">
+          <div class="engineering-card">
+            <div class="engineering-number">11×</div>
+            <div class="engineering-label">Per Second Adaptation</div>
+            <div class="engineering-desc">Our micro-springs respond to posture changes 11 times per second, silently adjusting to your every movement.</div>
+          </div>
+          <div class="engineering-card">
+            <div class="engineering-number">100k</div>
+            <div class="engineering-label">Sleep Cycles Tested</div>
+            <div class="engineering-desc">Every Velvet Hug mattress survives 100,000 sleep cycle compression tests before it earns our badge.</div>
+          </div>
+          <div class="engineering-card">
+            <div class="engineering-number">3.2°C</div>
+            <div class="engineering-label">Cooler Surface Temp</div>
+            <div class="engineering-desc">Our CoolSync gel layer consistently tests 3.2°C cooler than standard foam. Perfect for Indian nights.</div>
+          </div>
+          <div class="engineering-card">
+            <div class="engineering-number">7</div>
+            <div class="engineering-label">Ortho Support Zones</div>
+            <div class="engineering-desc">Neck, shoulders, upper back, lumbar, hips, thighs, legs — each zone independently tuned.</div>
+          </div>
+          <div class="engineering-card">
+            <div class="engineering-number">23</div>
+            <div class="engineering-label">Sleep Scientists</div>
+            <div class="engineering-desc">From AIIMS, Fortis, Apollo and IISc — the team behind every sleeping decision we make.</div>
+          </div>
+          <div class="engineering-card">
+            <div class="engineering-number">4s</div>
+            <div class="engineering-label">Moisture Wicking Speed</div>
+            <div class="engineering-desc">HydraWick™ removes surface moisture in under 4 seconds. No more waking up damp.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOUNDING SLEEP PARTNERS -->
+    <section class="founding-section" aria-label="Founding Sleep Partners">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" style="color:var(--champagne-gold);">Limited Access</span>
+          <h2 style="color:#FDFBF7;">Founding Sleep Partners</h2>
+          <p style="color:rgba(253,251,247,0.65);">The first 1,000 people to buy a Velvet Hug are our Founding Sleep Partners. Numbered forever. Honoured always.</p>
+        </div>
+
+        <div class="founding-counter-card">
+          <div style="font-size:0.82rem;font-weight:600;color:rgba(253,251,247,0.55);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;">Founding Partners Claimed</div>
+          <div class="founding-counter-num" id="foundingCounterNum" aria-live="polite">347</div>
+          <div style="font-size:0.88rem;color:rgba(253,251,247,0.55);margin-bottom:14px;">of 1,000</div>
+          <div class="founding-progress-track" role="progressbar" aria-valuenow="347" aria-valuemax="1000" aria-label="Founding partner slots">
+            <div class="founding-progress-fill" id="foundingProgressFill" style="width:34.7%"></div>
+          </div>
+          <div style="font-size:0.82rem;color:rgba(253,251,247,0.55);margin-bottom:28px;" id="foundingCounterLabel">653 Founding spots remaining of 1,000</div>
+
+          <div class="founding-perks-grid" role="list">
+            <div class="founding-perk-item" role="listitem">
+              <span class="founding-perk-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+              </span>
+              <div>
+                <div class="founding-perk-title">Numbered Badge</div>
+                <div class="founding-perk-desc">A digital Founding Partner certificate tied to your account, forever.</div>
+              </div>
+            </div>
+            <div class="founding-perk-item" role="listitem">
+              <span class="founding-perk-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 17V7h10"/><path d="M17 17 7 7"/></svg>
+              </span>
+              <div>
+                <div class="founding-perk-title">Founding Price Lock</div>
+                <div class="founding-perk-desc">Fixed discount on this and your next purchase — locked in forever.</div>
+              </div>
+            </div>
+            <div class="founding-perk-item" role="listitem">
+              <span class="founding-perk-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              </span>
+              <div>
+                <div class="founding-perk-title">First Access</div>
+                <div class="founding-perk-desc">New products, before the public sees them. Always first.</div>
+              </div>
+            </div>
+            <div class="founding-perk-item" role="listitem">
+              <span class="founding-perk-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </span>
+              <div>
+                <div class="founding-perk-title">Featured on Site</div>
+                <div class="founding-perk-desc">Your number and story (with consent) on our Founding Partners wall.</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-gold btn-lg" data-navigate-category="mattresses" style="margin-top:8px;display:inline-flex;align-items:center;justify-content:center;gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            <span>Claim Your Founding Spot →</span>
+          </button>
+        </div>
+
+        <!-- Hall of Founding Partners -->
+        <div>
+          <div class="embrace-divider" style="margin-bottom:24px;"><span>Founding Partners</span></div>
+          <div class="partners-honor-grid" id="partnersHonorHall" role="list" aria-label="Founding Partners Hall">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE VERIFIED REVIEWS & FOUNDING PARTNER TESTIMONIALS -->
+    <section class="reviews-section" aria-label="Customer Reviews">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" style="color:var(--champagne-gold);">Sleep Partner Voices</span>
+          <h2>Loved by 50,000+ Sleep Partners</h2>
+          <p>Real stories of morning relief, deep rest, and healing sleep from across India.</p>
+        </div>
+
+        <div class="reviews-carousel-grid">
+          <!-- Review 1 -->
+          <div class="review-card">
+            <div class="review-header">
+              <div class="review-stars">★★★★★</div>
+              <span class="review-partner-badge">🏅 Founding Partner #014</span>
+            </div>
+            <p class="review-quote">"My chronic lower back pain after 12-hour surgery shifts used to keep me awake. The Signature 8" feels like my spine is being cradled in warm water. Life-changing."</p>
+            <div class="review-author-info">
+              <img src="./src/assets/images/user1.jpg" alt="Dr. Alisha Roy" class="review-avatar" onerror="this.src='./src/assets/logo.jpeg'">
+              <div>
+                <div class="review-author-name">Dr. Alisha Roy</div>
+                <div class="review-author-loc">Bengaluru · Verified Buyer (Signature 8")</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Review 2 -->
+          <div class="review-card">
+            <div class="review-header">
+              <div class="review-stars">★★★★★</div>
+              <span class="review-partner-badge">🏅 Founding Partner #089</span>
+            </div>
+            <p class="review-quote">"Zero motion transfer is real. My husband tosses all night, and I didn't feel a single flutter. Velvet Hug's Reserve mattress is worth every single rupee."</p>
+            <div class="review-author-info">
+              <img src="./src/assets/images/user2.jpg" alt="Meera & Rohan Kulkarni" class="review-avatar" onerror="this.src='./src/assets/logo.jpeg'">
+              <div>
+                <div class="review-author-name">Meera Kulkarni</div>
+                <div class="review-author-loc">Mumbai · Verified Buyer (Reserve 10")</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Review 3 -->
+          <div class="review-card">
+            <div class="review-header">
+              <div class="review-stars">★★★★★</div>
+              <span class="review-partner-badge">🌿 Rest Ambassador</span>
+            </div>
+            <p class="review-quote">"The Five Sacred Minutes ritual before sleep with the lavender mist and cervical pillow has made insomnia a thing of the past. Waking up rested without guilt."</p>
+            <div class="review-author-info">
+              <img src="./src/assets/images/user3.jpg" alt="Kabir Anand" class="review-avatar" onerror="this.src='./src/assets/logo.jpeg'">
+              <div>
+                <div class="review-author-name">Kabir Anand</div>
+                <div class="review-author-loc">New Delhi · Verified Buyer (Essential + Pillow)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BUYER STORIES / REELS -->
+    <section class="reels-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Sleep Stories</span>
+          <h2>The night they stopped counting sheep.</h2>
+          <p>Sleep Partners share what changed the morning after.</p>
+          <div style="margin-top:14px;">
+            <button class="btn btn-outline btn-sm" onclick="window.openSubmitStoryModal()" style="display:inline-flex;align-items:center;gap:8px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
+              <span>Share Your Sleep Story (+ ₹5,000 Reward)</span>
+            </button>
+          </div>
+        </div>
+        <div class="reels-grid">
+          <div class="reel-card">
+            <div class="reel-thumbnail">
+              <img src="./src/assets/images/story_1.jpg" alt="Sleep partner story"
+                   onerror="this.parentElement.innerHTML='<div style=\'height:200px;background:linear-gradient(135deg,#0A1128,#1B263B);display:flex;align-items:center;justify-content:center;font-size:3rem;\'>🌙</div>'">
+              <div class="reel-play-overlay">
+                <div class="reel-play-btn">▶</div>
+              </div>
+            </div>
+            <div class="reel-body">
+              <div class="reel-partner-num">Founding Sleep Partner #45</div>
+              <div style="font-family:var(--font-serif);font-size:0.95rem;font-weight:600;color:var(--midnight-blue);">Priya K. — Hyderabad</div>
+              <p class="reel-story">"Back pain gone in two weeks. I cried the first morning I woke up without reaching for a painkiller."</p>
+              <div class="reel-reward">✓ Elara Cloud Mattress · ⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <div class="reel-card">
+            <div class="reel-thumbnail">
+              <img src="./src/assets/images/story_2.jpg" alt="Sleep partner story"
+                   onerror="this.parentElement.innerHTML='<div style=\'height:200px;background:linear-gradient(135deg,#1B263B,#4C3F5E);display:flex;align-items:center;justify-content:center;font-size:3rem;\'>✨</div>'">
+              <div class="reel-play-overlay">
+                <div class="reel-play-btn">▶</div>
+              </div>
+            </div>
+            <div class="reel-body">
+              <div class="reel-partner-num">Founding Sleep Partner #102</div>
+              <div style="font-family:var(--font-serif);font-size:0.95rem;font-weight:600;color:var(--midnight-blue);">Ananya M. — Pune</div>
+              <p class="reel-story">"My husband stopped snoring. I don't know how. I don't care how. I just sleep now."</p>
+              <div class="reel-reward">✓ Serenity Ortho · ⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <div class="reel-card">
+            <div class="reel-thumbnail">
+              <img src="./src/assets/images/story_3.jpg" alt="Sleep partner story"
+                   onerror="this.parentElement.innerHTML='<div style=\'height:200px;background:linear-gradient(135deg,#4C3F5E,#0A1128);display:flex;align-items:center;justify-content:center;font-size:3rem;\'>🌿</div>'">
+              <div class="reel-play-overlay">
+                <div class="reel-play-btn">▶</div>
+              </div>
+            </div>
+            <div class="reel-body">
+              <div class="reel-partner-num">Founding Sleep Partner #303</div>
+              <div style="font-family:var(--font-serif);font-size:0.95rem;font-weight:600;color:var(--midnight-blue);">Dev B. — Jaipur</div>
+              <p class="reel-story">"Worth every rupee. I've tried four mattresses in five years. This is the last one I'll ever need to buy."</p>
+              <div class="reel-reward">✓ Luminary Latex · ⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /view-home -->
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: MATTRESSES
+       ───────────────────────────────────────────── -->
+  <div id="view-mattresses" class="page-view">
+    <div class="page-hero-banner hero-mattresses">
+      <div class="page-hero-overlay"></div>
+      <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
+        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-arrow">›</span>
+        <span class="breadcrumb-current">Mattresses</span>
+      </nav>
+      <div class="container">
+        <span class="page-hero-badge">Flagship Sleep Engineering</span>
+        <h1 class="page-hero-title">Adaptive Orthopedic Mattresses</h1>
+        <p class="page-hero-subtitle">Five-layer anatomical contouring, natural latex, and zero motion transfer — crafted for Indian backs.</p>
+        <div class="page-hero-pills">
+          <span class="hero-pill">✦ 100-Night Risk-Free Trial</span>
+          <span class="hero-pill">✦ 10-Year Warranty</span>
+          <span class="hero-pill">✦ Free Doorstep Unboxing</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-catalog-section">
+      <div class="container">
+        <!-- Enhanced Mattress Filter Bar & Presets -->
+        <div class="mattress-filters-container" id="mattressFiltersContainer">
+          <!-- Rendered dynamically by JS with Presets, Sort, Active Chips, & Multi-Axes -->
+        </div>
+        
+        <!-- Active Filter Chips Bar & Results Counter -->
+        <div id="mattressActiveChipsRow" style="display:none;"></div>
+
+        <!-- Products Grid -->
+        <div class="products-grid" id="mattressProductsGrid" role="list" aria-label="Mattress products">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: PILLOWS
+       ───────────────────────────────────────────── -->
+  <div id="view-pillows" class="page-view">
+    <div class="page-hero-banner hero-pillows">
+      <div class="page-hero-overlay"></div>
+      <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
+        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-arrow">›</span>
+        <span class="breadcrumb-current">Pillows</span>
+      </nav>
+      <div class="container">
+        <span class="page-hero-badge">Cervical Spine Alignment</span>
+        <h1 class="page-hero-title">Ergonomic &amp; Silk Pillows</h1>
+        <p class="page-hero-subtitle">Pressure-relieving memory contouring and temperature-regulating mulberry silk for deep REM sleep.</p>
+        <div class="page-hero-pills">
+          <span class="hero-pill">✦ Cervical Support</span>
+          <span class="hero-pill">✦ 22-Momme Pure Silk</span>
+          <span class="hero-pill">✦ Anti-Allergenic</span>
+        </div>
+      </div>
+    </div>
+    <div class="filter-catalog-section">
+      <div class="container">
+        <div class="products-grid" role="list" aria-label="Pillow products">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: CUSHIONS
+       ───────────────────────────────────────────── -->
+  <div id="view-cushions" class="page-view">
+    <div class="page-hero-banner hero-cushions">
+      <div class="page-hero-overlay"></div>
+      <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
+        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-arrow">›</span>
+        <span class="breadcrumb-current">Cushions</span>
+      </nav>
+      <div class="container">
+        <span class="page-hero-badge">All-Day Posture Care</span>
+        <h1 class="page-hero-title">Ergonomic Lumbar &amp; Seat Cushions</h1>
+        <p class="page-hero-subtitle">Workday spine relief and tailbone pressure mitigation engineered with high-density memory foam.</p>
+        <div class="page-hero-pills">
+          <span class="hero-pill">✦ Orthopedic Coccyx Cutout</span>
+          <span class="hero-pill">✦ Breathable Mesh Cover</span>
+          <span class="hero-pill">✦ Anti-Slip Base</span>
+        </div>
+      </div>
+    </div>
+    <div class="filter-catalog-section">
+      <div class="container">
+        <div class="products-grid" role="list" aria-label="Cushion products">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: BOLSTERS
+       ───────────────────────────────────────────── -->
+  <div id="view-bolsters" class="page-view">
+    <div class="page-hero-banner hero-bolsters">
+      <div class="page-hero-overlay"></div>
+      <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
+        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-arrow">›</span>
+        <span class="breadcrumb-current">Bolsters</span>
+      </nav>
+      <div class="container">
+        <span class="page-hero-badge">Sacred Full-Body Hug</span>
+        <h1 class="page-hero-title">Contoured Sleep Bolsters</h1>
+        <p class="page-hero-subtitle">The ancient art of full-body hugs reimagined — aligning hips, shoulders, and knees for side sleepers.</p>
+        <div class="page-hero-pills">
+          <span class="hero-pill">✦ Full-Body Hug Form</span>
+          <span class="hero-pill">✦ Hypoallergenic Core</span>
+          <span class="hero-pill">✦ Velvet Soft Touch</span>
+        </div>
+      </div>
+    </div>
+    <div class="filter-catalog-section">
+      <div class="container">
+        <div class="products-grid" role="list" aria-label="Bolster products">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: ACCESSORIES
+       ───────────────────────────────────────────── -->
+  <div id="view-accessories" class="page-view">
+    <div class="page-hero-banner hero-accessories">
+      <div class="page-hero-overlay"></div>
+      <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
+        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-arrow">›</span>
+        <span class="breadcrumb-current">Accessories</span>
+      </nav>
+      <div class="container">
+        <span class="page-hero-badge">Sleep Sanctuary Ecosystem</span>
+        <h1 class="page-hero-title">Accessories, Cushions &amp; Bolsters</h1>
+        <p class="page-hero-subtitle">Organic bamboo protectors, mulberry silk masks, contoured ergonomic cushions, cylindrical hug bolsters, and calming botanical mists.</p>
+        <div class="page-hero-pills">
+          <span class="hero-pill">✦ Waterproof Protectors</span>
+          <span class="hero-pill">✦ Velvet Lumbar Cushions</span>
+          <span class="hero-pill">✦ Full-Body Hug Bolsters</span>
+          <span class="hero-pill">✦ Mulberry Silk Masks</span>
+        </div>
+      </div>
+    </div>
+    <div class="filter-catalog-section">
+      <div class="container">
+        <div class="acc-sub-tabs" id="accSubTabs" role="tablist" aria-label="Accessory categories">
+          <!-- Rendered by JS -->
+        </div>
+        <div class="products-grid" role="list" aria-label="Accessory products">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: ACCOUNT (dedicated full page)
+       ───────────────────────────────────────────── -->
+  <div id="view-account" class="page-view">
+    <div class="page-hero-banner hero-account">
+      <div class="page-hero-overlay"></div>
+      <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
+        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-arrow">›</span>
+        <span class="breadcrumb-current">My Account</span>
+      </nav>
+      <div class="container">
+        <span class="page-hero-badge">Sleep Partner Hub</span>
+        <h1 class="page-hero-title" id="accountPageTitle">Sleep Partner</h1>
+        <p class="page-hero-subtitle" id="accountPageSubtitle">Your orders, profile and all things Velvet Hug.</p>
+      </div>
+    </div>
+
+    <!-- If NOT logged in -->
+    <div id="accountPageGuest" class="container" style="display:none;padding:64px 0;text-align:center;">
+      <div style="font-size:4rem;margin-bottom:16px;">🌙</div>
+      <h2 style="font-family:var(--font-serif);color:var(--midnight-blue);margin-bottom:8px;">Sign in to access your account</h2>
+      <p style="color:var(--text-muted);margin-bottom:28px;">View orders, manage addresses and your Sleep Partner status.</p>
+      <button class="btn btn-gold btn-lg" onclick="if(window.openLoginModal) window.openLoginModal(); else document.getElementById('loginModal').classList.add('active');">Sign In / Sign Up →</button>
+    </div>
+
+    <!-- If logged in -->
+    <div id="accountPageLoggedIn" class="container" style="display:none;padding:32px 0 64px;">
+
+      <!-- Profile Summary Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:28px;background:var(--bg-surface);border:1px solid rgba(76,63,94,0.12);border-radius:var(--radius-lg);padding:24px 28px;">
+        <div style="display:flex;align-items:center;gap:18px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--midnight-blue),var(--muted-violet));display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:1.6rem;font-weight:700;color:#FDFBF7;" id="acctAvatar">V</div>
+          <div>
+            <div style="font-family:var(--font-serif);font-size:1.35rem;font-weight:700;color:var(--text-primary);" id="acctName">Sleep Partner</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);" id="acctContact">—</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;" id="acctBadges"></div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="logoutUser()">Sign Out</button>
+      </div>
+
+      <!-- 2-Tab Navigation: Orders | Profile -->
+      <div style="display:flex;gap:4px;background:var(--bg-secondary);border-radius:var(--radius-md);padding:4px;max-width:340px;margin-bottom:28px;">
+        <button id="acctTabOrders" class="account-page-tab active" onclick="switchAccountPageTab('orders')" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+          <span>My Orders</span>
+        </button>
+        <button id="acctTabProfile" class="account-page-tab" onclick="switchAccountPageTab('profile')" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>My Profile</span>
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div id="accountPageTabContent">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: EMI & FINANCIAL SCHEMES
+       ───────────────────────────────────────────── -->
+  <div id="view-emi" class="page-view">
+    <div class="page-hero-banner hero-emi" style="background:linear-gradient(135deg,#0A1128 0%,#1B263B 60%,#4C3F5E 100%);">
+      <div class="page-hero-overlay"></div>
+      <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
+        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-arrow">›</span>
+        <span class="breadcrumb-current">EMI &amp; Financing</span>
+      </nav>
+      <div class="container">
+        <span class="page-hero-badge">0% Interest · Zero Hidden Charges</span>
+        <h1 class="page-hero-title">Flexible EMI &amp; Financing Schemes</h1>
+        <p class="page-hero-subtitle">Sleep like royalty today, pay comfortably over 3 to 30 months across 15+ major Indian banks and cardless fintech partners.</p>
+        <div class="page-hero-pills">
+          <span class="hero-pill">✦ No-Cost EMI on All Mattresses</span>
+          <span class="hero-pill">✦ Zero Down Payment</span>
+          <span class="hero-pill">✦ Instant Cardless Bajaj Finserv Approval</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding:48px 24px 64px;">
+      <!-- Interactive Standalone Calculator -->
+      <div style="background:var(--bg-surface);border:1px solid rgba(76,63,94,0.14);border-radius:var(--radius-lg);padding:32px;box-shadow:var(--shadow-lg);margin-bottom:48px;">
+        <div style="text-align:center;max-width:620px;margin:0 auto 28px;">
+          <span class="section-tag" style="color:var(--champagne-gold);">Live Calculator</span>
+          <h2 style="font-family:var(--font-serif);font-size:1.8rem;color:var(--midnight-blue);margin-bottom:8px;">Calculate Your Monthly Sleep Installment</h2>
+          <p style="font-size:0.88rem;color:var(--text-secondary);">Select your mattress or enter a custom amount to see monthly breakdown by bank.</p>
+        </div>
+
+        <!-- Amount Presets & Custom Input -->
+        <div style="max-width:540px;margin:0 auto 24px;">
+          <label class="form-label" style="text-align:center;display:block;margin-bottom:8px;">Cart / Mattress Purchase Value</label>
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+            <span style="font-family:var(--font-serif);font-size:1.5rem;font-weight:700;color:var(--midnight-blue);">₹</span>
+            <input type="number" id="standaloneEmiAmount" class="form-input" value="28000" min="3000" max="150000" step="1000" style="font-size:1.3rem;font-weight:700;color:var(--midnight-blue);text-align:center;" oninput="window.updateStandaloneEmiCalc()">
+          </div>
+          <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('standaloneEmiAmount').value=18999;window.updateStandaloneEmiCalc();">₹18,999 (Single)</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('standaloneEmiAmount').value=28000;window.updateStandaloneEmiCalc();">₹28,000 (Queen)</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('standaloneEmiAmount').value=34000;window.updateStandaloneEmiCalc();">₹34,000 (King)</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('standaloneEmiAmount').value=55000;window.updateStandaloneEmiCalc();">₹55,000 (Reserve)</button>
+          </div>
+        </div>
+
+        <!-- Bank Tabs & Breakdown -->
+        <div id="standaloneEmiBankTabs" class="emi-bank-tabs-row" style="justify-content:center;">
+          <!-- Rendered by JS -->
+        </div>
+
+        <div id="standaloneEmiResultsTable">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Cardless & FinTech Schemes -->
+      <div style="margin-bottom:48px;">
+        <div class="section-header" style="text-align:center;margin-bottom:28px;">
+          <span class="section-tag">Cardless Financing</span>
+          <h2>Don't have a credit card? We've got you covered.</h2>
+          <p>Instant approval via Aadhaar / Mobile number with India's leading digital credit providers.</p>
+        </div>
+        <div class="emi-fintech-grid" id="emiFintechList">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Special Concessions -->
+      <div style="background:var(--champagne-gold-light);border:1px solid var(--champagne-gold-border);border-radius:var(--radius-lg);padding:28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:48px;">
+        <div>
+          <div style="margin-bottom:8px;color:var(--midnight-blue);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+          </div>
+          <div style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--midnight-blue);margin-bottom:4px;">Medical Doctors &amp; Healthcare Scheme</div>
+          <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">Extra 5% institutional subsidy + zero processing fee for verified IMA doctors, nurses, and hospital staff.</p>
+        </div>
+        <div>
+          <div style="margin-bottom:8px;color:var(--midnight-blue);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M8 10h.01"/><path d="M16 10h.01"/><path d="M8 14h.01"/><path d="M16 14h.01"/></svg>
+          </div>
+          <div style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--midnight-blue);margin-bottom:4px;">Corporate Salary Deduct Program</div>
+          <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">Partnered with 200+ Indian IT &amp; Fortune 500 enterprises for interest-free direct payroll deductions.</p>
+        </div>
+        <div>
+          <div style="margin-bottom:8px;color:var(--midnight-blue);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--midnight-blue);margin-bottom:4px;">Senior Citizen Spine Wellness Scheme</div>
+          <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">Doorstep physical document assistance and personalized tenure matching for seniors aged 60+.</p>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div>
+        <h3 style="font-family:var(--font-serif);font-size:1.4rem;color:var(--midnight-blue);margin-bottom:16px;">Frequently Asked Questions on EMI</h3>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="pdp-policy-box">
+            <div style="font-weight:700;color:var(--midnight-blue);font-size:0.9rem;margin-bottom:4px;">How does Velvet Hug No-Cost EMI work?</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">In a No-Cost EMI scheme, the bank charges interest as per their policy, but Velvet Hug provides an upfront discount equal to the total interest amount during checkout. You pay only the exact product price divided across your tenure.</div>
+          </div>
+          <div class="pdp-policy-box">
+            <div style="font-weight:700;color:var(--midnight-blue);font-size:0.9rem;margin-bottom:4px;">Is there any down payment required?</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">No! All credit card EMI and Bajaj Finserv schemes require ₹0 down payment. The first installment is debited in your next regular monthly billing cycle.</div>
+          </div>
+          <div class="pdp-policy-box">
+            <div style="font-weight:700;color:var(--midnight-blue);font-size:0.9rem;margin-bottom:4px;">Are Debit Cards eligible for EMI?</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">Yes! HDFC, ICICI, SBI, and Axis Bank debit cards with pre-approved limits can be used directly at checkout or via Snapmint.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: RETURN & EXCHANGE POLICIES
+       ───────────────────────────────────────────── -->
+  <div id="view-returns" class="page-view">
+    <div class="page-hero-banner hero-returns" style="background:linear-gradient(135deg,#0A1128 0%,#1B263B 60%,#4C3F5E 100%);">
+      <div class="page-hero-overlay"></div>
+      <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
+        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <span class="breadcrumb-arrow">›</span>
+        <span class="breadcrumb-current">100-Night Trial &amp; Returns</span>
+      </nav>
+      <div class="container">
+        <span class="page-hero-badge">100% Risk-Free Guarantee</span>
+        <h1 class="page-hero-title">100-Night Sleep Trial &amp; Return Policy</h1>
+        <p class="page-hero-subtitle">Sleep on it. Rest deeply. If your spine isn't in love, we will pick it up from your bedroom and refund every single rupee. Zero questions, zero friction.</p>
+        <div class="page-hero-pills">
+          <span class="hero-pill">✦ 100-Night Home Trial</span>
+          <span class="hero-pill">✦ 100% Free Doorstep Reverse Pickup</span>
+          <span class="hero-pill">✦ 100% Money-Back Promise</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="container" style="padding:48px 24px 64px;">
+      
+      <!-- 4-Step Return Journey -->
+      <div class="section-header" style="text-align:center;margin-bottom:28px;">
+        <span class="section-tag" style="color:var(--champagne-gold);">Transparent Process</span>
+        <h2 style="font-family:var(--font-serif);font-size:2rem;color:var(--midnight-blue);margin-bottom:8px;">How Our 100-Night Trial Works</h2>
+        <p style="font-size:0.9rem;color:var(--text-secondary);max-width:640px;margin:0 auto;">Designed to give your body enough time to adjust to proper anatomical alignment with zero financial risk.</p>
+      </div>
+
+      <div class="return-steps-grid">
+        <div class="return-step-card">
+          <div class="return-step-num">1</div>
+          <h3 style="font-family:var(--font-serif);font-size:1.15rem;color:var(--midnight-blue);margin-bottom:6px;">Sleep for 30 Nights</h3>
+          <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.55;">It takes 3 to 4 weeks for spinal muscles to adapt to 5-layer zoned support. We kindly ask you to complete a 30-night adjustment phase.</p>
+        </div>
+        <div class="return-step-card">
+          <div class="return-step-num">2</div>
+          <h3 style="font-family:var(--font-serif);font-size:1.15rem;color:var(--midnight-blue);margin-bottom:6px;">1-Click Request</h3>
+          <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.55;">If still unsatisfied anytime before Night 100, submit a return ticket via your Account Hub or ping our WhatsApp concierge.</p>
+        </div>
+        <div class="return-step-card">
+          <div class="return-step-num">3</div>
+          <h3 style="font-family:var(--font-serif);font-size:1.15rem;color:var(--midnight-blue);margin-bottom:6px;">Free Bedroom Pickup</h3>
+          <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.55;">Our white-glove logistics team visits your doorstep with protective transit wraps. You pay zero reverse shipping fees.</p>
+        </div>
+        <div class="return-step-card">
+          <div class="return-step-num">4</div>
+          <h3 style="font-family:var(--font-serif);font-size:1.15rem;color:var(--midnight-blue);margin-bottom:6px;">100% Full Refund</h3>
+          <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.55;">Full amount is credited back to your original source (UPI, Card, Bank) within 5 to 7 business days without deduction.</p>
+        </div>
+      </div>
+
+      <!-- Interactive Return / Exchange Launcher Box -->
+      <div style="background:linear-gradient(135deg,var(--midnight-blue),var(--muted-violet));border-radius:var(--radius-lg);padding:32px;color:#FDFBF7;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:48px;">
+        <div style="max-width:560px;">
+          <span style="font-size:0.75rem;font-weight:700;letter-spacing:0.1em;color:var(--champagne-gold);text-transform:uppercase;">Self-Service Portal</span>
+          <h3 style="font-family:var(--font-serif);font-size:1.6rem;color:#FDFBF7;margin:6px 0 8px;">Need to Initiate a Return or Firmness Exchange?</h3>
+          <p style="font-size:0.85rem;color:rgba(253,251,247,0.75);line-height:1.5;">Have an active order within the 100-night trial? File an RMA ticket in under 60 seconds with instant tracking.</p>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-gold btn-lg" onclick="window.openReturnRequestModal()">Initiate Return / Exchange →</button>
+          <a class="btn btn-outline-light btn-lg" href="https://wa.me/91XXXXXXXXXX?text=Hi%20Velvet%20Hug,%20I%20would%20like%20assistance%20with%20a%20return." target="_blank" rel="noopener">WhatsApp Support</a>
+        </div>
+      </div>
+
+      <!-- Policy Comparison Matrix -->
+      <div style="margin-bottom:48px;">
+        <h3 style="font-family:var(--font-serif);font-size:1.4rem;color:var(--midnight-blue);margin-bottom:16px;">Product Category Return Terms</h3>
+        <div style="overflow-x:auto;">
+          <table class="service-eligibility-table">
+            <thead>
+              <tr>
+                <th>Product Category</th>
+                <th>Trial &amp; Return Window</th>
+                <th>Pickup Cost</th>
+                <th>Condition / Terms</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>All Mattresses (Elara, Serenity, Luminary, etc.)</strong></td>
+                <td><span class="badge badge-founding">100 Nights</span></td>
+                <td><strong style="color:var(--accent-emerald);">Free (₹0)</strong></td>
+                <td>Valid with 30-night break-in; unit should be free of biological tears or flood damage.</td>
+              </tr>
+              <tr>
+                <td><strong>Ergonomic Pillows &amp; Silk Covers</strong></td>
+                <td><span class="badge badge-new">15 Days</span></td>
+                <td><strong style="color:var(--accent-emerald);">Free (₹0)</strong></td>
+                <td>Replacement / Exchange for manufacturing defects or zipper/foam faults.</td>
+              </tr>
+              <tr>
+                <td><strong>Lumbar Cushions &amp; Sleep Bolsters</strong></td>
+                <td><span class="badge badge-new">15 Days</span></td>
+                <td><strong style="color:var(--accent-emerald);">Free (₹0)</strong></td>
+                <td>Free exchange for firmness or dimensions re-fit.</td>
+              </tr>
+              <tr>
+                <td><strong>Mattress Protectors &amp; Mists</strong></td>
+                <td><span class="badge" style="background:var(--bg-secondary);color:var(--midnight-blue);">7 Days</span></td>
+                <td><strong style="color:var(--accent-emerald);">Free (₹0)</strong></td>
+                <td>Unopened, sealed hygiene packaging.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sanitation & Charity Commitment -->
+      <div style="background:var(--bg-surface);border:1px solid rgba(76,63,94,0.12);border-radius:var(--radius-lg);padding:28px;margin-bottom:48px;">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+          <span style="font-size:2rem;">🌿</span>
+          <div>
+            <h3 style="font-family:var(--font-serif);font-size:1.25rem;color:var(--midnight-blue);margin:0;">Zero-Landfill &amp; Charity Donation Commitment</h3>
+            <p style="font-size:0.8rem;color:var(--champagne-gold);font-weight:700;margin-top:2px;">Returned mattresses are NEVER resold as new.</p>
+          </div>
+        </div>
+        <p style="font-size:0.84rem;color:var(--text-secondary);line-height:1.6;">
+          Every returned Velvet Hug mattress is transferred to our hygienic recycling lab where it undergoes 180°C medical steam extraction and UV-C sterilization. Sanitized units are directly donated to partner non-profit orphanages, shelter homes, and disaster relief centers across India.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────
+       PAGE: MATTRESS REFURBISHMENT & REPAIR SERVICES
+       ───────────────────────────────────────────── -->
+</main><!-- /main -->
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════ -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-top-grid">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <img src="./src/assets/logo.jpeg" alt="Velvet Hug Logo" style="height:36px;width:auto;"
+               onerror="this.style.display='none'">
+          <div>
+            <div style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:#FDFBF7;">Velvet Hug</div>
+            <div style="font-size:0.62rem;letter-spacing:0.12em;color:rgba(253,251,247,0.5);text-transform:uppercase;">Be Held, Every Night</div>
+          </div>
+        </div>
+        <p style="font-size:0.82rem;color:rgba(253,251,247,0.5);line-height:1.65;max-width:200px;margin-bottom:16px;">
+          Sleep engineered for Indian bodies. Every body. Five layers. One promise: you will be held.
+        </p>
+        <div style="display:flex;gap:10px;">
+          <a href="#" class="action-icon-btn" style="width:34px;height:34px;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.1);color:#FDFBF7;" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="#" class="action-icon-btn" style="width:34px;height:34px;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.1);color:#FDFBF7;" aria-label="YouTube">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-2.63A35.07 35.07 0 0 0 12 4a35 35 0 0 0-3.82.06 4.83 4.83 0 0 1-3.77 2.63A4.83 4.83 0 0 1 2 10.7a35 35 0 0 0 0 2.6 4.83 4.83 0 0 1 2.41 4 4.83 4.83 0 0 1 3.77 2.63A35.07 35.07 0 0 0 12 20a35 35 0 0 0 3.82-.06 4.83 4.83 0 0 1 3.77-2.63A4.83 4.83 0 0 1 22 13.3a35 35 0 0 0 0-2.6 4.83 4.83 0 0 1-2.41-4zM10 15V9l5 3z"/></svg>
+          </a>
+          <a href="https://wa.me/91XXXXXXXXXX" class="action-icon-btn" style="width:34px;height:34px;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.1);color:#25D366;" aria-label="WhatsApp">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Products & Services</div>
+        <ul class="footer-links-list">
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('mattresses')">Mattresses</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('pillows')">Pillows</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('cushions')">Cushions & Bolsters</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('accessories')">Accessories</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Customer Trust</div>
+        <ul class="footer-links-list">
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('returns')">100-Night Free Trial</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('returns')">Return & Exchange Policy</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('emi')">No-Cost EMI Schemes</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="window.openEmiModal(28000)">EMI Calculator Widget</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('account')">Track My Order</a></li>
+          <li><a class="footer-link" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener">WhatsApp Concierge</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <ul class="footer-links-list">
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('home')">About Velvet Hug</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('home')">5-Layer Sleep Science</a></li>
+          
+          <li><a class="footer-link" href="javascript:void(0)" onclick="window.openCorporateInquiry()">Business &amp; Bulk Enquiries</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Stay Updated</div>
+        <p style="font-size:0.78rem;color:rgba(253,251,247,0.5);margin-bottom:12px;line-height:1.5;">Sleep tips, new arrivals and founding partner updates.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input class="form-input" placeholder="Your email address" style="font-size:0.82rem;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:#FDFBF7;" id="newsletterInput">
+          <button class="btn btn-gold btn-sm btn-block" onclick="toast('✓ Subscribed! Sleep well.')">Subscribe</button>
+        </div>
+        <div style="margin-top:16px;">
+          <div class="footer-col-title" style="font-size:0.78rem;margin-bottom:8px;">Rest Ambassador Program</div>
+          <p style="font-size:0.72rem;color:rgba(253,251,247,0.4);line-height:1.5;margin-bottom:8px;">Refer friends. Earn rewards. Build the sleep revolution with us.</p>
+          <button class="btn btn-outline-light btn-sm">Join as Ambassador</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom-bar">
+      <div>© 2025 Velvet Hug India Pvt. Ltd. All rights reserved.</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <a href="#" class="footer-link">Privacy Policy</a>
+        <a href="#" class="footer-link">Terms of Service</a>
+        <a href="#" class="footer-link">Return Policy</a>
+        <a href="#" class="footer-link">Sitemap</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span>Secure payments:</span>
+        <span style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:3px;font-size:0.7rem;font-weight:700;">UPI</span>
+        <span style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:3px;font-size:0.7rem;font-weight:700;">Razorpay</span>
+        <span style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:3px;font-size:0.7rem;font-weight:700;">EMI</span>
+        <span style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:3px;font-size:0.7rem;font-weight:700;">COD</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════
+     OVERLAYS & MODALS
+     ═══════════════════════════════════════════════ -->
+
+<!-- SEARCH MODAL -->
+<div class="modal-backdrop" id="searchModal" role="dialog" aria-modal="true" aria-label="Search products">
+  <div class="modal-card search-modal-card">
+    <h2 style="font-family:var(--font-serif);font-size:1.1rem;color:var(--midnight-blue);margin-bottom:14px;">Find Your Perfect Sleep</h2>
+    <div class="search-modal-input-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input class="search-modal-input" id="searchInput" placeholder="Ortho mattress, memory foam pillow, latex…" autocomplete="off" aria-label="Search query">
+      <button id="searchModalClose" aria-label="Close search" style="color:var(--text-muted);font-size:1.1rem;">✕</button>
+    </div>
+    <div style="margin-bottom:10px;font-size:0.76rem;color:var(--text-muted);">Popular Searches</div>
+    <div class="search-quick-tags">
+      <span class="search-quick-tag">Ortho mattress</span>
+      <span class="search-quick-tag">Memory foam pillow</span>
+      <span class="search-quick-tag">Natural latex</span>
+      <span class="search-quick-tag">Kids mattress</span>
+      <span class="search-quick-tag">Cooling mattress</span>
+      <span class="search-quick-tag">Pregnancy bolster</span>
+      <span class="search-quick-tag">Sleep mask</span>
+    </div>
+    <div class="search-results-list" id="searchResults" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- PRODUCT DETAIL MODAL (PDP) -->
+<div class="modal-backdrop" id="pdpModal" role="dialog" aria-modal="true" aria-label="Product details">
+  <div class="pdp-modal-content" id="pdpContent">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div id="cartDrawerBackdrop" class="cart-drawer-backdrop" role="dialog" aria-modal="true" aria-label="Shopping cart">
+  <div class="cart-drawer">
+    <div class="cart-drawer-header">
+      <div class="cart-drawer-title" style="display:inline-flex;align-items:center;gap:8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span>Your Cart</span>
+      </div>
+      <button class="modal-close-icon" style="position:static;" id="cartDrawerClose" aria-label="Close cart">✕</button>
+    </div>
+    <div class="cart-items-scroll" id="cartItemsScroll" aria-live="polite">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="cart-drawer-footer">
+      <div style="margin-bottom:12px;">
+        <div class="pincode-check-wrap">
+          <input class="form-input" placeholder="Delivery Pincode (e.g. 600028)" maxlength="6" id="cartPincodeInput" value="600028">
+          <button class="btn btn-outline btn-sm" onclick="window.checkPincodeDeliveryUI(document.getElementById('cartPincodeInput').value, 'cartPincodeResult')">Check Speed</button>
+        </div>
+        <div id="cartPincodeResult" style="margin-top:6px;"></div>
+      </div>
+      <div class="cart-totals-row">
+        <span>Total</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <div style="font-size:0.74rem;color:var(--text-muted);">Free shipping · No-cost EMI available</div>
+      <button class="btn btn-gold btn-lg btn-block" id="checkoutBtn">Proceed to Checkout →</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE FLOATING BAR -->
+<div class="compare-bar-float" id="compareBar" aria-live="polite">
+  <span style="font-size:0.82rem;color:#FDFBF7;font-weight:600;"><span id="compareBarCount">0</span> products to compare</span>
+  <button class="btn btn-gold btn-sm" id="compareBtn" aria-label="Open comparison">Compare Now</button>
+  <button class="btn btn-outline-light btn-sm" id="clearCompareBtn" aria-label="Clear comparison">Clear</button>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="modal-backdrop" id="compareModalBackdrop" role="dialog" aria-modal="true" aria-label="Product comparison">
+  <div class="compare-modal-content">
+    <button class="modal-close-icon" id="compareModalClose" aria-label="Close comparison">✕</button>
+    <h2 style="font-family:var(--font-serif);font-size:1.3rem;color:var(--midnight-blue);margin-bottom:16px;">Compare Mattresses</h2>
+    <div style="overflow-x:auto;">
+      <table class="compare-table" aria-label="Product comparison table">
+        <tbody id="compareTableBody"><!-- Rendered by JS --></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="modal-backdrop" id="quizModalBackdrop" role="dialog" aria-modal="true" aria-label="Sleep style quiz">
+  <div class="modal-card quiz-modal-card">
+    <button class="modal-close-icon" id="quizModalClose" aria-label="Close quiz">✕</button>
+    <div style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--midnight-blue);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+      <span>Sleep Style Finder</span>
+    </div>
+    <div id="quizContent"><!-- Rendered by JS --></div>
+  </div>
+</div>
+
+<!-- DOCTOR MODAL -->
+<div class="modal-backdrop" id="doctorModalBackdrop" role="dialog" aria-modal="true" aria-label="Doctor recommendation">
+  <div class="modal-card" style="max-width:480px;width:100%;" id="doctorModalContent"><!-- Rendered by JS --></div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-backdrop" id="checkoutModalBackdrop" role="dialog" aria-modal="true" aria-label="Checkout">
+  <div class="checkout-modal-content" id="checkoutContent">
+    <button class="modal-close-icon" id="checkoutModalClose" aria-label="Close checkout">✕</button>
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- LOGIN & AUTH MODAL -->
+<div class="modal-backdrop" id="loginModal" role="dialog" aria-modal="true" aria-label="Sign in">
+  <div class="modal-card" style="max-width:440px;width:100%;">
+    <button class="modal-close-icon" onclick="document.getElementById('loginModal').classList.remove('active')" aria-label="Close">✕</button>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%;background:rgba(76,63,94,0.1);display:flex;align-items:center;justify-content:center;color:var(--midnight-blue);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </div>
+      <h2 style="font-family:var(--font-serif);font-size:1.4rem;color:var(--midnight-blue);margin-bottom:4px;">Sleep Partner Access</h2>
+      <p style="font-size:0.84rem;color:var(--text-muted);">Passwordless OTP login or 1-click Google Sign-in</p>
+    </div>
+
+    <!-- Google Sign In -->
+    <button class="google-sign-in-btn" id="googleLoginBtn">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+      Continue with Google
+    </button>
+
+    <div style="display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-muted);font-size:0.78rem;">
+      <div style="flex:1;height:1px;background:rgba(76,63,94,0.12);"></div>
+      <span>OR WITH PHONE NUMBER</span>
+      <div style="flex:1;height:1px;background:rgba(76,63,94,0.12);"></div>
+    </div>
+
+    <!-- Phone OTP Container -->
+    <div id="otpPhoneStep">
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" id="loginNameInput" type="text" placeholder="Your Name (e.g. Sanjeev)">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" id="loginEmailInput" type="email" placeholder="yourname@example.com">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="form-label">10-Digit Mobile Number *</label>
+        <div style="display:flex;gap:8px;">
+          <span style="background:var(--bg-secondary);border:1px solid rgba(76,63,94,0.14);padding:10px 14px;border-radius:var(--radius-sm);font-weight:600;font-size:0.88rem;color:var(--midnight-blue);">+91</span>
+          <input class="form-input" id="loginPhoneInput" type="tel" maxlength="10" placeholder="Enter your 10-digit number" style="flex:1;">
+        </div>
+      </div>
+      <button class="btn btn-primary btn-lg btn-block" id="sendOtpBtn">Get Verification Code →</button>
+    </div>
+
+    <!-- Google Account Step -->
+    <div id="googleAccountStep" style="display:none;">
+      <div style="font-size:0.92rem;font-weight:700;color:var(--midnight-blue);margin-bottom:6px;text-align:center;">
+        Sign in with Google
+      </div>
+      <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;text-align:center;">
+        Enter your Google account details to link your sleep profile
+      </p>
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Full Name *</label>
+        <input class="form-input" id="googleNameInput" type="text" placeholder="Your Full Name">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Google Email Address *</label>
+        <input class="form-input" id="googleEmailInput" type="email" placeholder="yourname@gmail.com">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label class="form-label">Mobile Number (Optional)</label>
+        <input class="form-input" id="googlePhoneInput" type="tel" maxlength="10" placeholder="10-digit mobile number">
+      </div>
+      <button class="btn btn-primary btn-lg btn-block" id="confirmGoogleLoginBtn">Sign In with Google →</button>
+      <button class="btn btn-outline-light btn-sm btn-block" id="backFromGoogleBtn" style="margin-top:8px;color:var(--text-muted);border:none;">← Back to Other Options</button>
+    </div>
+
+    <div id="otpVerifyStep" style="display:none;">
+      <div style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:12px;text-align:center;">
+        Enter 4-digit code sent to <strong id="otpTargetPhone">+91 ••••• •••••</strong>
+      </div>
+      <div class="otp-input-group">
+        <input class="otp-box" maxlength="1" id="otp1" type="tel" autofocus>
+        <input class="otp-box" maxlength="1" id="otp2" type="tel">
+        <input class="otp-box" maxlength="1" id="otp3" type="tel">
+        <input class="otp-box" maxlength="1" id="otp4" type="tel">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <button class="btn btn-outline btn-sm" id="autoFillOtpBtn" style="font-size:0.75rem;">⚡ Auto-fill Code (<span id="simulatedCode">4821</span>)</button>
+        <span style="font-size:0.75rem;color:var(--text-muted);" id="otpTimer">00:45</span>
+      </div>
+      <button class="btn btn-primary btn-lg btn-block" id="verifyOtpBtn">Verify & Enter Hub →</button>
+      <button class="btn btn-outline-light btn-sm btn-block" id="changePhoneBtn" style="margin-top:8px;color:var(--text-muted);border:none;">← Change Phone Number</button>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMER ACCOUNT DASHBOARD MODAL -->
+<div class="modal-backdrop" id="accountModal" role="dialog" aria-modal="true" aria-label="Customer Account">
+  <div class="account-modal-content" id="accountDashboardContent">
+    <button class="modal-close-icon" onclick="document.getElementById('accountModal').classList.remove('active')" aria-label="Close">✕</button>
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- FOUNDING PARTNER DIGITAL CERTIFICATE MODAL -->
+<div class="modal-backdrop" id="certificateModal" role="dialog" aria-modal="true" aria-label="Founding Sleep Partner Certificate">
+  <div class="certificate-modal-content" id="certificateContent">
+    <button class="modal-close-icon" onclick="document.getElementById('certificateModal').classList.remove('active')" aria-label="Close">✕</button>
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- 3D SECURE BANK GATEWAY SIMULATOR MODAL -->
+<div class="modal-backdrop" id="bankOtpModal" role="dialog" aria-modal="true" aria-label="Bank Authentication">
+  <div class="modal-card" style="max-width:440px;width:100%;border-top:5px solid var(--midnight-blue);" id="bankOtpContent">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- BUSINESS & BULK ENQUIRIES MODAL (Direct to WhatsApp & Email with Subashini) -->
+<div class="modal-backdrop" id="corporateInquiryModal" role="dialog" aria-modal="true" aria-label="Business & Bulk Enquiries">
+  <div class="modal-card" style="max-width:580px;width:100%;padding:28px;background:#FFFFFF;border-radius:16px;box-shadow:var(--shadow-xl);border:1px solid rgba(76,63,94,0.12);">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.1);padding-bottom:14px;">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,175,55,0.12);color:var(--midnight-blue);padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;margin-bottom:6px;">
+          <span>&starf; Direct Founder Route</span>
+        </div>
+        <h3 style="font-family:var(--font-serif);font-size:1.45rem;color:var(--midnight-blue);margin:0;">Business &amp; Bulk Enquiries</h3>
+        <p style="font-size:0.84rem;color:var(--text-secondary);margin-top:4px;line-height:1.45;">
+          Custom corporate hampers, institutional orders, and hotel suites. Subashini handles each enquiry personally with tailored, case-by-case offers.
+        </p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeCorporateInquiry()" aria-label="Close">&times;</button>
+    </div>
+
+    <!-- Quick Inquiry Builder (Optional details for pre-filling) -->
+    <div style="background:var(--bg-secondary);border:1px solid rgba(76,63,94,0.08);border-radius:10px;padding:16px;margin-bottom:20px;">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--midnight-blue);margin-bottom:8px;">Quick Message Customizer (Optional):</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <input class="form-input" id="corpInqCompany" placeholder="Company / Hotel Name" style="font-size:0.82rem;background:#fff;">
+        <input class="form-input" id="corpInqQty" type="number" placeholder="Est. Quantity (e.g. 50)" style="font-size:0.82rem;background:#fff;">
+      </div>
+      <select class="form-select" id="corpInqProduct" style="font-size:0.82rem;background:#fff;width:100%;">
+        <option value="Signature 8-Inch / 10-Inch Mattresses">Mattresses (Hospitality / Hotel Suites)</option>
+        <option value="Executive Sleep Gift Hampers (Pillow + Mist + Silk Mask)">Executive Sleep Hampers (Corporate Gifting)</option>
+        <option value="Ergonomic Lumbar Cushions for Desks">Employee Ergonomic Workstation Sets</option>
+        <option value="Custom Bespoke Order">Custom Bespoke Requirement</option>
+      </select>
+    </div>
+
+    <!-- Direct Route Channels -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button class="btn btn-gold btn-lg btn-block" onclick="window.routeToWhatsAppInquiry()" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:0.95rem;padding:14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+        <span>Chat on WhatsApp with Subashini</span>
+      </button>
+
+      <button class="btn btn-outline btn-lg btn-block" onclick="window.routeToEmailInquiry()" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:0.95rem;padding:14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <span>Email Subashini Directly (subashini@velvethug.in)</span>
+      </button>
+    </div>
+
+    <div style="margin-top:16px;text-align:center;font-size:0.78rem;color:var(--text-muted);">
+      Direct contact: <strong>+91 98800 11223</strong> &middot; Typically responds within 1&ndash;2 hours
+    </div>
+  </div>
+</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label class="form-label">Official Work Email *</label>
+<!-- SUBMIT SLEEP STORY MODAL -->
+<div class="modal-backdrop" id="submitStoryModal" role="dialog" aria-modal="true" aria-label="Submit Sleep Story">
+  <div class="modal-card" style="max-width:540px;width:100%;padding:28px;background:#FFFFFF;border-radius:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.12);padding-bottom:12px;">
+      <div>
+        <h3 style="font-family:var(--font-serif);font-size:1.35rem;color:var(--midnight-blue);margin:0;display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
+          <span>Share Your Sleep Journey</span>
+        </h3>
+        <p style="font-size:0.8rem;color:var(--champagne-gold);font-weight:700;margin-top:2px;">Get ₹5,000 Cash Reward / Store Credit upon feature!</p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeSubmitStoryModal()" aria-label="Close">✕</button>
+    </div>
+    <form onsubmit="window.submitCustomerStoryForm(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label class="form-label">Your Name *</label>
+          <input class="form-input" id="storyCustName" placeholder="e.g. Vikram & Sneha" required>
+        </div>
+        <div>
+          <label class="form-label">City *</label>
+          <input class="form-input" id="storyCustCity" placeholder="e.g. Bangalore" required>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Your Sleep Transformation / Experience *</label>
+        <textarea class="form-input" id="storyCustText" rows="4" placeholder="How did Velvet Hug change your sleep, morning stiffness, or spinal rest?..." required></textarea>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Media Type</label>
+        <select class="form-select" id="storyCustMediaType">
+          <option value="WhatsApp Video Reel (0:45)">WhatsApp Video Reel (0:45)</option>
+          <option value="Photo with Mattress & Quote">Photo with Mattress & Quote</option>
+          <option value="Doctor Clinical Testimonial">Doctor / Specialist Testimonial</option>
+        </select>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;">
+          <input type="checkbox" id="storyCustDpdp" checked required>
+          <span>I provide statutory DPDP consent for Velvet Hug to feature my story and review on their website.</span>
+        </label>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.closeSubmitStoryModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold btn-sm">Submit Story for ₹5,000 Reward →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- POST-DELIVERY REVIEW MODAL -->
+<div class="modal-backdrop" id="orderReviewModal" role="dialog" aria-modal="true" aria-label="Write a Review">
+  <div class="modal-card" style="max-width:520px;width:100%;padding:28px;background:#FFFFFF;border-radius:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.12);padding-bottom:12px;">
+      <div>
+        <h3 style="font-family:var(--font-serif);font-size:1.35rem;color:var(--midnight-blue);margin:0;display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Write a Verified Review</span>
+        </h3>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;" id="orderReviewProductLabel">Product: Elara Cloud Mattress</p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeOrderReviewModal()" aria-label="Close">✕</button>
+    </div>
+    <form onsubmit="window.submitOrderReviewForm(event)">
+      <input type="hidden" id="orderReviewOrderId">
+      <input type="hidden" id="orderReviewProductName">
+      <div style="margin-bottom:14px;text-align:center;">
+        <label class="form-label" style="margin-bottom:6px;">Your Overall Sleep Rating</label>
+        <div style="font-size:1.8rem;color:var(--champagne-gold);cursor:pointer;letter-spacing:6px;" id="starRatingGroup">
+          <span onclick="window.setReviewRating(1)" data-star="1">★</span><span onclick="window.setReviewRating(2)" data-star="2">★</span><span onclick="window.setReviewRating(3)" data-star="3">★</span><span onclick="window.setReviewRating(4)" data-star="4">★</span><span onclick="window.setReviewRating(5)" data-star="5">★</span>
+        </div>
+        <input type="hidden" id="orderReviewRatingVal" value="5">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Review Details &amp; Sleep Experience *</label>
+        <textarea class="form-input" id="orderReviewText" rows="3" placeholder="Tell us how it feels, unboxing experience, zero partner disturbance..." required></textarea>
+      </div>
+      <div style="margin-bottom:16px;background:var(--bg-secondary);padding:10px 12px;border-radius:6px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;cursor:pointer;">
+          <input type="checkbox" id="orderReviewDoctor">
+          <span style="display:inline-flex;align-items:center;gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+            <span><strong>I am a Medical Doctor / Spine Physiotherapist</strong> (Endorse with Doctor Approved badge)</span>
+          </span>
+        </label>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.closeOrderReviewModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold btn-sm">Submit Verified Review →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- UNIVERSAL EMI CALCULATOR MODAL -->
+<div class="modal-backdrop" id="emiCalculatorModal" role="dialog" aria-modal="true" aria-label="No Cost EMI Calculator">
+  <div class="emi-modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.12);padding-bottom:12px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <h3 style="font-family:var(--font-serif);font-size:1.35rem;color:var(--midnight-blue);margin:0;display:flex;align-items:center;gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            <span>No-Cost EMI Calculator</span>
+          </h3>
+          <span class="emi-badge-nocost">0% Interest</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;" id="modalEmiProductTitle">Product: Elara Cloud (Queen)</p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeEmiModal()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Active Principal & Bank Selector -->
+    <div style="background:var(--bg-secondary);padding:14px;border-radius:var(--radius-sm);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <span style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Purchase Amount</span>
+        <div style="font-family:var(--font-serif);font-size:1.5rem;font-weight:800;color:var(--midnight-blue);" id="modalEmiPrincipalDisplay">₹28,000</div>
+      </div>
+      <div style="font-size:0.8rem;color:var(--accent-emerald);font-weight:700;">
+        ✓ Upfront Velvet Hug Interest Discount Included
+      </div>
+    </div>
+
+    <div style="font-size:0.8rem;font-weight:700;color:var(--midnight-blue);margin-bottom:8px;">Select Your Bank / Issuer:</div>
+    <div class="emi-bank-tabs-row" id="modalEmiBankTabs">
+      <!-- Rendered by JS -->
+    </div>
+
+    <div style="overflow-x:auto;max-height:260px;">
+      <table class="emi-table-wrap">
+        <thead>
+          <tr>
+            <th>Tenure</th>
+            <th>Monthly EMI</th>
+            <th>Bank Interest</th>
+            <th>Velvet Hug Subsidy</th>
+            <th>Total Cost</th>
+          </tr>
+        </thead>
+        <tbody id="modalEmiTenureTableBody">
+          <!-- Rendered by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:16px;background:rgba(200,169,110,0.1);padding:10px 14px;border-radius:6px;font-size:0.75rem;color:var(--text-secondary);display:flex;align-items:center;justify-content:space-between;">
+      <span style="display:inline-flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>0% Processing Fee · Instant Approval on Credit/Debit Cards</span>
+      </span>
+      <button class="btn btn-gold btn-sm" onclick="window.closeEmiModal();goToPage('mattresses');">Shop Mattresses on EMI →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SELF-SERVICE 100-NIGHT RETURN & EXCHANGE MODAL -->
+<div class="modal-backdrop" id="returnRequestModal" role="dialog" aria-modal="true" aria-label="Initiate Return or Exchange">
+  <div class="modal-card" style="max-width:560px;width:100%;padding:28px;background:#FFFFFF;border-radius:12px;box-shadow:var(--shadow-xl);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.12);padding-bottom:12px;">
+      <div>
+        <h3 style="font-family:var(--font-serif);font-size:1.35rem;color:var(--midnight-blue);margin:0;display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span>Initiate 100-Night Return / Exchange</span>
+        </h3>
+        <p style="font-size:0.8rem;color:var(--accent-emerald);font-weight:700;margin-top:2px;">100% Free Reverse Logistics · Zero Questions Asked</p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeReturnRequestModal()" aria-label="Close">✕</button>
+    </div>
+
+    <form onsubmit="window.submitReturnForm(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label class="form-label">Select Active Order *</label>
+          <select class="form-select" id="returnOrderSelect" required>
+            <option value="">Choose Order...</option>
+            <option value="VH-890214">Order #VH-890214 (Elara Cloud Queen - Night 28)</option>
+            <option value="VH-441029">Order #VH-441029 (Serenity Ortho King - Night 45)</option>
+            <option value="custom">Other Order (Enter Order ID)</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Request Type *</label>
+          <select class="form-select" id="returnRequestType" required>
+            <option value="Firmness Exchange">1-Time Firmness Exchange (Free)</option>
+            <option value="Full Refund">Full Money-Back Return (100% Refund)</option>
+            <option value="Size Change">Size / Dimension Exchange</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Primary Reason for Request</label>
+        <select class="form-select" id="returnReason">
+          <option value="Spine requires firmer support">Spine requires firmer support (Prefer Serenity Ortho)</option>
+          <option value="Prefer softer cloud-like comfort">Prefer softer cloud-like comfort (Prefer Elara Cloud)</option>
+          <option value="Partner preference difference">Partner preference difference</option>
+          <option value="Bed frame dimensions mismatch">Bed frame dimensions mismatch</option>
+          <option value="Other feedback">Other personal sleep preference</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Pickup Address &amp; Preferred Time *</label>
+        <input class="form-input" id="returnPickupAddress" placeholder="e.g. Flat 4B, Sunrise Apts, Bangalore - Weekend slot" required>
+      </div>
+
+      <div style="margin-bottom:14px;background:var(--bg-secondary);padding:12px;border-radius:6px;">
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.78rem;cursor:pointer;color:var(--text-secondary);">
+          <input type="checkbox" id="returnConfirmHygiene" checked required style="margin-top:3px;">
+          <span>I confirm the mattress is free of flood/fire damage and will be handed over to the white-glove reverse pickup crew for sanitization and charity donation.</span>
+        </label>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.closeReturnRequestModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold btn-sm">Generate RMA &amp; Schedule Pickup →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- GLOBAL TOAST -->
+<div id="globalToast" class="notification-toast" role="alert" aria-live="assertive"></div>
+
+<!-- FLOATING BACK TO TOP BUTTON -->
+<button class="floating-back-to-top" id="floatingBackToTop" title="Scroll to top" aria-label="Back to top">↑</button>
+
+<!-- WHATSAPP FLOATING BUTTON -->
+<a href="https://wa.me/91XXXXXXXXXX?text=Hi%20Velvet%20Hug!%20I%20need%20help%20choosing%20a%20mattress."
+   class="whatsapp-floating-btn" id="whatsappBtn" aria-label="Chat on WhatsApp" target="_blank" rel="noopener">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+</a>
+
+<!-- JS Module Entry -->
+<script type="module" src="./src/main.js?v=3.5"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+{
+  "metafield_definitions": [
+    {
+      "namespace": "custom",
+      "key": "size",
+      "name": "Mattress Size Axis",
+      "description": "Combinable size filter (Single, Double, Queen, King, Twin)",
+      "type": "single_line_text_field",
+      "owner_type": "PRODUCT"
+    },
+    {
+      "namespace": "custom",
+      "key": "material",
+      "name": "Material Composition",
+      "description": "Latex, Memory Foam, Pocket Spring, Orthopedic, Coir, Pure Foam, Hybrid, Rebonded",
+      "type": "list.single_line_text_field",
+      "owner_type": "PRODUCT"
+    },
+    {
+      "namespace": "custom",
+      "key": "firmness",
+      "name": "Firmness Rating",
+      "description": "Soft, Medium Firm, Firm",
+      "type": "single_line_text_field",
+      "owner_type": "PRODUCT"
+    },
+    {
+      "namespace": "custom",
+      "key": "tier",
+      "name": "Product Tier",
+      "description": "Essential (6\"), Signature (8\"), Reserve (10\"), Reserve+ (12\")",
+      "type": "single_line_text_field",
+      "owner_type": "PRODUCT"
+    },
+    {
+      "namespace": "custom",
+      "key": "age_group",
+      "name": "Target Age Life Stage",
+      "description": "Kids, Teen, Young Adult, Middle-Aged Adult, Mature Adult, Senior",
+      "type": "list.single_line_text_field",
+      "owner_type": "PRODUCT"
+    },
+    {
+      "namespace": "custom",
+      "key": "packaging",
+      "name": "Delivery Packaging",
+      "description": "Box-Packed, Flat-Packed, Rollable, Foldable",
+      "type": "list.single_line_text_field",
+      "owner_type": "PRODUCT"
+    },
+    {
+      "namespace": "custom",
+      "key": "model_3d_glb",
+      "name": "3D GLB Model Asset",
+      "description": "Link to 3D GLB file for WebGL visualizer",
+      "type": "file_reference",
+      "owner_type": "PRODUCT"
+    }
+  ],
+  "metaobject_definitions": [
+    {
+      "name": "Promo Banner",
+      "type": "promo_banner",
+      "description": "Time-scheduled festival discount banner with images and countdown",
+      "field_definitions": [
+        { "name": "Title", "key": "title", "type": "single_line_text_field" },
+        { "name": "Subtitle", "key": "subtitle", "type": "single_line_text_field" },
+        { "name": "Coupon Code", "key": "coupon_code", "type": "single_line_text_field" },
+        { "name": "Banner Image", "key": "image", "type": "file_reference" },
+        { "name": "Start Datetime", "key": "start_datetime", "type": "date_time" },
+        { "name": "End Datetime", "key": "end_datetime", "type": "date_time" },
+        { "name": "Active Status", "key": "is_active", "type": "boolean" }
+      ]
+    },
+    {
+      "name": "Doctor Profile",
+      "type": "doctor_profile",
+      "description": "Consulting orthopedic surgeon profile for WhatsApp channel",
+      "field_definitions": [
+        { "name": "Doctor Name", "key": "doctor_name", "type": "single_line_text_field" },
+        { "name": "Speciality & Hospital", "key": "speciality", "type": "single_line_text_field" },
+        { "name": "Clinical Reason", "key": "clinical_reason", "type": "multi_line_text_field" },
+        { "name": "WhatsApp Number", "key": "whatsapp_number", "type": "single_line_text_field" }
+      ]
+    },
+    {
+      "name": "Customer Story",
+      "type": "customer_story",
+      "description": "WhatsApp submitted customer photo & video reviews",
+      "field_definitions": [
+        { "name": "Customer Name", "key": "customer_name", "type": "single_line_text_field" },
+        { "name": "City", "key": "city", "type": "single_line_text_field" },
+        { "name": "Mattress Owned", "key": "mattress_owned", "type": "single_line_text_field" },
+        { "name": "Story Review", "key": "review_text", "type": "multi_line_text_field" },
+        { "name": "Video Media", "key": "video_media", "type": "file_reference" }
+      ]
+    }
+  ]
+}

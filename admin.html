@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Velvet Hug — Operations &amp; Security Control Center</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/styles/admin.css?v=1.1">
+</head>
+<body class="admin-body">
+
+  <!-- 2FA & Credentials Login Screen -->
+  <div id="adminAuthContainer" class="admin-auth-wrapper">
+    <div class="admin-auth-card">
+      <div class="admin-auth-header">
+        <div class="admin-auth-logo">Velvet Hug</div>
+        <div class="admin-auth-subtitle">Operations &amp; Security Control Center</div>
+      </div>
+
+      <div id="fileProtocolNotice" style="display:none;background:#FFFBEB;border:1px solid #F59E0B;border-radius:8px;padding:10px 12px;margin-bottom:16px;font-size:0.8rem;color:#92400E;line-height:1.4;">
+        ⚠️ <strong>Notice:</strong> Browser security restricts ES modules when opened via <code>file:///</code>. Please run <code>start-server.bat</code> and visit <strong><a href="http://localhost:8080/admin.html" style="color:#B45309;font-weight:700;">http://localhost:8080/admin.html</a></strong> for full real-time database reactivity.
+      </div>
+
+      <div class="admin-input-group">
+        <label class="admin-label">Official Staff Email</label>
+        <input class="admin-input" id="adminEmailInput" placeholder="name@velvethug.in" value="subashini@velvethug.in">
+      </div>
+
+      <div class="admin-input-group">
+        <label class="admin-label">Password</label>
+        <input class="admin-input" type="password" id="adminPasswordInput" placeholder="••••••••••••" value="VelvetAdmin@2026!">
+      </div>
+
+      <button class="admin-btn-primary" onclick="window.submitAdminLogin()">Proceed to 2FA Verification</button>
+
+      <!-- Single Admin Quick Login -->
+      <div class="admin-quick-roles">
+        <div class="quick-roles-title">Sole Administrator:</div>
+        <div class="quick-role-chips" style="grid-template-columns:1fr;">
+          <div class="quick-role-chip" onclick="window.quickSelectRole('usr_001')" style="text-align:center;padding:12px;">
+            <strong>Subashini</strong><br>
+            <span style="font-size:0.75rem;color:var(--admin-text-secondary);">Sole Administrator (Full Operations &amp; Management)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Authenticated Portal Layout -->
+  <div id="adminPortalLayout" class="admin-layout" style="display:none;">
+
+    <!-- Sidebar Navigation -->
+    <aside class="admin-sidebar" aria-label="Admin Navigation">
+      <div class="admin-sidebar-brand">
+        <div class="sidebar-tag">Velvet Hug Sleep Labs</div>
+        <div class="sidebar-logo-text">Operations Center</div>
+      </div>
+
+      <!-- Current User Profile Card -->
+      <div class="admin-user-profile-badge" id="adminUserCard">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Dynamic Role-Based Menu -->
+      <nav class="admin-nav-menu" id="adminSidebarNav">
+        <!-- Filtered by Role in JS -->
+      </nav>
+
+      <!-- Sidebar Footer with Idle Timer & Logout -->
+      <div class="admin-sidebar-footer">
+        <div class="admin-session-timer">
+          <span>⏳ Session Idle Timeout:</span>
+          <strong id="adminIdleCountdown" style="color:var(--admin-gold);">15:00</strong>
+        </div>
+        <button class="btn-admin-logout" onclick="window.adminLogout()">🚪 Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Module View Content -->
+    <main class="admin-main-content" id="adminModuleViewContainer" role="main">
+      <!-- Active Module Rendered by JS -->
+    </main>
+
+  </div>
+
+  <!-- Admin Toast Notification -->
+  <div id="adminToast" style="display:none;position:fixed;bottom:24px;right:24px;background:#101B3B;color:#FDFBF7;border:1px solid #D4AF37;padding:12px 20px;border-radius:8px;font-size:0.86rem;font-weight:600;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,0.5);transition:opacity 0.3s;" role="alert" aria-live="assertive"></div>
+
+  <script>
+    if (window.location.protocol === 'file:') {
+      const notice = document.getElementById('fileProtocolNotice');
+      if (notice) notice.style.display = 'block';
+    }
+  </script>
+
+  <!-- Admin JS Module -->
+  <script type="module" src="./src/admin.js?v=2.3"></script>
+</body>
+</html>

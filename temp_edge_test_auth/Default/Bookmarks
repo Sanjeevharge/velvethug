@@ -1,0 +1,95 @@
+{
+   "checksum": "898837049245cb69ba0fa34489c3db27",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13433865248646923",
+            "date_last_used": "0",
+            "guid": "ac9312ed-45e4-44c5-ab9c-2a87437b2bc6",
+            "id": "10",
+            "name": "McAfee Security",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=McAfee&c=261&locale=ACJ&pf=1111&tp=edge",
+            "visit_count": 0
+         }, {
+            "date_added": "13433865248646840",
+            "date_last_used": "0",
+            "guid": "a957959f-39cb-453d-bd79-b5df17465142",
+            "id": "9",
+            "name": "Agoda",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=Agoda&c=261&locale=ACJ&pf=1111&tp=edge",
+            "visit_count": 0
+         }, {
+            "date_added": "13433865248646728",
+            "date_last_used": "0",
+            "guid": "49cba220-0a80-4156-ab74-3a5536ddf73c",
+            "id": "8",
+            "name": "Adobe offers",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=Adobe&c=261&locale=ACJ&pf=1111&tp=edge&RedeemCode=YnBy396HDjFfPQ7XiO9AdkqTZyG3RJJVBnI5eTfKH53sS7DiB3X88mmBznM95o%2fT4J%2b9BDAKCGs%2ba9NR54tYEsRXOF3I5l%2f42pj0e%2fplIC7tBEqouLZjCqwQF4ORScX7xnMz8rvVHPKrbDWpU1V5e330XBmTrFYAsHJp7e8mOmA%3d",
+            "visit_count": 0
+         }, {
+            "date_added": "13433865248646463",
+            "date_last_used": "0",
+            "guid": "f9e3558d-9818-4b16-8c28-71a2c78be8fb",
+            "id": "7",
+            "name": "Dropbox Offer",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=dropbox&c=261&locale=ACJ&pf=1111&tp=edge",
+            "visit_count": 0
+         } ],
+         "date_added": "13433865248510358",
+         "date_last_used": "0",
+         "date_modified": "13433865248646923",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Favorites bar",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "other": {
+         "children": [  ],
+         "date_added": "13433865248510358",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other favorites",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13433865248510358",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile favorites",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "workspaces_v2": {
+         "children": [  ],
+         "date_added": "13433865248510358",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "75aa6670-344f-549d-b742-660f029506ab",
+         "id": "5",
+         "name": "Workspaces",
+         "source": "unknown",
+         "type": "folder"
+      }
+   },
+   "sync_metadata": "CkEKHgiIgQISCKYgDaCgAQAAKg4QABgBIAAoBDAAOABAABIAKhhRekZKWGxpaGsxSTBML1VOUCtwVXRRPT1IA6AGDBKMAQgDEocBChxuamdEdTg4ZUNydlhwODZwRDdmSEdjcUZwODg9EiRkMzdmMDFiOS1mNTU1LTU2NDctOTQzZS1iMTE2MDYyYjhkYjgYACAAKAAwjp7w9IQ0OO+s8PSENEDvrPD0hDRKHHl6TkIwMWNuNTRBN2NSVTB1VCsvUGdtVHRVbz1lAAAAAMI+AmAAEowBCAIShwEKHFljU1RvbnZFU1B3cUNzNEwyY3JWaHY2OEw5OD0SJDFhOGY0ZTM5LWRkNGYtNWRiYy1hYzk2LTkxMmM5YzU3YjViYxgAIAAoADCInvD0hDQ4v6nw9IQ0QL+p8PSENEocb1BWa2h3QlJiVjY1S0NXUjIrSU9OSFdvT3U4PWUAAAAAwj4CYAASjAEIARKHAQoceXhKLzZmdmtlY3I3a3A1RVF6QjR0V0xwZGJFPRIkMTJkOWIzYTEtYjNmZi01YjlmLTg5MTItYzk4ODYyNzAwMWU3GAAgACgAMIee8PSENDi5qPD0hDRAuajw9IQ0ShxhUkNXTGdoRjliNUlucUtJRHZ1Si9qdlFrRmM9ZQAAAADCPgJgABKMAQgFEocBChx3UkJyWkwrNlBBOWF2S2dqTlA3SlhETGNmdnM9EiRkZTUzZDRiYS0zMzdkLTU5ZmEtYTJmNi0yNTU1Yzk0NzRjN2UYACAAKAAwjZ7w9IQ0OO2r8PSENEDtq/D0hDRKHG5teDY1c1FEdnhJOFRnRWV2K0ErbnR0b1NuND1lAAAAAMI+AmAAMAA4AA==",
+   "version": 1
+}

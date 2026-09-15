@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "corporate_main": {
+      "type": "categories-rail",
+      "settings": {}
+    }
+  },
+  "order": [
+    "corporate_main"
+  ]
+}

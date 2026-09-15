@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Velvet Hug">
+  <defs>
+    <linearGradient id="velvet" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4C3F5E"/>
+      <stop offset="45%" stop-color="#1B263B"/>
+      <stop offset="100%" stop-color="#0A1128"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="12" y1="18" x2="52" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F5D77F"/>
+      <stop offset="100%" stop-color="#D4AF37"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#FDFBF7"/>
+  <path fill="url(#velvet)" d="M10 38c2-14 14-24 28-24 10 0 18 5 22 13-6-6-14-9-22-7-12 3-20 12-20 22 0 8 6 14 16 16-16-2-26-10-24-20z"/>
+  <path fill="none" stroke="url(#gold)" stroke-width="1.6" stroke-linecap="round" d="M16 36c6-10 18-16 30-12"/>
+</svg>

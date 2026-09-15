@@ -1,0 +1,7 @@
+[22008:2780:0911/181805.361:INFO:components\enterprise\browser\controller\chrome_browser_cloud_management_controller.cc:241] No machine level policy manager exists.
+[22008:2780:0911/181807.524:INFO:CONSOLE:3832] "🛏️ Velvet Hug — Be Held, Every Night. Complete Application Ready.", source: http://localhost:8080/src/main.js?v=3.4 (3832)
+[22008:34944:0911/181811.427:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: PHONE_REGISTRATION_ERROR
+[22008:34944:0911/181811.427:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: PHONE_REGISTRATION_ERROR
+[22008:34944:0911/181811.427:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: PHONE_REGISTRATION_ERROR
+[22008:34944:0911/181811.539:ERROR:google_apis\gcm\engine\mcs_client.cc:702]   Error code: 401  Error message: Authentication Failed: wrong_secret
+[22008:34944:0911/181811.541:ERROR:google_apis\gcm\engine\mcs_client.cc:704] Failed to log in to GCM, resetting connection.

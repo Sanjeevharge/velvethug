@@ -1,0 +1,185 @@
+2026-09-14 12:38:15.701: [INFO] CurrentProfilePath: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:38:15.701: [INFO] Profiles total count: 1
+2026-09-14 12:38:15.701: [INFO] Profile: name=Profile 1 path=c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default lastActive=null
+2026-09-14 12:38:15.701: [INFO] LastUsedProfileDir: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:38:15.701: [INFO] VisibilityChanged: 0
+2026-09-14 12:38:15.712: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.712: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.713: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.714: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.714: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.715: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.715: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.716: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.717: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.717: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:15.728: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:38:15.728: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:38:15.729: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:38:15.729: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:38:15.729: [INFO] OnDoneLoading sync enabled: 0
+2026-09-14 12:38:15.729: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-14 12:38:15.729: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-14 12:38:15.729: [INFO] BookmarksSnapshot Startup total=4 bar=4 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-14 12:38:15.790: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:16.624: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-14 12:38:16.626: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:38:16.628: [INFO] Primary account changed.
+2026-09-14 12:38:16.628: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-09-14 12:38:16.636: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:38:16.648: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:38:18.814: [INFO] Sync initialization duration: 2104ms
+2026-09-14 12:41:39.393: [INFO] CurrentProfilePath: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:41:39.393: [INFO] Profiles total count: 1
+2026-09-14 12:41:39.393: [INFO] Profile: name=Profile 1 path=c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default lastActive=null
+2026-09-14 12:41:39.393: [INFO] LastUsedProfileDir: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:41:39.393: [INFO] VisibilityChanged: 0
+2026-09-14 12:41:39.410: [INFO] OnDoneLoading sync enabled: 0
+2026-09-14 12:41:39.410: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-14 12:41:39.410: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-14 12:41:39.410: [INFO] BookmarksSnapshot Startup total=4 bar=4 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-14 12:41:39.422: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:41:39.432: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:41:39.445: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:41:39.445: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:41:39.445: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:41:39.445: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:41:39.645: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:41:39.647: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:41:39.648: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:41:39.650: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:41:39.652: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:41:39.653: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:41:39.655: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:41:39.657: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:41:40.213: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:41:40.514: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:41:41.112: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:41:41.416: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:41:41.419: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:41:41.932: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:41:41.935: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:41:42.106: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:41:42.926: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:42:54.803: [INFO] CurrentProfilePath: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:42:54.803: [INFO] Profiles total count: 1
+2026-09-14 12:42:54.803: [INFO] Profile: name=Profile 1 path=c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default lastActive=null
+2026-09-14 12:42:54.803: [INFO] LastUsedProfileDir: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:42:54.803: [INFO] VisibilityChanged: 0
+2026-09-14 12:42:54.831: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:42:54.832: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:42:54.832: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:42:54.832: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:42:54.832: [INFO] OnDoneLoading sync enabled: 0
+2026-09-14 12:42:54.832: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-14 12:42:54.832: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-14 12:42:54.832: [INFO] BookmarksSnapshot Startup total=12 bar=12 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-14 12:42:54.845: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:42:54.859: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:42:56.965: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:42:56.968: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:42:56.970: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:42:56.973: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:42:56.975: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:42:56.978: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:42:56.980: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:42:56.983: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:42:57.534: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:42:57.535: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:42:57.806: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:42:58.076: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:42:58.078: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:42:58.080: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:43:54.238: [INFO] CurrentProfilePath: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:43:54.238: [INFO] Profiles total count: 1
+2026-09-14 12:43:54.238: [INFO] Profile: name=Profile 1 path=c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default lastActive=null
+2026-09-14 12:43:54.238: [INFO] LastUsedProfileDir: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:43:54.238: [INFO] VisibilityChanged: 0
+2026-09-14 12:43:54.261: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:43:54.262: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:43:54.262: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:43:54.262: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:43:54.262: [INFO] OnDoneLoading sync enabled: 0
+2026-09-14 12:43:54.262: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-14 12:43:54.262: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-14 12:43:54.262: [INFO] BookmarksSnapshot Startup total=16 bar=16 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-14 12:43:54.279: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:43:54.294: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:43:56.161: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:43:56.162: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:43:56.164: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:43:56.165: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:43:56.167: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:43:56.169: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:43:56.171: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:43:56.173: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:43:56.676: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:43:56.677: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:43:57.013: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:43:57.526: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:43:57.530: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:43:57.533: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:44.438: [INFO] CurrentProfilePath: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:44:44.438: [INFO] Profiles total count: 1
+2026-09-14 12:44:44.438: [INFO] Profile: name=Profile 1 path=c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default lastActive=null
+2026-09-14 12:44:44.438: [INFO] LastUsedProfileDir: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:44:44.438: [INFO] VisibilityChanged: 0
+2026-09-14 12:44:44.466: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:44:44.466: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:44:44.466: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:44:44.466: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:44:44.466: [INFO] OnDoneLoading sync enabled: 0
+2026-09-14 12:44:44.466: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-14 12:44:44.466: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-14 12:44:44.466: [INFO] BookmarksSnapshot Startup total=20 bar=20 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-14 12:44:44.478: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:44.496: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:44.690: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:44.691: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:44.693: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:44.694: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:44.695: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:44.697: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:44.698: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:44.700: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:45.291: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:45.293: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:45.637: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:45.952: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:45.955: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:45.959: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:46.893: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:46.894: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:47.106: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:57.477: [INFO] CurrentProfilePath: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:44:57.477: [INFO] Profiles total count: 1
+2026-09-14 12:44:57.477: [INFO] Profile: name=Profile 1 path=c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default lastActive=null
+2026-09-14 12:44:57.477: [INFO] LastUsedProfileDir: c:\Users\Sanjeev\Desktop\velvethug\temp_test_profile\Default
+2026-09-14 12:44:57.477: [INFO] VisibilityChanged: 0
+2026-09-14 12:44:57.504: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:44:57.504: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:44:57.504: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:44:57.505: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-14 12:44:57.505: [INFO] OnDoneLoading sync enabled: 0
+2026-09-14 12:44:57.505: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-14 12:44:57.505: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-14 12:44:57.505: [INFO] BookmarksSnapshot Startup total=24 bar=24 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-14 12:44:57.519: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:57.536: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:57.720: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:57.722: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:57.723: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:57.724: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:57.726: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:57.727: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-14 12:44:57.729: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:57.730: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:58.290: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:58.292: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:58.593: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:58.866: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 5
+2026-09-14 12:44:58.868: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:58.869: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:59.727: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:59.728: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6
+2026-09-14 12:44:59.930: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 6

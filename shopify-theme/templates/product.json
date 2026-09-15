@@ -1,0 +1,16 @@
+{
+  "sections": {
+    "viewer_3d": {
+      "type": "product-3d-viewer",
+      "settings": {}
+    },
+    "doctor": {
+      "type": "doctor-consultation",
+      "settings": {}
+    }
+  },
+  "order": [
+    "viewer_3d",
+    "doctor"
+  ]
+}

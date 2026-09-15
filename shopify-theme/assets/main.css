@@ -1,0 +1,355 @@
+/* Velvet Hug — Haute Sleep Architecture
+   Refined Luxury Palette: Pure White, Deep Imperial Purple, Soft Lilac, Warm Pearl Accents
+   Ultra-Professional Modern Typography (Plus Jakarta Sans, Playfair Display & Inter) */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  /* Pristine White & Soft Lavender / Lilac Base */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #FAFAFD;
+  --bg-tertiary: #F4EFFB;
+  --bg-surface: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FAF7FE;
+  --bg-glass: rgba(255, 255, 255, 0.94);
+  --bg-glass-border: rgba(91, 33, 182, 0.12);
+  --bg-purple-subtle: #FAF5FF;
+
+  /* Imperial Purple Spectrum */
+  --purple-950: #1B0A2A;
+  --purple-900: #280C3D;
+  --purple-800: #3B0764;
+  --purple-700: #4C1D95;
+  --purple-600: #5B21B6;
+  --purple-500: #6D28D9;
+  --purple-400: #7C3AED;
+  --purple-300: #8B5CF6;
+  --purple-200: #C4B5FD;
+  --purple-100: #EDE9FE;
+  --purple-50: #F5F3FF;
+
+  /* Harmonious Warm Pearl & Subtle Slate Accents */
+  --accent-gold: #B89758;
+  --accent-gold-light: #FBF8F2;
+  --accent-gold-border: rgba(184, 151, 88, 0.3);
+  --accent-emerald: #059669;
+  --accent-emerald-light: #ECFDF5;
+
+  /* Typography */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Text Colors */
+  --text-primary: #1A0D2E;
+  --text-secondary: #4A3E5C;
+  --text-muted: #786C8D;
+  --text-light: #9B91AE;
+  --text-white: #FFFFFF;
+
+  /* Refined Gradients */
+  --gradient-purple: linear-gradient(135deg, #3B0764 0%, #5B21B6 50%, #7C3AED 100%);
+  --gradient-purple-soft: linear-gradient(135deg, #FAF5FF 0%, #EDE9FE 100%);
+  --gradient-purple-card: linear-gradient(180deg, #FFFFFF 0%, #FAF7FE 100%);
+  --gradient-hero: linear-gradient(135deg, rgba(27, 10, 42, 0.95) 0%, rgba(59, 7, 100, 0.85) 55%, rgba(91, 33, 182, 0.65) 100%);
+
+  /* UI Tokens */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  --shadow-subtle: 0 1px 3px rgba(40, 12, 61, 0.05);
+  --shadow-card: 0 4px 20px rgba(40, 12, 61, 0.06), 0 1px 3px rgba(40, 12, 61, 0.04);
+  --shadow-hover: 0 16px 36px rgba(40, 12, 61, 0.12), 0 4px 10px rgba(40, 12, 61, 0.06);
+  --shadow-purple-glow: 0 8px 30px rgba(91, 33, 182, 0.22);
+  --shadow-modal: 0 25px 60px rgba(27, 10, 42, 0.35);
+
+  --transition-fast: 0.16s ease;
+  --transition-normal: 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+
+  --max-width: 1360px;
+}
+
+/* Base resets & typography */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.65;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  font-family: var(--font-display);
+  transition: var(--transition-normal);
+}
+
+input, select, textarea {
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  background: #FFFFFF;
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  outline: none;
+  transition: var(--transition-fast);
+  font-size: 0.92rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--purple-600);
+  box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.12);
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+}
+
+/* Professional Badges */
+.badge-purple {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--purple-50);
+  border: 1px solid var(--purple-200);
+  color: var(--purple-800);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.badge-purple-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--purple-700);
+  color: #FFFFFF;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-gold-light);
+  border: 1px solid var(--accent-gold-border);
+  color: var(--accent-gold);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.badge-emerald {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-emerald-light);
+  border: 1px solid rgba(5, 150, 105, 0.25);
+  color: var(--accent-emerald);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 26px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+}
+
+.btn-primary {
+  background: var(--purple-800);
+  color: #FFFFFF;
+  box-shadow: 0 4px 16px rgba(59, 7, 100, 0.25);
+}
+
+.btn-primary:hover {
+  background: var(--purple-700);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(59, 7, 100, 0.35);
+}
+
+.btn-secondary {
+  background: var(--purple-50);
+  color: var(--purple-800);
+  border: 1px solid var(--purple-200);
+}
+
+.btn-secondary:hover {
+  background: var(--purple-100);
+  border-color: var(--purple-300);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--purple-200);
+  color: var(--purple-900);
+}
+
+.btn-outline:hover {
+  background: var(--purple-50);
+  border-color: var(--purple-500);
+  color: var(--purple-800);
+}
+
+.btn-outline-white {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #FFFFFF;
+  backdrop-filter: blur(8px);
+}
+
+.btn-outline-white:hover {
+  background: #FFFFFF;
+  color: var(--purple-950);
+}
+
+.btn-whatsapp {
+  background: #1B8354;
+  color: #FFFFFF;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(27, 131, 84, 0.25);
+}
+
+.btn-whatsapp:hover {
+  background: #156B44;
+  box-shadow: 0 8px 25px rgba(27, 131, 84, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Section Header */
+.section-header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 48px;
+}
+
+.section-header .section-tag {
+  color: var(--purple-600);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.section-header h2 {
+  font-size: clamp(2rem, 3.2vw, 2.75rem);
+  color: var(--purple-950);
+  margin-bottom: 14px;
+  letter-spacing: -0.03em;
+}
+
+.section-header p {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Purple Text Highlights */
+.purple-text {
+  color: var(--purple-700);
+}
+
+.purple-gradient-text {
+  background: linear-gradient(135deg, #2E1065 0%, #5B21B6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FAFAFD;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--purple-200);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--purple-400);
+}

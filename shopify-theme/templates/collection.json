@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "mattress_filters": {
+      "type": "mattress-filters",
+      "settings": {}
+    }
+  },
+  "order": [
+    "mattress_filters"
+  ]
+}

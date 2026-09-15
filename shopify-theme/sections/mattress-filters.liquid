@@ -1,0 +1,42 @@
+{% comment %}
+  Velvet Hug - 6-Axis Combinable Mattress Filter & Product Grid Section
+  Directly mapped to Shopify Metafields for Size, Material, Firmness, Tier, Age Group, Packaging
+{% endcomment %}
+
+<section id="productsSection" class="filter-catalog-section">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">PRECISION ERGONOMICS</span>
+      <h2 id="catalogHeading">Find Your Perfect Velvet Hug</h2>
+      <p>Combine multiple filter axes to match your exact bed dimensions, spine needs, firmness, and life stage.</p>
+    </div>
+
+    <div class="filter-bar-wrapper">
+      <div class="filter-bar-header">
+        <div class="filter-bar-title">
+          <span>⚙️ 6-Axis Combinable Filter Engine</span>
+          <span id="filteredCountBadge" class="badge-gold">Showing All Solutions</span>
+        </div>
+        <div class="filter-bar-actions">
+          <button class="clear-filters-btn" onclick="clearAllFilters()">Clear All Filters</button>
+        </div>
+      </div>
+
+      <div id="filterAxesGrid" class="filter-axes-container"></div>
+    </div>
+
+    <div id="productsGridContainer" class="products-grid"></div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "6-Axis Mattress Catalog",
+  "settings": [],
+  "presets": [
+    {
+      "name": "6-Axis Mattress Catalog"
+    }
+  ]
+}
+{% endschema %}

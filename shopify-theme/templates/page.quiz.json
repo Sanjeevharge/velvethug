@@ -1,0 +1,11 @@
+{
+  "sections": {
+    "quiz_banner": {
+      "type": "categories-rail",
+      "settings": {}
+    }
+  },
+  "order": [
+    "quiz_banner"
+  ]
+}
