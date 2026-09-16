@@ -1,0 +1,5 @@
+2026/09/16-00:51:10.780 2ba0 Creating DB C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile\Default\EdgeCoupons/coupons_data.db since it was missing.
+2026/09/16-00:51:10.826 2ba0 Reusing MANIFEST C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/09/16-00:51:11.115 8fbc Level-0 table #5: started
+2026/09/16-00:51:11.118 8fbc Level-0 table #5: 683273 bytes OK
+2026/09/16-00:51:11.120 8fbc Delete type=0 #3

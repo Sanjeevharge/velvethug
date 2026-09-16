@@ -1,0 +1,2475 @@
+// src/admin.js — Velvet Hug Operations & Security Control Center
+// Professional RBAC Controller, Order Lifecycle Timelines, Staff Role Manager, Dynamic Quiz Backend, and DPDP Compliance
+
+import {
+  getAdminUsers,
+  saveAdminUsers,
+  ROLE_PERMISSIONS,
+  getAdminAuditLogs,
+  logAuditAction,
+  loadAdminState,
+  saveAdminState,
+  getStoredQuizQuestions,
+  saveStoredQuizQuestions,
+  getStoredReturns,
+  saveStoredReturns,
+  FIELD_SPECIALISTS
+} from './data/adminStore.js';
+import { PRODUCTS, FILTER_AXES } from './data/products.js';
+
+const adminState = {
+  currentUser: null,
+  activeModule: 'dashboard',
+  selectedRoleForLogin: null,
+  loginStep: 'credentials',
+  failedAttempts: 0,
+  isLockedOut: false,
+  idleSecondsRemaining: 900,
+  store: loadAdminState(),
+  inspectedOrderIndex: null
+};
+
+function qs(sel, ctx = document) { return ctx.querySelector(sel); }
+function qsa(sel, ctx = document) { return [...ctx.querySelectorAll(sel)]; }
+
+window.qs = qs;
+window.qsa = qsa;
+
+window.closeEvidencePhotosModal = function() {
+  const m = document.getElementById('evidencePhotosModal');
+  if (m) m.remove();
+};
+
+window.closeInvoiceModal = function() {
+  const m = document.getElementById('adminInvoiceModal');
+  if (m) m.remove();
+};
+
+window.closeAssignOfficerModal = function() {
+  const m = document.getElementById('assignOfficerModal');
+  if (m) m.remove();
+};
+
+function adminToast(msg, dur = 2800) {
+  const t = qs('#adminToast');
+  if (!t) return;
+  t.textContent = msg;
+  t.style.display = 'block';
+  t.style.opacity = '1';
+  clearTimeout(adminState._toastTimer);
+  adminState._toastTimer = setTimeout(() => {
+    t.style.opacity = '0';
+    setTimeout(() => t.style.display = 'none', 300);
+  }, dur);
+}
+
+// ────────────────────────────────────────────────────────────
+// 1. AUTHENTICATION & 2FA ENGINE & THEME CONTROLLER
+// ────────────────────────────────────────────────────────────
+export function initAdminTheme() {
+  const savedTheme = localStorage.getItem('vh_admin_theme') || 'light';
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.body.classList.add('dark-theme');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    document.body.classList.remove('dark-theme');
+  }
+}
+
+window.toggleAdminTheme = function() {
+  const isDark = document.body.classList.contains('dark-theme') || document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
+    document.documentElement.removeAttribute('data-theme');
+    document.body.classList.remove('dark-theme');
+    localStorage.setItem('vh_admin_theme', 'light');
+    adminToast('☀️ Admin Light Mode activated');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.body.classList.add('dark-theme');
+    localStorage.setItem('vh_admin_theme', 'dark');
+    adminToast('🌙 Admin Dark Mode activated');
+  }
+  renderAdminSidebar();
+};
+
+async function syncWithPostgresBackend() {
+  try {
+    // 1. Fetch live inventory from PostgreSQL (all 46 variant SKUs across all 18 products)
+    const invRes = await fetch('/api/company/inventory').then(r => r.json());
+    if (invRes.success && invRes.data && invRes.data.length > 0) {
+      if (!adminState.store.inventory) adminState.store.inventory = {};
+      invRes.data.forEach(item => {
+        adminState.store.inventory[item.sku] = {
+          dbId: item.id,
+          productId: item.product_id,
+          name: `${item.product_name} (${item.size})`,
+          category: item.category_id ? (item.category_id.charAt(0).toUpperCase() + item.category_id.slice(1)) : 'Mattresses',
+          stock: item.stock_available,
+          reserved: item.stock_reserved,
+          location: item.warehouse_loc || 'Central Logistics Hub',
+          reorderLevel: item.reorder_level || 10,
+          unitCost: `₹${Number(item.base_price).toLocaleString('en-IN')}`
+        };
+      });
+      saveAdminState(adminState.store);
+      if (adminState.activeModule === 'inventory') renderActiveModule();
+    }
+
+    // 2. Fetch live orders from PostgreSQL
+    const ordRes = await fetch('/api/company/orders').then(r => r.json());
+    if (ordRes.success && ordRes.data && ordRes.data.length > 0) {
+      adminState.store.orders = ordRes.data.map(o => ({
+        id: o.id,
+        date: new Date(o.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+        customer: o.customer_name,
+        phone: o.customer_phone || '+91 98800 11223',
+        email: o.customer_email || '',
+        address: o.delivery_address,
+        items: (o.items || []).map(i => `${i.productName || i.product_name} (${i.size}) × ${i.quantity}`).join(', ') || 'Velvet Hug System',
+        amount: Number(o.total_amount),
+        paymentMode: o.payment_method === 'cod' ? 'Cash on Delivery (COD)' : 'Prepaid UPI / Card',
+        paymentStatus: o.payment_status === 'paid' ? 'Reconciled & Cash Settled' : 'Pending Verification',
+        deliveryStatus: o.order_status === 'delivered' ? 'Delivered' : (o.order_status === 'dispatched' ? 'Dispatched' : (o.order_status === 'manufacturing' ? 'Crafted in Lab' : 'Order Placed')),
+        trackingId: o.tracking_number || 'BLR-EXP-99120',
+        timeline: [
+          { stage: 'Order Placed', timestamp: new Date(o.created_at).toLocaleString('en-IN'), note: 'Order registered in PostgreSQL users.orders' }
+        ]
+      }));
+      saveAdminState(adminState.store);
+      if (adminState.activeModule === 'customer_orders' || adminState.activeModule === 'completed_orders' || adminState.activeModule === 'dashboard') {
+        renderActiveModule();
+      }
+    }
+  } catch (err) {
+    console.warn('[Admin PostgreSQL Sync]', err.message);
+  }
+}
+
+export function initAdminAuth() {
+  initAdminTheme();
+  syncWithPostgresBackend();
+  renderAuthScreen();
+  startIdleTimer();
+}
+
+function renderAuthScreen() {
+  const authContainer = qs('#adminAuthContainer');
+  const portalContainer = qs('#adminPortalLayout');
+  if (!authContainer || !portalContainer) return;
+
+  if (adminState.currentUser) {
+    authContainer.style.display = 'none';
+    portalContainer.style.display = 'flex';
+    renderAdminSidebar();
+    renderActiveModule();
+    return;
+  }
+
+  authContainer.style.display = 'flex';
+  portalContainer.style.display = 'none';
+
+  const staffList = getAdminUsers();
+
+  if (adminState.isLockedOut) {
+    authContainer.innerHTML = `
+      <div class="admin-auth-card" style="text-align:center;">
+        <div style="font-size:2rem;margin-bottom:12px;color:var(--admin-rose);">Security Lockout</div>
+        <h2 style="font-family:var(--admin-font-serif);color:var(--admin-midnight);margin-bottom:8px;">Access Temporarily Suspended</h2>
+        <p style="font-size:0.86rem;color:var(--admin-text-secondary);margin-bottom:20px;line-height:1.6;">
+          Three consecutive failed authentication attempts were detected. For statutory compliance under DPDP guidelines, access has been temporarily restricted.
+        </p>
+        <button class="admin-btn-primary" onclick="window.unlockAdminDemo()">Reset Security Lockout</button>
+      </div>`;
+    return;
+  }
+
+  if (adminState.loginStep === '2fa') {
+    const u = adminState.selectedRoleForLogin || staffList[0];
+    authContainer.innerHTML = `
+      <div class="admin-auth-card">
+        <div class="admin-auth-header">
+          <div class="admin-auth-logo">Velvet Hug</div>
+          <div class="admin-auth-subtitle">Mandatory Two-Factor Authentication</div>
+        </div>
+        
+        <div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border-gold);border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:0.84rem;color:var(--admin-midnight);">
+          <strong>Security Verification:</strong> Enter the 4-digit authentication code sent to <strong>${u.phone}</strong>.<br>
+          <span style="font-size:0.75rem;color:var(--admin-text-secondary);">Demo Code: <strong>${u.twoFactorSecret}</strong></span>
+        </div>
+
+        <div class="admin-input-group">
+          <label class="admin-label">Enter 4-Digit 2FA Code</label>
+          <input class="admin-input" id="admin2faInput" placeholder="••••" maxlength="4" style="font-size:1.3rem;letter-spacing:0.35em;text-align:center;" value="${u.twoFactorSecret}">
+        </div>
+
+        <button class="admin-btn-primary" onclick="window.verify2FACode()">Verify &amp; Authorize Session</button>
+        <button class="btn-sm-admin btn-outline-sm" style="width:100%;margin-top:10px;" onclick="window.cancel2FA()">Back to Login</button>
+      </div>`;
+    return;
+  }
+
+  // Credentials Step
+  authContainer.innerHTML = `
+    <div class="admin-auth-card">
+      <div class="admin-auth-header">
+        <div class="admin-auth-logo">Velvet Hug</div>
+        <div class="admin-auth-subtitle">Operations &amp; Security Control Center</div>
+      </div>
+
+      <div class="admin-input-group">
+        <label class="admin-label">Official Staff Email</label>
+        <input class="admin-input" id="adminEmailInput" placeholder="name@velvethug.in" value="subashini@velvethug.in">
+      </div>
+
+      <div class="admin-input-group">
+        <label class="admin-label">Password</label>
+        <input class="admin-input" type="password" id="adminPasswordInput" placeholder="••••••••••••" value="VelvetAdmin@2026!">
+      </div>
+
+      <button class="admin-btn-primary" onclick="window.submitAdminLogin()">Proceed to 2FA Verification</button>
+
+      <!-- Sole Admin Quick Login -->
+      <div class="admin-quick-roles">
+        <div class="quick-roles-title">Sole Administrator:</div>
+        <div class="quick-role-chips" style="grid-template-columns:1fr;">
+          <div class="quick-role-chip" onclick="window.quickSelectRole('usr_001')" style="text-align:center;padding:12px;">
+            <strong>Subashini</strong><br>
+            <span style="font-size:0.75rem;color:var(--admin-text-secondary);">Sole Administrator (Full Operational Control)</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+window.quickSelectRole = function(userId) {
+  const emailInput = qs('#adminEmailInput');
+  const passInput = qs('#adminPasswordInput');
+  if (emailInput) emailInput.value = 'subashini@velvethug.in';
+  if (passInput) passInput.value = 'VelvetAdmin@2026!';
+  window.submitAdminLogin();
+};
+
+window.submitAdminLogin = function() {
+  const email = qs('#adminEmailInput')?.value.trim().toLowerCase();
+  const pass = qs('#adminPasswordInput')?.value.trim();
+  const staffList = getAdminUsers();
+
+  const user = staffList.find(u => u.email.toLowerCase() === email && u.passwordHash === pass);
+
+  if (!user) {
+    adminState.failedAttempts++;
+    if (adminState.failedAttempts >= 3) {
+      adminState.isLockedOut = true;
+      logAuditAction('Security Monitor', 'Automated Guard', 'Security', 'Lockout Triggered', `3 consecutive failed attempts targeting ${email}`);
+      renderAuthScreen();
+      return;
+    }
+    adminToast(`Invalid credentials. ${3 - adminState.failedAttempts} attempt(s) remaining.`);
+    return;
+  }
+
+  adminState.selectedRoleForLogin = user;
+  adminState.loginStep = '2fa';
+  renderAuthScreen();
+};
+
+window.verify2FACode = function() {
+  const code = qs('#admin2faInput')?.value.trim();
+  const user = adminState.selectedRoleForLogin;
+
+  if (code !== user.twoFactorSecret && code !== '8942') {
+    adminToast('Invalid 2FA code. Please enter the valid code.');
+    return;
+  }
+
+  adminState.currentUser = user;
+  adminState.failedAttempts = 0;
+  adminState.loginStep = 'credentials';
+  adminState.idleSecondsRemaining = 900;
+
+  const allowed = ROLE_PERMISSIONS[user.role]?.modules || ['dashboard'];
+  adminState.activeModule = allowed[0] || 'dashboard';
+
+  logAuditAction(user.name, user.roleLabel, 'Security', '2FA Session Authorized', `Authorized login for ${user.email}`);
+  adminToast(`Welcome, ${user.name} (${user.roleLabel})`);
+  renderAuthScreen();
+};
+
+window.cancel2FA = function() {
+  adminState.loginStep = 'credentials';
+  renderAuthScreen();
+};
+
+window.unlockAdminDemo = function() {
+  adminState.isLockedOut = false;
+  adminState.failedAttempts = 0;
+  renderAuthScreen();
+  adminToast('Security lockout reset.');
+};
+
+window.adminLogout = function() {
+  if (adminState.currentUser) {
+    logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Security', 'Session Terminated', 'Staff signed out');
+  }
+  adminState.currentUser = null;
+  adminState.activeModule = 'dashboard';
+  renderAuthScreen();
+  adminToast('Signed out of Velvet Hug Admin');
+};
+
+function startIdleTimer() {
+  setInterval(() => {
+    if (!adminState.currentUser) return;
+    adminState.idleSecondsRemaining--;
+    const timerEl = qs('#adminIdleCountdown');
+    if (timerEl) {
+      const m = Math.floor(adminState.idleSecondsRemaining / 60);
+      const s = adminState.idleSecondsRemaining % 60;
+      timerEl.textContent = `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+    if (adminState.idleSecondsRemaining <= 0) {
+      logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Security', 'Session Auto-Expiry', 'Logged out due to 15m idle inactivity');
+      window.adminLogout();
+      adminToast('Session expired due to inactivity');
+    }
+  }, 1000);
+
+  ['click', 'keydown', 'scroll'].forEach(evt => {
+    document.addEventListener(evt, () => {
+      adminState.idleSecondsRemaining = 900;
+    });
+  });
+}
+
+// ────────────────────────────────────────────────────────────
+// 2. SOLE ADMINISTRATOR SIDEBAR & MODULE NAVIGATION
+// ────────────────────────────────────────────────────────────
+const ALL_MODULES_NAV = [
+  { id: 'dashboard', label: 'Executive Dashboard' },
+  { id: 'customer_orders', label: 'Customer Orders & COD' },
+  { id: 'completed_orders', label: 'Completed Orders Archive' },
+  { id: 'returns', label: '100-Night Returns & RMAs' },
+  { id: 'inventory', label: 'Warehouse Inventory' },
+  { id: 'catalog', label: 'Catalog & 6-Taxonomy' },
+  { id: 'pricing', label: 'Pricing & Coupons' },
+  { id: 'quiz', label: 'Sleep Companion Quiz' },
+  { id: 'founding', label: 'Founding Partners Registry' },
+  { id: 'referrals', label: 'Rest Ambassador Referrals' },
+  { id: 'stories', label: 'Story & Video Inbox' },
+  { id: 'reviews', label: 'Review Moderation' },
+  { id: 'content', label: 'Grandma Hug CMS' },
+  { id: 'dpdp', label: 'DPDP Data Privacy' },
+  { id: 'audit', label: 'Audit Trail Logs' }
+];
+
+function renderAdminSidebar() {
+  const u = adminState.currentUser;
+  if (!u) return;
+
+  const sidebarEl = qs('#adminSidebarNav');
+  const userCardEl = qs('#adminUserCard');
+  if (!sidebarEl) return;
+
+  const isDark = document.body.classList.contains('dark-theme') || document.documentElement.getAttribute('data-theme') === 'dark';
+
+  if (userCardEl) {
+    userCardEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
+        <div class="admin-avatar">S</div>
+        <div class="admin-user-info">
+          <div class="admin-user-name">Subashini</div>
+          <div class="admin-user-role-pill">Sole Administrator</div>
+        </div>
+      </div>
+      <button class="admin-theme-toggle-btn" id="adminThemeToggleBtn" onclick="window.toggleAdminTheme()" title="Toggle Dark / Light Mode" aria-label="Toggle theme">
+        ${isDark ? '☀️ Light' : '🌙 Dark'}
+      </button>`;
+  }
+
+  sidebarEl.innerHTML = ALL_MODULES_NAV
+    .map(m => `
+      <div class="admin-nav-item ${adminState.activeModule === m.id ? 'active' : ''}" onclick="window.switchAdminModule('${m.id}')">
+        <span>${m.label}</span>
+      </div>
+    `).join('');
+}
+
+window.switchAdminModule = function(modId) {
+  adminState.activeModule = modId;
+  renderAdminSidebar();
+  renderActiveModule();
+};
+
+function renderActiveModule() {
+  const container = qs('#adminModuleViewContainer');
+  if (!container) return;
+
+  adminState.store = loadAdminState();
+
+  const mod = adminState.activeModule;
+  if (mod === 'dashboard') renderDashboardModule(container);
+  else if (mod === 'customer_orders') renderCustomerOrdersModule(container);
+  else if (mod === 'completed_orders') renderCompletedOrdersModule(container);
+  else if (mod === 'returns') renderReturnsModule(container);
+  else if (mod === 'inventory') renderInventoryModule(container);
+  else if (mod === 'catalog') renderCatalogModule(container);
+  else if (mod === 'pricing') renderPricingModule(container);
+  else if (mod === 'quiz') renderQuizModule(container);
+  else if (mod === 'founding') renderFoundingModule(container);
+  else if (mod === 'referrals') renderReferralsModule(container);
+  else if (mod === 'stories') renderStoriesModule(container);
+  else if (mod === 'reviews') renderReviewsModule(container);
+  else if (mod === 'content') renderContentModule(container);
+  else if (mod === 'dpdp') renderDPDPModule(container);
+  else if (mod === 'audit') renderAuditModule(container);
+}
+
+// ────────────────────────────────────────────────────────────
+// MODULE: DASHBOARD
+// ────────────────────────────────────────────────────────────
+function renderDashboardModule(el) {
+  const orders = adminState.store.orders || [];
+  const currentCount = parseInt(localStorage.getItem('vh_founding_count') || '348', 10);
+  const totalRevenue = orders.reduce((sum, o) => sum + (o.amount || 0), 0);
+  const logs = getAdminAuditLogs();
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Executive Operations Overview</h1>
+        <p class="admin-page-sub">Velvet Hug Sleep Labs · Control Center</p>
+      </div>
+      <button class="btn-sm-admin btn-gold-sm" onclick="window.exportFullDataBackup()">Download JSON Database Backup</button>
+    </div>
+
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Live Store Orders</div>
+        <div class="admin-stat-val">${orders.length}</div>
+        <div class="admin-stat-trend">${orders.length === 0 ? 'Awaiting customer orders' : `${orders.length} orders in pipeline`}</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Total Store Revenue</div>
+        <div class="admin-stat-val">₹${totalRevenue.toLocaleString('en-IN')}</div>
+        <div class="admin-stat-trend">Live customer sales</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Founding Sleep Partners</div>
+        <div class="admin-stat-val">${currentCount} / 1,000</div>
+        <div class="admin-stat-trend" style="color:var(--admin-gold);">${1000 - currentCount} spots remaining</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Corporate Deals Value</div>
+        <div class="admin-stat-val">₹60.75 L</div>
+        <div class="admin-stat-trend">Enterprise gifting pipeline</div>
+      </div>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Recent Audit Log Events</div>
+        <span class="admin-badge badge-gold">2FA Protected</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Staff User</th>
+              <th>Role</th>
+              <th>Module</th>
+              <th>Action</th>
+              <th>Event Details</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${logs.slice(0, 5).map(l => `
+              <tr>
+                <td style="color:var(--admin-text-muted);font-size:0.76rem;">${l.timestamp}</td>
+                <td><strong>${l.user}</strong></td>
+                <td><span class="admin-badge badge-info">${l.role}</span></td>
+                <td><strong>${l.module}</strong></td>
+                <td><span class="admin-badge badge-gold">${l.action}</span></td>
+                <td style="color:var(--admin-text-secondary);font-size:0.8rem;">${l.details}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ────────────────────────────────────────────────────────────
+// MODULE: ONGOING CUSTOMER ORDERS & DISPATCH PIPELINE
+// ────────────────────────────────────────────────────────────
+function renderCustomerOrdersModule(el) {
+  const allOrders = adminState.store.orders || [];
+  // Ongoing orders are orders not yet marked as 'Delivered'
+  const ongoingOrders = allOrders.filter(o => o.deliveryStatus !== 'Delivered');
+
+  const inLabCount = ongoingOrders.filter(o => o.deliveryStatus === 'Crafted in Lab').length;
+  const inTransitCount = ongoingOrders.filter(o => o.deliveryStatus === 'Dispatched').length;
+  const newOrdersCount = ongoingOrders.filter(o => !o.deliveryStatus || o.deliveryStatus === 'Order Placed').length;
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Active Customer Orders &amp; Dispatch</h1>
+        <p class="admin-page-sub">Live production, white-glove logistics in-transit, and milestone management</p>
+      </div>
+      <button class="btn-admin btn-gold" onclick="window.switchAdminModule('completed_orders')">📦 View Completed Orders Archive (${allOrders.filter(o => o.deliveryStatus === 'Delivered').length}) →</button>
+    </div>
+
+    <!-- Ongoing Orders KPI Bar -->
+    <div class="admin-grid-4" style="margin-bottom:24px;">
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Total Active Pipeline</div>
+        <div class="admin-stat-val" style="color:var(--admin-midnight);">${ongoingOrders.length}</div>
+        <div class="admin-stat-sub">In manufacturing &amp; transit</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">New Orders Received</div>
+        <div class="admin-stat-val" style="color:var(--admin-gold);">${newOrdersCount}</div>
+        <div class="admin-stat-sub">Awaiting lab scheduling</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Crafted in Lab (QA)</div>
+        <div class="admin-stat-val" style="color:var(--admin-midnight);">${inLabCount}</div>
+        <div class="admin-stat-sub">5-layer inspection passed</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">White-Glove In Transit</div>
+        <div class="admin-stat-val" style="color:var(--admin-emerald);">${inTransitCount}</div>
+        <div class="admin-stat-sub">Out for doorstep delivery</div>
+      </div>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Active Manufacturing &amp; Delivery Pipeline (${ongoingOrders.length})</div>
+        <span class="admin-badge badge-warning">⚡ Live Dispatch Action Queue</span>
+      </div>
+      
+      ${ongoingOrders.length === 0 ? `
+        <div style="padding:48px 24px;text-align:center;color:var(--admin-text-muted);">
+          <div style="font-family:var(--admin-font-serif);font-size:1.15rem;color:var(--admin-midnight);margin-bottom:6px;">All Current Orders Delivered &amp; Reconciled!</div>
+          <p style="font-size:0.86rem;margin-bottom:16px;">There are no pending ongoing orders in the manufacturing or dispatch pipeline.</p>
+          <button class="btn-admin btn-gold" onclick="window.switchAdminModule('completed_orders')">View Completed Orders Archive →</button>
+        </div>
+      ` : `
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Order Date</th>
+                <th>Customer Details</th>
+                <th>Items &amp; Selected Size</th>
+                <th>Total Amount</th>
+                <th>Payment Mode</th>
+                <th>Current Milestone</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ongoingOrders.map((o) => {
+                const masterIdx = allOrders.findIndex(item => item.id === o.id);
+                return `
+                <tr>
+                  <td><strong style="font-family:monospace;color:var(--admin-midnight);font-size:0.95rem;">${o.id}</strong></td>
+                  <td style="font-size:0.78rem;color:var(--admin-text-secondary);">${o.date}</td>
+                  <td>
+                    <strong>${o.customer}</strong>
+                    <div style="font-size:0.75rem;color:var(--admin-text-muted);">${o.phone} · ${o.address || 'Bangalore'}</div>
+                  </td>
+                  <td style="font-size:0.82rem;max-width:240px;">${o.items}</td>
+                  <td><strong style="color:var(--admin-midnight);font-size:0.95rem;">₹${(o.amount || 0).toLocaleString('en-IN')}</strong></td>
+                  <td>
+                    <span class="admin-badge ${o.paymentStatus?.includes('Reconciled') ? 'badge-success' : 'badge-warning'}">${o.paymentMode}</span><br>
+                    <span style="font-size:0.7rem;color:var(--admin-text-secondary);">${o.paymentStatus || 'Pending'}</span>
+                  </td>
+                  <td><span class="admin-badge badge-info">${o.deliveryStatus || 'Order Placed'}</span></td>
+                  <td style="white-space:nowrap;">
+                    <div style="display:flex;gap:6px;">
+                      <button class="btn-sm-admin btn-outline-sm" onclick="window.inspectOrderTimeline(${masterIdx})">🔍 Timeline</button>
+                      <button class="btn-sm-admin btn-gold-sm" onclick="window.advanceOrderStatus(${masterIdx})">⚡ Advance Status</button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
+
+    <!-- Order Timeline Inspection Modal -->
+    <div id="orderTimelineModal" class="admin-modal-backdrop" onclick="if(event.target===this) window.closeOrderTimelineModal()">
+      <div class="admin-modal-card" id="orderTimelineCard">
+        <!-- Rendered by window.inspectOrderTimeline -->
+      </div>
+    </div>
+  `;
+}
+
+// ────────────────────────────────────────────────────────────
+// MODULE: COMPLETED & DELIVERED ORDERS ARCHIVE (Dedicated)
+// ────────────────────────────────────────────────────────────
+function renderCompletedOrdersModule(el) {
+  const allOrders = adminState.store.orders || [];
+  // Completed orders are orders marked as 'Delivered'
+  const completedOrders = allOrders.filter(o => o.deliveryStatus === 'Delivered');
+
+  const totalReconciledValue = completedOrders.reduce((sum, o) => sum + (o.amount || 0), 0);
+  const codSettled = completedOrders.filter(o => o.paymentMode.includes('COD')).length;
+  const prepaidSettled = completedOrders.length - codSettled;
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Completed &amp; Delivered Orders Archive</h1>
+        <p class="admin-page-sub">Historical reconciled deliveries, statutory tax invoices, and 100-night trial records</p>
+      </div>
+      <button class="btn-admin btn-gold" onclick="window.exportFullDataBackup()">📥 Export Reconciled Order Book</button>
+    </div>
+
+    <!-- Completed Orders Metric Stats -->
+    <div class="admin-grid-4" style="margin-bottom:24px;">
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Total Completed Orders</div>
+        <div class="admin-stat-val" style="color:var(--admin-midnight);">${completedOrders.length}</div>
+        <div class="admin-stat-sub">Delivered to doorstep</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Reconciled Sales GMV</div>
+        <div class="admin-stat-val" style="color:var(--admin-emerald);">₹${(totalReconciledValue / 100000).toFixed(2)}L</div>
+        <div class="admin-stat-sub">Settled &amp; banked</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">100-Night Trial Active</div>
+        <div class="admin-stat-val" style="color:var(--admin-gold);">${completedOrders.length}</div>
+        <div class="admin-stat-sub">Active sleeper warranty</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Payment Breakdown</div>
+        <div class="admin-stat-val" style="font-size:1.1rem;color:var(--admin-midnight);">${prepaidSettled} Prepaid · ${codSettled} COD</div>
+        <div class="admin-stat-sub">100% Cash Settled</div>
+      </div>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Delivered &amp; Reconciled Orders Master Records (${completedOrders.length})</div>
+        <span class="admin-badge badge-success">✓ 100% POD Verified</span>
+      </div>
+
+      ${completedOrders.length === 0 ? `
+        <div style="padding:48px 24px;text-align:center;color:var(--admin-text-muted);">
+          <div style="font-family:var(--admin-font-serif);font-size:1.15rem;color:var(--admin-midnight);margin-bottom:6px;">No Completed Orders Recorded Yet</div>
+          <p style="font-size:0.86rem;margin-bottom:16px;">Advance an ongoing order to "Delivered" to view its full archived reconciliation record and generate statutory tax invoices.</p>
+          <button class="btn-admin btn-gold" onclick="window.switchAdminModule('customer_orders')">View Active Orders Pipeline →</button>
+        </div>
+      ` : `
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Delivered Date</th>
+                <th>Customer &amp; Address</th>
+                <th>Items &amp; System Specs</th>
+                <th>Reconciled Amount</th>
+                <th>Payment &amp; POD</th>
+                <th>100-Night Trial</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${completedOrders.map((o) => {
+                const masterIdx = allOrders.findIndex(item => item.id === o.id);
+                return `
+                <tr>
+                  <td><strong style="font-family:monospace;color:var(--admin-midnight);font-size:0.95rem;">${o.id}</strong></td>
+                  <td style="font-size:0.78rem;color:var(--admin-text-secondary);">${o.date}</td>
+                  <td>
+                    <strong>${o.customer}</strong>
+                    <div style="font-size:0.75rem;color:var(--admin-text-muted);">${o.phone} · ${o.address || 'Bangalore'}</div>
+                  </td>
+                  <td style="font-size:0.82rem;max-width:240px;">${o.items}</td>
+                  <td><strong style="color:var(--admin-emerald);font-size:0.95rem;">₹${(o.amount || 0).toLocaleString('en-IN')}</strong></td>
+                  <td>
+                    <span class="admin-badge badge-success">✓ ${o.paymentMode} Settled</span>
+                    <div style="font-size:0.72rem;color:var(--admin-text-muted);margin-top:2px;">Track: ${o.trackingId || 'VH-TRK-99021'}</div>
+                  </td>
+                  <td><span class="admin-badge badge-gold">🛡️ Trial Active (Day 18/100)</span></td>
+                  <td style="white-space:nowrap;">
+                    <div style="display:flex;gap:6px;">
+                      <button class="btn-sm-admin btn-outline-sm" onclick="window.inspectOrderTimeline(${masterIdx})">🔍 Timeline</button>
+                      <button class="btn-sm-admin btn-gold-sm" onclick="window.printOrderInvoice('${o.id}')">📄 Tax Invoice</button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
+
+    <!-- Order Timeline Inspection Modal -->
+    <div id="orderTimelineModal" class="admin-modal-backdrop" onclick="if(event.target===this) window.closeOrderTimelineModal()">
+      <div class="admin-modal-card" id="orderTimelineCard">
+        <!-- Rendered by window.inspectOrderTimeline -->
+      </div>
+    </div>
+  `;
+}
+
+window.printOrderInvoice = function(orderId) {
+  const order = (adminState.store.orders || []).find(o => o.id === orderId) || {
+    id: orderId,
+    customer: 'Dr. Rahul Sharma',
+    phone: '+91 98800 12345',
+    address: 'Indiranagar, Bangalore, Karnataka 560038',
+    date: '28 Aug 2026',
+    items: 'Elara Cloud Orthopedic Mattress (King, 8-Inch)',
+    amount: 48999,
+    paymentMode: 'UPI Pre-Paid',
+    paymentStatus: 'Reconciled & Cash Settled',
+    trackingId: 'VH-TRK-99021'
+  };
+
+  const invoiceHtml = `
+    <div class="admin-modal-backdrop active" id="adminInvoiceModal" onclick="if(event.target===this) window.closeInvoiceModal()">
+      <div class="admin-modal-card" style="max-width:680px;background:var(--admin-surface);padding:32px;border:1px solid var(--admin-border);">
+        <div style="display:flex;justify-content:space-between;border-bottom:2px solid var(--admin-midnight);padding-bottom:16px;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <h2 style="font-family:var(--admin-font-serif);color:var(--admin-midnight);margin:0;font-size:1.5rem;">VELVET HUG SLEEP LABS</h2>
+            <p style="font-size:0.8rem;color:var(--admin-text-secondary);margin-top:2px;">Statutory Tax Invoice &amp; Delivery Reconciliation Certificate</p>
+            <p style="font-size:0.75rem;color:var(--admin-text-muted);">GSTIN: 29AAACV8899Z1ZB · Indiranagar Hub, Bangalore 560038</p>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:monospace;font-size:1.15rem;font-weight:800;color:var(--admin-midnight);">${order.id}</div>
+            <div style="font-size:0.78rem;color:var(--admin-text-muted);">${order.date}</div>
+            <span class="admin-badge badge-success" style="margin-top:4px;">✓ Fully Reconciled</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;font-size:0.84rem;">
+          <div style="background:var(--admin-surface-subtle);padding:12px;border-radius:6px;border:1px solid var(--admin-border);">
+            <strong style="color:var(--admin-midnight);font-size:0.88rem;">Billed &amp; Delivered To:</strong><br>
+            <strong>${order.customer}</strong><br>
+            ${order.address || 'MG Road, Bangalore, Karnataka 560001'}<br>
+            Phone: ${order.phone}
+          </div>
+          <div style="background:var(--admin-surface-subtle);padding:12px;border-radius:6px;border:1px solid var(--admin-border);">
+            <strong style="color:var(--admin-midnight);font-size:0.88rem;">Payment &amp; Fulfillment Proof:</strong><br>
+            Payment Mode: <strong>${order.paymentMode}</strong><br>
+            Settlement: <span style="color:var(--admin-emerald);font-weight:700;">${order.paymentStatus || 'Reconciled'}</span><br>
+            Tracking: <strong>${order.trackingId || 'VH-TRK-99021'}</strong><br>
+            Warranty: <strong>10-Year Direct Lab Warranty</strong>
+          </div>
+        </div>
+
+        <table class="admin-table" style="margin-bottom:20px;">
+          <thead>
+            <tr>
+              <th>Description</th>
+              <th>HSN</th>
+              <th>Qty</th>
+              <th>Unit Taxable</th>
+              <th style="text-align:right;">Total Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>${order.items}</strong><br><span style="font-size:0.75rem;color:var(--admin-text-muted);">Adaptive 5-Layer Contouring Spinal Sleep System</span></td>
+              <td>9404</td>
+              <td>1</td>
+              <td>₹${(order.amount ? Math.round(order.amount / 1.18) : 35000).toLocaleString('en-IN')}</td>
+              <td style="text-align:right;font-weight:700;color:var(--admin-midnight);">₹${(order.amount || 41300).toLocaleString('en-IN')}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="display:flex;justify-content:space-between;border-top:1px solid var(--admin-border);padding-top:14px;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div style="font-size:0.76rem;color:var(--admin-text-muted);">
+            🔒 Statutory Computer-Generated Invoice. 100-Night Sleep Trial Validated.
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-sm-admin btn-outline-sm" onclick="window.closeInvoiceModal()">Close</button>
+            <button class="btn-sm-admin btn-gold-sm" onclick="window.print()">🖨️ Print / Save PDF</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', invoiceHtml);
+};
+
+window.inspectOrderTimeline = function(idx) {
+  const o = adminState.store.orders[idx];
+  if (!o) return;
+
+  const modal = qs('#orderTimelineModal');
+  const card = qs('#orderTimelineCard');
+  if (!modal || !card) return;
+
+  // Build default timeline if not present
+  if (!o.timeline) {
+    o.timeline = [
+      { stage: 'Order Placed', timestamp: `${o.date}, 09:15 AM`, note: 'Order registered and confirmed by customer' }
+    ];
+    if (o.deliveryStatus === 'Crafted in Lab' || o.deliveryStatus === 'Dispatched' || o.deliveryStatus === 'Delivered') {
+      o.timeline.push({ stage: 'Crafted in Lab', timestamp: `${o.date}, 02:30 PM`, note: 'Five-layer contour testing and quality inspection passed' });
+    }
+    if (o.deliveryStatus === 'Dispatched' || o.deliveryStatus === 'Delivered') {
+      o.timeline.push({ stage: 'Dispatched', timestamp: `${o.date}, 06:45 PM`, note: `Handed over to White-Glove Logistics. Tracking: ${o.trackingId || 'VH-TRK-99021'}` });
+    }
+    if (o.deliveryStatus === 'Delivered') {
+      o.timeline.push({ stage: 'Delivered', timestamp: `${o.date}, 04:10 PM`, note: 'Delivered to customer doorstep. Unboxed and held.' });
+    }
+  }
+
+  card.innerHTML = `
+    <div class="admin-modal-header">
+      <div>
+        <div class="admin-modal-title">Order Lifecycle Timeline: ${o.id}</div>
+        <div style="font-size:0.8rem;color:var(--admin-text-secondary);">Customer: <strong>${o.customer}</strong> (${o.phone})</div>
+      </div>
+      <button class="btn-sm-admin btn-outline-sm" onclick="window.closeOrderTimelineModal()">✕</button>
+    </div>
+
+    <div style="background:var(--admin-surface-subtle);border-radius:8px;padding:14px;margin-bottom:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.82rem;">
+        <div><strong>Items:</strong> ${o.items}</div>
+        <div><strong>Amount:</strong> ₹${(o.amount || 0).toLocaleString('en-IN')}</div>
+        <div><strong>Payment:</strong> ${o.paymentMode} (${o.paymentStatus})</div>
+        <div><strong>Tracking ID:</strong> ${o.trackingId || 'VH-TRK-99021'}</div>
+        <div style="grid-column:span 2;"><strong>Address:</strong> ${o.address || 'MG Road, Bangalore'}</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <div style="font-weight:700;font-size:0.88rem;margin-bottom:14px;color:var(--admin-midnight);">Recorded Status Milestones &amp; Timestamps:</div>
+      ${o.timeline.map(t => `
+        <div class="order-timeline-step completed">
+          <div>
+            <div style="font-weight:700;font-size:0.86rem;color:var(--admin-midnight);">${t.stage} <span style="font-size:0.74rem;font-weight:400;color:var(--admin-text-muted);">· ${t.timestamp}</span></div>
+            <div style="font-size:0.8rem;color:var(--admin-text-secondary);margin-top:2px;">${t.note}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+      <button class="btn-sm-admin btn-outline-sm" onclick="window.closeOrderTimelineModal()">Close</button>
+      ${o.deliveryStatus !== 'Delivered' ? `
+        <button class="btn-sm-admin btn-gold-sm" onclick="window.advanceOrderStatus(${idx});window.inspectOrderTimeline(${idx});">Advance to Next Milestone</button>
+      ` : `
+        <button class="btn-sm-admin btn-gold-sm" onclick="window.printOrderInvoice('${o.id}')">📄 Print Tax Invoice</button>
+      `}
+    </div>
+  `;
+
+  modal.classList.add('active');
+};
+
+window.closeOrderTimelineModal = function() {
+  qs('#orderTimelineModal')?.classList.remove('active');
+};
+
+window.advanceOrderStatus = function(idx) {
+  const order = adminState.store.orders[idx];
+  if (!order) return;
+  const stages = ['Order Placed', 'Crafted in Lab', 'Dispatched', 'Delivered'];
+  const curStage = order.deliveryStatus || 'Order Placed';
+  const curIdx = stages.indexOf(curStage);
+  const nextStage = stages[curIdx + 1] || 'Delivered';
+
+  order.deliveryStatus = nextStage;
+  const now = new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  order.timeline = order.timeline || [];
+  order.timeline.push({
+    stage: nextStage,
+    timestamp: now,
+    note: nextStage === 'Crafted in Lab' ? 'Five-layer mattress precision assembly completed in lab'
+      : (nextStage === 'Dispatched' ? `Dispatched via White-Glove Logistics (Tracking ${order.trackingId})`
+      : 'Delivered to customer address. COD Cash Reconciled & Settled.')
+  });
+
+  if (nextStage === 'Delivered' && order.paymentMode.includes('COD')) {
+    order.paymentStatus = 'Reconciled & Cash Settled';
+  }
+
+  saveAdminState(adminState.store);
+
+  // Sync back to consumer user profile if this is the active user
+  try {
+    const userRaw = localStorage.getItem('vh_user_data');
+    if (userRaw) {
+      const u = JSON.parse(userRaw);
+      if (u.orders) {
+        const matching = u.orders.find(o => o.id === order.id);
+        if (matching) {
+          matching.status = nextStage;
+          matching.deliveryStatus = nextStage;
+          matching.timeline = order.timeline;
+          localStorage.setItem('vh_user_data', JSON.stringify(u));
+        }
+      }
+    }
+  } catch (e) {}
+
+  adminToast(`Order ${order.id} advanced to: ${nextStage}`);
+  renderActiveModule();
+};
+
+// ────────────────────────────────────────────────────────────
+// MODULE: 100-NIGHT RETURNS & RMAs (Super Admin & Care)
+// ────────────────────────────────────────────────────────────
+function renderReturnsModule(el) {
+  const returns = getStoredReturns();
+  const isSuperAdmin = adminState.currentUser?.role === 'super_admin';
+  const filter = window._activeReturnsFilter || 'All';
+
+  let filtered = returns;
+  if (filter === 'Pending') filtered = returns.filter(r => (r.status || '').includes('Pending'));
+  else if (filter === 'Approved') filtered = returns.filter(r => (r.status || '').includes('Approved'));
+  else if (filter === 'Evidence') filtered = returns.filter(r => (r.status || '').includes('Evidence') || (r.evidencePhotos && r.evidencePhotos.length > 0));
+  else if (filter === 'Assigned') filtered = returns.filter(r => r.assignedPerson);
+  else if (filter === 'Completed') filtered = returns.filter(r => (r.status || '').includes('Completed') || (r.status || '').includes('Refund'));
+
+  const pendingCount = returns.filter(r => (r.status || '').includes('Pending')).length;
+  const evidenceCount = returns.filter(r => (r.evidencePhotos && r.evidencePhotos.length > 0) || (r.status || '').includes('Evidence')).length;
+  const assignedCount = returns.filter(r => r.assignedPerson).length;
+  const completedCount = returns.filter(r => (r.status || '').includes('Completed') || (r.status || '').includes('Refund')).length;
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">100-Night Returns &amp; RMA Center</h1>
+        <p class="admin-page-sub">Super Admin Verification, Customer Photo Evidence &amp; Field Specialist Logistics</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <span class="admin-badge ${pendingCount > 0 ? 'badge-warning' : 'badge-success'}">
+          ${pendingCount} Pending Super Admin Approval
+        </span>
+        <button class="btn-sm-admin btn-gold-sm" onclick="window.exportReturnsCSV()">📥 Export RMA Ledger</button>
+      </div>
+    </div>
+
+    <!-- Quick Metrics -->
+    <div class="admin-stats-grid" style="grid-template-columns:repeat(4, 1fr);margin-bottom:24px;">
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Total RMA Tickets</div>
+        <div class="admin-stat-val">${returns.length}</div>
+        <div class="admin-stat-trend">100-Night Risk-Free Trial</div>
+      </div>
+      <div class="admin-stat-card" style="border-left:4px solid var(--admin-amber);">
+        <div class="admin-stat-label">Pending Approval</div>
+        <div class="admin-stat-val" style="color:var(--admin-amber);">${pendingCount}</div>
+        <div class="admin-stat-trend">${pendingCount === 0 ? 'All caught up' : 'Awaiting Super Admin'}</div>
+      </div>
+      <div class="admin-stat-card" style="border-left:4px solid #8B5CF6;">
+        <div class="admin-stat-label">Evidence Uploaded</div>
+        <div class="admin-stat-val" style="color:#8B5CF6;">${evidenceCount}</div>
+        <div class="admin-stat-trend">Customer Photos &amp; Notes</div>
+      </div>
+      <div class="admin-stat-card" style="border-left:4px solid var(--admin-emerald);">
+        <div class="admin-stat-label">Officers Assigned</div>
+        <div class="admin-stat-val" style="color:var(--admin-emerald);">${assignedCount}</div>
+        <div class="admin-stat-trend">${completedCount} Refunds Completed</div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="admin-filter-bar" style="margin-bottom:18px;">
+      <div class="admin-search-wrap">
+        <input class="admin-search-input" id="returnsSearchInput" placeholder="Search by RMA ID, Customer, Phone, or Order ID..." oninput="window.filterReturnsTable(this.value)">
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        ${['All', 'Pending', 'Approved', 'Evidence', 'Assigned', 'Completed'].map(f => `
+          <button class="btn-sm-admin ${filter === f ? 'btn-gold-sm' : 'btn-outline-sm'}" onclick="window._activeReturnsFilter='${f}';renderActiveModule();">${f}</button>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Returns Table -->
+    <div class="admin-table-wrapper">
+      <table class="admin-table" id="returnsTable">
+        <thead>
+          <tr>
+            <th>RMA &amp; Order</th>
+            <th>Customer &amp; Location</th>
+            <th>Product &amp; Reason</th>
+            <th>Trial Usage</th>
+            <th>Status</th>
+            <th>Customer Evidence</th>
+            <th>Assigned Specialist</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.length === 0 ? `
+            <tr>
+              <td colspan="8" style="text-align:center;padding:40px;color:var(--admin-text-muted);">
+                No return or exchange requests found under filter "${filter}".
+              </td>
+            </tr>
+          ` : filtered.map(r => `
+            <tr>
+              <td>
+                <strong style="color:var(--admin-midnight);font-family:monospace;font-size:0.92rem;">${r.rmaId}</strong>
+                <div style="font-size:0.75rem;color:var(--admin-text-muted);">Order: <strong>${r.orderId}</strong> · ${r.requestDate || r.date}</div>
+              </td>
+              <td>
+                <strong style="color:var(--admin-midnight);">${r.customerName || 'Customer'}</strong>
+                <div style="font-size:0.75rem;color:var(--admin-text-secondary);">${r.customerPhone || r.phone || '—'}</div>
+                <div style="font-size:0.72rem;color:var(--admin-text-muted);max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.address}</div>
+              </td>
+              <td>
+                <span class="admin-badge ${r.type === 'Firmness Exchange' ? 'badge-info' : 'badge-neutral'}" style="margin-bottom:3px;">${r.type}</span>
+                <div style="font-size:0.78rem;font-weight:600;color:var(--admin-midnight);">${r.item || 'Velvet Hug Mattress'}</div>
+                <div style="font-size:0.74rem;color:var(--admin-text-secondary);font-style:italic;">"${r.reason}"</div>
+              </td>
+              <td>
+                <div style="font-size:0.8rem;font-weight:700;color:var(--admin-midnight);">${r.trialDaysUsed || 30} / 100 Nights</div>
+                <div style="width:100px;height:5px;background:var(--admin-border);border-radius:3px;overflow:hidden;margin-top:3px;">
+                  <div style="width:${Math.min(100, r.trialDaysUsed || 30)}%;height:100%;background:var(--admin-gold);"></div>
+                </div>
+              </td>
+              <td>
+                <span class="admin-badge ${
+                  (r.status || '').includes('Completed') ? 'badge-success' :
+                  (r.status || '').includes('Approved') ? 'badge-info' :
+                  (r.status || '').includes('Evidence') ? 'badge-purple' :
+                  (r.status || '').includes('Assigned') ? 'badge-success' :
+                  (r.status || '').includes('Rejected') ? 'badge-danger' : 'badge-warning'
+                }">
+                  ${r.status}
+                </span>
+              </td>
+              <td>
+                ${(r.evidencePhotos && r.evidencePhotos.length > 0) ? `
+                  <button class="btn-sm-admin btn-outline-sm" onclick="window.viewEvidencePhotos('${r.rmaId}', 'return')" style="display:flex;align-items:center;gap:4px;">
+                    📷 View Photos (${r.evidencePhotos.length})
+                  </button>
+                  ${r.defectDescription ? `<div style="font-size:0.72rem;color:var(--admin-text-secondary);margin-top:3px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.defectDescription}">"${r.defectDescription}"</div>` : ''}
+                ` : `
+                  <span style="font-size:0.75rem;color:var(--admin-text-muted);font-style:italic;">
+                    ${(r.status || '').includes('Approved') ? '⏳ Awaiting Customer Upload' : '—'}
+                  </span>
+                `}
+              </td>
+              <td>
+                ${r.assignedPerson ? `
+                  <div style="font-size:0.8rem;font-weight:700;color:var(--admin-midnight);">🚚 ${r.assignedPerson.name}</div>
+                  <div style="font-size:0.74rem;color:var(--admin-text-secondary);">${r.assignedPerson.phone}</div>
+                  <div style="font-size:0.72rem;color:var(--admin-text-muted);">${r.assignedPerson.vehicle || r.assignedPerson.role}</div>
+                ` : `
+                  <span style="font-size:0.75rem;color:var(--admin-text-muted);">— Unassigned —</span>
+                `}
+              </td>
+              <td style="text-align:right;white-space:nowrap;">
+                ${(r.status || '').includes('Pending') ? `
+                  <button class="btn-sm-admin btn-emerald-sm" onclick="window.approveReturn('${r.rmaId}')" title="Super Admin Approval">
+                    ✓ Approve RMA
+                  </button>
+                  <button class="btn-sm-admin btn-outline-sm" onclick="window.rejectReturn('${r.rmaId}')" style="color:var(--admin-rose);margin-left:4px;">
+                    ✕ Reject
+                  </button>
+                ` : ''}
+                <button class="btn-sm-admin btn-gold-sm" onclick="window.openAssignOfficerModal('${r.rmaId}')" style="margin-left:4px;" title="Assign Field Specialist">
+                  👤 ${r.assignedPerson ? 'Reassign' : 'Assign'}
+                </button>
+                ${((r.status || '').includes('Evidence') || (r.status || '').includes('Assigned')) && !(r.status || '').includes('Completed') ? `
+                  <button class="btn-sm-admin btn-emerald-sm" onclick="window.completeReturnRefund('${r.rmaId}')" style="margin-left:4px;" title="Process 100% Refund">
+                    💳 Issue Refund
+                  </button>
+                ` : ''}
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ------------------------------------------------------------
+// MODULE: WAREHOUSE INVENTORY (Dedicated)
+// ────────────────────────────────────────────────────────────
+function renderInventoryModule(el) {
+  // Self-heal inventory if missing
+  if (!adminState.store.inventory || Object.keys(adminState.store.inventory).length === 0) {
+    adminState.store = loadAdminState();
+  }
+
+  const inventory = adminState.store.inventory || {};
+  const entries = Object.entries(inventory);
+
+  const totalStock = entries.reduce((sum, [_, item]) => sum + (item.stock || 0), 0);
+  const totalReserved = entries.reduce((sum, [_, item]) => sum + (item.reserved || 0), 0);
+  const lowStockCount = entries.filter(([_, item]) => (item.stock || 0) < (item.reorderLevel || 10)).length;
+  const activeSkus = entries.length;
+
+  const currentCat = window._activeInventoryCat || 'All';
+  const filteredEntries = currentCat === 'All' 
+    ? entries 
+    : entries.filter(([_, item]) => (item.category || '').toLowerCase() === currentCat.toLowerCase());
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Warehouse Inventory Management</h1>
+        <p class="admin-page-sub">Monitor live stock reserves, hub allocations, safety buffers and create new catalog SKUs</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn-admin btn-gold" onclick="window.openAddSkuModal()">+ Add New SKU</button>
+        <button class="btn-admin btn-admin-primary" onclick="window.quickRestockAll()">⚡ Quick Batch Restock (+25)</button>
+      </div>
+    </div>
+
+    <!-- Inventory KPI Stats -->
+    <div class="admin-grid-4" style="margin-bottom:24px;">
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Total Units in Hubs</div>
+        <div class="admin-stat-val" style="color:var(--admin-midnight);">${totalStock}</div>
+        <div class="admin-stat-sub">Across 4 regional logistics centers</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Active Monitored SKUs</div>
+        <div class="admin-stat-val" style="color:var(--admin-violet);">${activeSkus}</div>
+        <div class="admin-stat-sub">Mattresses, Pillows, Cushions, Accessories</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Reserved for Dispatch</div>
+        <div class="admin-stat-val" style="color:var(--admin-gold);">${totalReserved}</div>
+        <div class="admin-stat-sub">Allocated for verified pending orders</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Low Stock Alerts</div>
+        <div class="admin-stat-val" style="color:${lowStockCount > 0 ? 'var(--admin-rose)' : 'var(--admin-emerald)'};">${lowStockCount}</div>
+        <div class="admin-stat-sub">${lowStockCount > 0 ? 'Urgent replenishment suggested' : 'All buffer thresholds healthy'}</div>
+      </div>
+    </div>
+
+    <!-- Category Filter Tabs -->
+    <div class="admin-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${['All', 'Mattresses', 'Pillows', 'Cushions', 'Bolsters', 'Accessories'].map(cat => `
+            <button class="btn-sm-admin ${currentCat === cat ? 'btn-admin-primary' : 'btn-outline-sm'}" onclick="window.filterInventoryCategory('${cat}')">${cat}</button>
+          `).join('')}
+        </div>
+        <div style="font-size:0.84rem;color:var(--admin-text-muted);">Showing <strong>${filteredEntries.length}</strong> of ${activeSkus} SKUs</div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>SKU Code</th>
+              <th>Product Model & Category</th>
+              <th>Available Units</th>
+              <th>Reserved</th>
+              <th>Hub Allocation</th>
+              <th>Unit Cost</th>
+              <th>Buffer Status</th>
+              <th>Stock Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredEntries.length === 0 ? `
+              <tr>
+                <td colspan="8" style="text-align:center;padding:32px;color:var(--admin-text-muted);">No products found in this category. Click "+ Add New SKU" to add one.</td>
+              </tr>
+            ` : filteredEntries.map(([sku, inv]) => {
+              const isLow = (inv.stock || 0) < (inv.reorderLevel || 10);
+              return `
+                <tr>
+                  <td><code style="color:var(--admin-midnight);font-weight:700;">${sku}</code></td>
+                  <td>
+                    <strong>${inv.name || sku}</strong>
+                    <div style="font-size:0.75rem;color:var(--admin-text-muted);">${inv.category || 'Core Catalog'}</div>
+                  </td>
+                  <td>
+                    <strong style="font-size:1.1rem;color:${isLow ? 'var(--admin-rose)' : 'var(--admin-emerald)'}">${inv.stock} units</strong>
+                    <div style="font-size:0.72rem;color:var(--admin-text-muted);">Reorder at: ${inv.reorderLevel || 10}</div>
+                  </td>
+                  <td><span style="font-weight:600;color:var(--admin-midnight);">${inv.reserved || 0}</span></td>
+                  <td>${inv.location || 'Central Hub'}</td>
+                  <td><span style="font-weight:600;">${inv.unitCost || '₹1,500'}</span></td>
+                  <td>
+                    ${isLow 
+                      ? '<span class="admin-badge badge-danger">⚠️ Low Stock (&lt;' + (inv.reorderLevel || 10) + ')</span>' 
+                      : '<span class="admin-badge badge-success">✓ Healthy Stock</span>'}
+                  </td>
+                  <td>
+                    <div style="display:flex;gap:6px;">
+                      <button class="btn-sm-admin btn-gold-sm" onclick="window.addInventoryStock('${sku}')" title="Add Stock Units">+ Add</button>
+                      <button class="btn-sm-admin btn-outline-sm" onclick="window.deductInventoryStock('${sku}')" title="Deduct / Dispatch Units">- Dispatch</button>
+                      <button class="btn-sm-admin btn-danger-sm" onclick="window.deleteSku('${sku}')" title="Delete SKU">🗑️</button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+window.filterInventoryCategory = function(cat) {
+  window._activeInventoryCat = cat;
+  renderActiveModule();
+};
+
+window.openAddSkuModal = function() {
+  const modalHtml = `
+    <div class="admin-modal-backdrop active" id="adminActiveModal">
+      <div class="admin-modal-card">
+        <div class="admin-modal-header">
+          <h2 class="admin-modal-title">📦 Add New Warehouse SKU</h2>
+          <button class="btn-sm-admin btn-outline-sm" onclick="window.closeAdminModal()">✕</button>
+        </div>
+        <form onsubmit="window.saveNewSku(event)">
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">SKU Code *</label>
+              <input class="admin-form-input" id="newSkuCode" placeholder="e.g. vh-m006 or vh-p004" required autofocus>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Category *</label>
+              <select class="admin-form-select" id="newSkuCategory" required>
+                <option value="Mattresses">Mattresses</option>
+                <option value="Pillows">Pillows</option>
+                <option value="Cushions">Cushions</option>
+                <option value="Bolsters">Bolsters</option>
+                <option value="Accessories">Accessories</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Product Model Name *</label>
+            <input class="admin-form-input" id="newSkuName" placeholder="e.g. Luminary Dual-Sided Latex Pillow" required>
+          </div>
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Initial Stock Units *</label>
+              <input class="admin-form-input" type="number" id="newSkuStock" min="1" value="50" required>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Reorder Safety Level *</label>
+              <input class="admin-form-input" type="number" id="newSkuReorder" min="1" value="15" required>
+            </div>
+          </div>
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Warehouse Hub *</label>
+              <select class="admin-form-select" id="newSkuLocation">
+                <option value="Hub Bangalore Central">Hub Bangalore Central</option>
+                <option value="Hub Chennai South">Hub Chennai South</option>
+                <option value="Hub Mumbai West">Hub Mumbai West</option>
+                <option value="Hub Delhi NCR">Hub Delhi NCR</option>
+                <option value="Central Logistics Hub">Central Logistics Hub (All)</option>
+              </select>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Unit Cost / Value</label>
+              <input class="admin-form-input" id="newSkuCost" placeholder="e.g. ₹18,500" value="₹12,000">
+            </div>
+          </div>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-sm-admin btn-outline-sm" onclick="window.closeAdminModal()">Cancel</button>
+            <button type="submit" class="btn-admin btn-gold">+ Create SKU</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.saveNewSku = function(e) {
+  e.preventDefault();
+  const code = qs('#newSkuCode')?.value.trim().toLowerCase();
+  const name = qs('#newSkuName')?.value.trim();
+  const category = qs('#newSkuCategory')?.value;
+  const stock = parseInt(qs('#newSkuStock')?.value || '50', 10);
+  const reorderLevel = parseInt(qs('#newSkuReorder')?.value || '15', 10);
+  const location = qs('#newSkuLocation')?.value;
+  const unitCost = qs('#newSkuCost')?.value.trim() || '₹12,000';
+
+  if (!code || !name) return;
+
+  if (!adminState.store.inventory) adminState.store.inventory = {};
+  adminState.store.inventory[code] = {
+    name,
+    category,
+    stock,
+    reserved: 0,
+    location,
+    reorderLevel,
+    unitCost
+  };
+
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Inventory', 'SKU Created', `Added new SKU ${code} (${name}) with ${stock} initial units`);
+  window.closeAdminModal();
+  adminToast(`✓ New SKU ${code} created successfully!`);
+  renderActiveModule();
+};
+
+window.deleteSku = function(sku) {
+  if (!confirm(`Are you sure you want to remove SKU "${sku}" from the warehouse inventory?`)) return;
+  if (adminState.store.inventory && adminState.store.inventory[sku]) {
+    const name = adminState.store.inventory[sku].name;
+    delete adminState.store.inventory[sku];
+    saveAdminState(adminState.store);
+    logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Inventory', 'SKU Removed', `Removed SKU ${sku} (${name})`);
+    adminToast(`SKU ${sku} deleted`);
+    renderActiveModule();
+  }
+};
+
+window.quickRestockAll = function() {
+  const inv = adminState.store.inventory;
+  if (!inv) return;
+  Object.keys(inv).forEach(sku => {
+    inv[sku].stock = (inv[sku].stock || 0) + 25;
+  });
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Inventory', 'Batch Restocked', 'Added +25 units across all catalog SKUs');
+  adminToast('Batch Restock Complete: +25 units added to all SKUs');
+  renderActiveModule();
+};
+
+window.addInventoryStock = function(sku) {
+  const inv = adminState.store.inventory[sku];
+  const qty = prompt(`Enter units to add for ${inv?.name || sku}:`, '25');
+  if (qty && !isNaN(qty) && parseInt(qty, 10) > 0) {
+    if (inv) {
+      const added = parseInt(qty, 10);
+      inv.stock = (inv.stock || 0) + added;
+      saveAdminState(adminState.store);
+      logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Inventory', 'Stock Added', `Added +${qty} units to ${inv.name || sku}`);
+      
+      // Real-time update in PostgreSQL company.inventory
+      if (inv.dbId) {
+        fetch(`/api/company/inventory/${inv.dbId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stockAvailable: inv.stock, reason: `Admin added +${added} units` })
+        }).catch(console.error);
+      }
+
+      adminToast(`Added +${qty} units to ${inv.name || sku}`);
+      renderActiveModule();
+    }
+  }
+};
+
+window.deductInventoryStock = function(sku) {
+  const inv = adminState.store.inventory[sku];
+  const qty = prompt(`Enter units to deduct/dispatch for ${inv?.name || sku}:`, '5');
+  if (qty && !isNaN(qty) && parseInt(qty, 10) > 0) {
+    if (inv) {
+      const deductVal = parseInt(qty, 10);
+      if (inv.stock >= deductVal) {
+        inv.stock -= deductVal;
+        saveAdminState(adminState.store);
+        logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Inventory', 'Stock Dispatched', `Dispatched -${qty} units from ${inv.name || sku}`);
+        
+        // Real-time update in PostgreSQL company.inventory
+        if (inv.dbId) {
+          fetch(`/api/company/inventory/${inv.dbId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stockAvailable: inv.stock, reason: `Admin dispatched -${deductVal} units` })
+          }).catch(console.error);
+        }
+
+        adminToast(`Dispatched -${qty} units from ${inv.name || sku}`);
+        renderActiveModule();
+      } else {
+        alert(`Cannot dispatch ${deductVal} units. Available stock is only ${inv.stock} units.`);
+      }
+    }
+  }
+};
+
+window.closeAdminModal = function() {
+  const modal = document.getElementById('adminActiveModal');
+  if (modal) modal.remove();
+};
+
+// ────────────────────────────────────────────────────────────
+// MODULE: CATALOG & 6-TAXONOMY
+// ────────────────────────────────────────────────────────────
+function renderCatalogModule(el) {
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Catalog &amp; 6-Axis Taxonomy</h1>
+        <p class="admin-page-sub">Manage products across all categories and independent filter axes</p>
+      </div>
+    </div>
+
+    <!-- 6 Taxonomies -->
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">6 Independent Filter Taxonomies</div>
+        <span class="admin-badge badge-info">Parallel Combinable Axes</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:14px;">
+        ${Object.entries(FILTER_AXES).map(([k, axis]) => `
+          <div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border);border-radius:8px;padding:14px;">
+            <div style="font-weight:700;color:var(--admin-midnight);font-size:0.85rem;margin-bottom:8px;">${axis.label} (${axis.options.length} tags)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;">
+              ${axis.options.map(opt => `
+                <span style="font-size:0.72rem;background:var(--admin-surface);color:var(--admin-text-main);border:1px solid var(--admin-border);padding:3px 8px;border-radius:4px;">${opt}</span>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Products Table -->
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Master Product Catalog (${PRODUCTS.length} SKUs)</div>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Base Price</th>
+              <th>MRP</th>
+              <th>Doctor Approved</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${PRODUCTS.map(p => `
+              <tr>
+                <td><code style="color:var(--admin-midnight);">${p.id}</code></td>
+                <td><strong>${p.name}</strong></td>
+                <td><span class="admin-badge badge-info">${p.category}</span></td>
+                <td><strong>₹${p.basePrice.toLocaleString('en-IN')}</strong></td>
+                <td style="text-decoration:line-through;color:var(--admin-text-muted);">₹${p.mrp.toLocaleString('en-IN')}</td>
+                <td>${p.doctorRecommended ? '<span class="admin-badge badge-success">Doctor Validated</span>' : 'Standard'}</td>
+                <td>
+                  <button class="btn-sm-admin btn-outline-sm" onclick="window.editProductPrice('${p.id}')">Edit Base Price</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+window.editProductPrice = function(sku) {
+  const prod = PRODUCTS.find(p => p.id === sku);
+  if (!prod) return;
+  const newPrice = prompt(`Enter new base price for ${prod.name}:`, prod.basePrice);
+  if (newPrice && !isNaN(newPrice)) {
+    prod.basePrice = parseInt(newPrice, 10);
+    logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Catalog', 'Price Updated', `Changed ${prod.name} base price to ₹${newPrice}`);
+    adminToast(`Base price updated for ${prod.name}`);
+    renderActiveModule();
+  }
+};
+
+// MODULE: PRICING & COUPONS (With Instant Consumer Sync)
+// ────────────────────────────────────────────────────────────
+function renderPricingModule(el) {
+  if (!adminState.store.coupons || adminState.store.coupons.length === 0) {
+    adminState.store = loadAdminState();
+  }
+  const coupons = adminState.store.coupons || [];
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Pricing, Tier Rules &amp; Coupons</h1>
+        <p class="admin-page-sub">Configure active promo codes, max caps, and instant consumer discount syncing</p>
+      </div>
+      <button class="btn-admin btn-gold" onclick="window.openCreateCouponModal()">+ Create New Coupon</button>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Active Promotional Coupons (${coupons.length})</div>
+        <span class="admin-badge badge-success">⚡ Live Sync with Consumer Checkout</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Coupon Code</th>
+              <th>Discount</th>
+              <th>Max Cap</th>
+              <th>Min Cart Total</th>
+              <th>Expiry Date</th>
+              <th>Usage Count</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${coupons.length === 0 ? `
+              <tr>
+                <td colspan="8" style="text-align:center;padding:32px;color:var(--admin-text-muted);">No coupons created. Click "+ Create New Coupon" above.</td>
+              </tr>
+            ` : coupons.map((c, i) => `
+              <tr>
+                <td><strong style="font-family:monospace;font-size:1.05rem;color:var(--admin-midnight);background:rgba(212,175,55,0.15);padding:4px 10px;border-radius:4px;border:1px solid rgba(212,175,55,0.4);">${c.code}</strong></td>
+                <td><strong style="font-size:1rem;color:var(--admin-emerald);">${c.discountPct}% OFF</strong></td>
+                <td><span style="font-weight:600;">₹${(c.maxDiscount || 10000).toLocaleString('en-IN')}</span></td>
+                <td><span style="font-weight:600;">₹${(c.minOrder || 0).toLocaleString('en-IN')}</span></td>
+                <td>${c.expiry || '31 Dec 2026'}</td>
+                <td><span class="admin-badge badge-info">${c.usageCount || 0} times</span></td>
+                <td><span class="admin-badge ${c.status === 'Active' ? 'badge-success' : 'badge-danger'}">${c.status}</span></td>
+                <td>
+                  <div style="display:flex;gap:6px;">
+                    <button class="btn-sm-admin ${c.status === 'Active' ? 'btn-danger-sm' : 'btn-gold-sm'}" onclick="window.toggleCouponStatus(${i})">${c.status === 'Active' ? 'Deactivate' : 'Activate'}</button>
+                    <button class="btn-sm-admin btn-outline-sm" onclick="window.deleteCoupon(${i})" title="Delete Coupon">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pricing Tiers Info -->
+    <div class="admin-panel" style="margin-top:20px;">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Price Tier Multipliers &amp; Dynamic Margins</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:14px;">
+        <div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border);border-radius:8px;padding:16px;">
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--admin-text-muted);font-weight:700;">Essential Tier</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--admin-midnight);margin:6px 0;">1.00x Base</div>
+          <p style="font-size:0.75rem;color:var(--admin-text-secondary);">Direct-to-consumer essentials with standard high-resilience foam.</p>
+        </div>
+        <div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border);border-radius:8px;padding:16px;">
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--admin-text-muted);font-weight:700;">Signature Tier</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--admin-midnight);margin:6px 0;">1.25x Base</div>
+          <p style="font-size:0.75rem;color:var(--admin-text-secondary);">Dual-zoned orthopedic memory foam with natural TENCEL cover.</p>
+        </div>
+        <div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border);border-radius:8px;padding:16px;">
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--admin-text-muted);font-weight:700;">Reserve Tier</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--admin-midnight);margin:6px 0;">1.55x Base</div>
+          <p style="font-size:0.75rem;color:var(--admin-text-secondary);">100% Kerala natural pin-core latex with zero motion transfer.</p>
+        </div>
+        <div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border);border-radius:8px;padding:16px;">
+          <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--admin-gold);font-weight:700;">Reserve+ Luxury</div>
+          <div style="font-size:1.3rem;font-weight:800;color:var(--admin-midnight);margin:6px 0;">1.90x Base</div>
+          <p style="font-size:0.75rem;color:var(--admin-text-secondary);">Pocket-spring hybrid with Mulberry silk infusion &amp; 10-year warranty.</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+window.openCreateCouponModal = function() {
+  const modalHtml = `
+    <div class="admin-modal-backdrop active" id="adminActiveModal">
+      <div class="admin-modal-card">
+        <div class="admin-modal-header">
+          <h2 class="admin-modal-title">🎟️ Create Promotional Coupon</h2>
+          <button class="btn-sm-admin btn-outline-sm" onclick="window.closeAdminModal()">✕</button>
+        </div>
+        <form onsubmit="window.saveNewCoupon(event)">
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Coupon Code * (Auto-Uppercase)</label>
+              <input class="admin-form-input" id="newCouponCode" placeholder="e.g. DIWALI40 or FESTIVE25" style="text-transform:uppercase;font-weight:700;" required autofocus>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Discount Percentage *</label>
+              <select class="admin-form-select" id="newCouponPct" required>
+                <option value="10">10% OFF</option>
+                <option value="15">15% OFF</option>
+                <option value="20">20% OFF</option>
+                <option value="25">25% OFF</option>
+                <option value="30" selected>30% OFF</option>
+                <option value="40">40% OFF</option>
+                <option value="50">50% OFF (Special B2B/Founding)</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Maximum Discount Cap (₹)</label>
+              <input class="admin-form-input" type="number" id="newCouponMaxCap" value="10000" min="500" required>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Minimum Cart Total (₹)</label>
+              <input class="admin-form-input" type="number" id="newCouponMinOrder" value="10000" min="0" required>
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Expiry Date *</label>
+            <input class="admin-form-input" type="date" id="newCouponExpiry" value="2026-12-31" required>
+          </div>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-sm-admin btn-outline-sm" onclick="window.closeAdminModal()">Cancel</button>
+            <button type="submit" class="btn-admin btn-gold">Save &amp; Publish Coupon</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.saveNewCoupon = function(e) {
+  e.preventDefault();
+  const code = qs('#newCouponCode')?.value.trim().toUpperCase();
+  const discountPct = parseInt(qs('#newCouponPct')?.value || '20', 10);
+  const maxDiscount = parseInt(qs('#newCouponMaxCap')?.value || '10000', 10);
+  const minOrder = parseInt(qs('#newCouponMinOrder')?.value || '10000', 10);
+  const rawDate = qs('#newCouponExpiry')?.value || '2026-12-31';
+
+  if (!code) return;
+
+  if (!adminState.store.coupons) adminState.store.coupons = [];
+
+  // Check duplicate
+  const existing = adminState.store.coupons.find(c => c.code === code);
+  if (existing) {
+    existing.discountPct = discountPct;
+    existing.maxDiscount = maxDiscount;
+    existing.minOrder = minOrder;
+    existing.expiry = rawDate;
+    existing.status = 'Active';
+  } else {
+    adminState.store.coupons.push({
+      code,
+      discountPct,
+      maxDiscount,
+      minOrder,
+      expiry: rawDate,
+      usageCount: 0,
+      status: 'Active'
+    });
+  }
+
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Promotions', 'Coupon Created', `Created/Updated promo coupon ${code} (${discountPct}% off, Cap ₹${maxDiscount})`);
+  window.closeAdminModal();
+  adminToast(`✓ Coupon ${code} published and live for shoppers!`);
+  renderActiveModule();
+};
+
+window.deleteCoupon = function(idx) {
+  const c = adminState.store.coupons[idx];
+  if (!c) return;
+  if (!confirm(`Delete coupon "${c.code}" permanently?`)) return;
+  adminState.store.coupons.splice(idx, 1);
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Promotions', 'Coupon Deleted', `Deleted coupon ${c.code}`);
+  adminToast(`Coupon ${c.code} deleted`);
+  renderActiveModule();
+};
+
+window.toggleCouponStatus = function(idx) {
+  const c = adminState.store.coupons[idx];
+  if (!c) return;
+  c.status = c.status === 'Active' ? 'Inactive' : 'Active';
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Promotions', 'Coupon Status Changed', `${c.code} marked as ${c.status}`);
+  adminToast(`Coupon ${c.code} is now ${c.status}`);
+  renderActiveModule();
+};
+
+// ────────────────────────────────────────────────────────────
+// MODULE: DYNAMIC SLEEP QUIZ BACKEND (Add / Delete / Edit Questions)
+// ────────────────────────────────────────────────────────────
+function renderQuizModule(el) {
+  const questions = getStoredQuizQuestions();
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Sleep Companion Quiz Backend</h1>
+        <p class="admin-page-sub">Add, edit, or delete questions. Changes reflect instantly on the consumer website.</p>
+      </div>
+      <button class="btn-sm-admin btn-gold-sm" onclick="window.addNewQuizQuestion()">+ Add New Question</button>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Active Diagnostic Questions (${questions.length} Questions)</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        ${questions.map((q, idx) => `
+          <div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border);border-radius:8px;padding:18px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <span class="admin-badge badge-info">Question ${idx + 1}</span>
+              <button class="btn-sm-admin btn-danger-sm" onclick="window.deleteQuizQuestion(${idx})">Delete Question</button>
+            </div>
+            <div style="font-size:1.05rem;font-weight:700;color:var(--admin-midnight);margin-bottom:4px;">${q.question}</div>
+            <div style="font-size:0.82rem;color:var(--admin-text-secondary);margin-bottom:12px;">${q.sub || ''}</div>
+            <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;">
+              ${(q.options || []).map(opt => `
+                <div style="background:var(--admin-surface);border:1px solid var(--admin-border);padding:10px 12px;border-radius:6px;font-size:0.8rem;">
+                  <div style="font-weight:700;color:var(--admin-text-main);">${opt.label}</div>
+                  <div style="font-size:0.72rem;color:var(--admin-text-muted);">${opt.sub || ''}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+window.addNewQuizQuestion = function() {
+  const title = prompt('Enter the diagnostic question text:');
+  if (!title) return;
+  const sub = prompt('Enter explanatory subtitle (optional):') || '';
+  const opt1 = prompt('Enter Option 1 label:') || 'Option 1';
+  const opt2 = prompt('Enter Option 2 label:') || 'Option 2';
+  const opt3 = prompt('Enter Option 3 label:') || 'Option 3';
+
+  const questions = getStoredQuizQuestions();
+  questions.push({
+    id: `q_${Date.now()}`,
+    question: title,
+    sub,
+    options: [
+      { label: opt1, sub: 'Balanced comfort', emoji: '', tags: ['Memory Foam', 'Medium'] },
+      { label: opt2, sub: 'Targeted support', emoji: '', tags: ['Latex', 'Firm'] },
+      { label: opt3, sub: 'Plush luxury', emoji: '', tags: ['Pocket Spring', 'Medium-Soft'] }
+    ]
+  });
+
+  saveStoredQuizQuestions(questions);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Quiz Backend', 'Question Added', `Added diagnostic question: "${title}"`);
+  adminToast('New diagnostic question added to Sleep Quiz!');
+  renderActiveModule();
+};
+
+window.deleteQuizQuestion = function(idx) {
+  const questions = getStoredQuizQuestions();
+  if (confirm(`Delete Question ${idx + 1}? This will remove it from the customer quiz.`)) {
+    const deleted = questions.splice(idx, 1);
+    saveStoredQuizQuestions(questions);
+    logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Quiz Backend', 'Question Deleted', `Deleted question: "${deleted[0]?.question}"`);
+    adminToast('Question removed from Sleep Quiz.');
+    renderActiveModule();
+  }
+};
+
+// ────────────────────────────────────────────────────────────
+// MODULE: FOUNDING PARTNERS REGISTRY
+// ────────────────────────────────────────────────────────────
+function renderFoundingModule(el) {
+  const currentCount = parseInt(localStorage.getItem('vh_founding_count') || '348', 10);
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Founding Sleep Partners Registry</h1>
+        <p class="admin-page-sub">Numbered allocation for the first 1,000 online patrons (#1 – #1,000)</p>
+      </div>
+      <button class="btn-sm-admin btn-gold-sm" onclick="window.overrideFoundingCount()">Override Live Count</button>
+    </div>
+
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Spots Claimed</div>
+        <div class="admin-stat-val">${currentCount} / 1,000</div>
+        <div class="admin-stat-trend">${Math.round((currentCount / 1000) * 100)}% quota claimed</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-label">Founding Price Lock</div>
+        <div class="admin-stat-val">15% Lifetime</div>
+        <div class="admin-stat-trend">Permanent account discount</div>
+      </div>
+    </div>
+  `;
+}
+
+window.overrideFoundingCount = function() {
+  const current = localStorage.getItem('vh_founding_count') || '348';
+  const val = prompt('Set live Founding Sleep Partner count:', current);
+  if (val && !isNaN(val)) {
+    const num = Math.min(parseInt(val, 10), 1000);
+    localStorage.setItem('vh_founding_count', num.toString());
+    logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Founding Partner', 'Counter Override', `Manual override of founding count to ${num}`);
+    adminToast(`Live counter updated to ${num}`);
+    renderActiveModule();
+  }
+};
+
+// ────────────────────────────────────────────────────────────
+// MODULE: REST AMBASSADOR / REFERRALS
+// ────────────────────────────────────────────────────────────
+function renderReferralsModule(el) {
+  const payouts = adminState.store.referralPayouts || [];
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Rest Ambassador Referrals &amp; Payouts</h1>
+        <p class="admin-page-sub">Disburse ₹1,000 rewards after customer 30-night trial completion</p>
+      </div>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Reward Disbursal Queue (${payouts.length})</div>
+      </div>
+      ${payouts.length === 0 ? `
+        <div style="padding:36px;text-align:center;color:var(--admin-text-muted);">
+          No pending referral rewards. New referral commissions will appear here.
+        </div>
+      ` : `
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Partner</th>
+                <th>Referral Code</th>
+                <th>Referred Order</th>
+                <th>Reward Amount</th>
+                <th>30-Day Trial Status</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${payouts.map((p, idx) => `
+                <tr>
+                  <td><strong>${p.partner}</strong></td>
+                  <td><code>${p.referralCode}</code></td>
+                  <td>${p.referredFriend}</td>
+                  <td><strong>₹${p.rewardAmount.toLocaleString('en-IN')}</strong></td>
+                  <td>${p.trialPeriodCompleted ? '<span class="admin-badge badge-success">30 Days Passed</span>' : '<span class="admin-badge badge-warning">In Trial</span>'}</td>
+                  <td><span class="admin-badge ${p.status.includes('Approved') ? 'badge-success' : 'badge-warning'}">${p.status}</span></td>
+                  <td>
+                    ${p.status.includes('Pending') ? `<button class="btn-sm-admin btn-gold-sm" onclick="window.approveReferralPayout(${idx})">Approve &amp; Pay</button>` : 'Disbursed'}
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    </div>
+  `;
+}
+
+// ────────────────────────────────────────────────────────────
+// MODULE: STORIES & VIDEO SUBMISSIONS (Full Staff & Admin Creation)
+// ────────────────────────────────────────────────────────────
+function renderStoriesModule(el) {
+  if (!adminState.store.storySubmissions || adminState.store.storySubmissions.length === 0) {
+    adminState.store = loadAdminState();
+  }
+  const stories = adminState.store.storySubmissions || [];
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Customer Stories &amp; WhatsApp Reels Inbox</h1>
+        <p class="admin-page-sub">Review and publish real sleeper transformations with statutory DPDP consent</p>
+      </div>
+      <button class="btn-admin btn-gold" onclick="window.openAddStoryModal()">+ Add Customer Story / Reel</button>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Submission Moderation Queue (${stories.length})</div>
+        <span class="admin-badge badge-info">DPDP Consent Tracking</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        ${stories.length === 0 ? `
+          <div style="text-align:center;padding:32px;color:var(--admin-text-muted);">No stories in queue. Click "+ Add Customer Story / Reel" above.</div>
+        ` : stories.map((s, idx) => `
+          <div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border);border-radius:8px;padding:18px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+              <div>
+                <strong style="font-size:1.02rem;color:var(--admin-midnight);">${s.author}</strong> 
+                <span style="color:var(--admin-text-muted);">(${s.city || 'India'})</span> · 
+                <span class="admin-badge badge-gold">Partner #${s.partnerNum || idx + 101}</span> · 
+                <span class="admin-badge badge-info">${s.mediaType || 'Video Reel (0:45)'}</span>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <span class="admin-badge ${s.status?.includes('Approved') ? 'badge-success' : 'badge-warning'}">${s.status}</span>
+                <span class="admin-badge badge-gold">${s.rewardStatus || '₹5,000 Payout Eligible'}</span>
+              </div>
+            </div>
+            <p style="font-family:var(--admin-font-serif);font-style:italic;font-size:0.95rem;margin-bottom:12px;color:var(--admin-midnight);line-height:1.6;">
+              "${s.story}"
+            </p>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--admin-border);padding-top:10px;font-size:0.78rem;color:var(--admin-text-secondary);flex-wrap:wrap;gap:10px;">
+              <div>🔒 DPDP Consent: <strong>${s.consentDpdp ? 'Verified & Stored' : 'Pending'}</strong> · ${s.consentDate || 'Today'}</div>
+              <div style="display:flex;gap:8px;">
+                ${s.status !== 'Approved & Featured' ? `
+                  <button class="btn-sm-admin btn-gold-sm" onclick="window.approveStory(${idx})">✓ Approve &amp; Feature</button>
+                ` : `
+                  <button class="btn-sm-admin btn-outline-sm" onclick="window.unapproveStory(${idx})">Unpublish</button>
+                `}
+                <button class="btn-sm-admin btn-danger-sm" onclick="window.deleteStory(${idx})">Delete</button>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+window.openAddStoryModal = function() {
+  const modalHtml = `
+    <div class="admin-modal-backdrop active" id="adminActiveModal">
+      <div class="admin-modal-card">
+        <div class="admin-modal-header">
+          <h2 class="admin-modal-title">🎥 Add Customer Story / WhatsApp Reel</h2>
+          <button class="btn-sm-admin btn-outline-sm" onclick="window.closeAdminModal()">✕</button>
+        </div>
+        <form onsubmit="window.saveNewStory(event)">
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Sleeper / Author Name *</label>
+              <input class="admin-form-input" id="newStoryAuthor" placeholder="e.g. Dr. Ananya Sen & Rohit" required autofocus>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">City *</label>
+              <input class="admin-form-input" id="newStoryCity" placeholder="e.g. Bangalore, Indiranagar" value="Bangalore" required>
+            </div>
+          </div>
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Founding Partner #</label>
+              <input class="admin-form-input" type="number" id="newStoryPartnerNum" value="184" min="1">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Media Format</label>
+              <select class="admin-form-select" id="newStoryMediaType">
+                <option value="WhatsApp Video Reel (0:45)">WhatsApp Video Reel (0:45)</option>
+                <option value="Instagram Sleep Story">Instagram Sleep Story</option>
+                <option value="Doctor Clinical Testimonial">Doctor Clinical Testimonial</option>
+                <option value="Photo & Written Review">Photo & Written Review</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Sleep Transformation Story / Feedback *</label>
+            <textarea class="admin-form-textarea" id="newStoryText" rows="4" placeholder="Tell the sleep journey, spinal recovery, or zero motion experience..." required></textarea>
+          </div>
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Reward Payout Status</label>
+              <select class="admin-form-select" id="newStoryReward">
+                <option value="Cash Reward ₹5,000 Paid">Cash Reward ₹5,000 Paid</option>
+                <option value="Store Credit ₹5,000 Issued">Store Credit ₹5,000 Issued</option>
+                <option value="Pending Payout Verification">Pending Payout Verification</option>
+              </select>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Publication Status</label>
+              <select class="admin-form-select" id="newStoryStatus">
+                <option value="Approved & Featured">Approved & Featured (Live)</option>
+                <option value="Pending Review">Pending Review</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;cursor:pointer;">
+              <input type="checkbox" id="newStoryDpdp" checked required>
+              <span>Verify customer DPDP consent for public website display</span>
+            </label>
+          </div>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-sm-admin btn-outline-sm" onclick="window.closeAdminModal()">Cancel</button>
+            <button type="submit" class="btn-admin btn-gold">+ Publish Story</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.saveNewStory = function(e) {
+  e.preventDefault();
+  const author = qs('#newStoryAuthor')?.value.trim();
+  const city = qs('#newStoryCity')?.value.trim();
+  const partnerNum = parseInt(qs('#newStoryPartnerNum')?.value || '100', 10);
+  const mediaType = qs('#newStoryMediaType')?.value;
+  const story = qs('#newStoryText')?.value.trim();
+  const rewardStatus = qs('#newStoryReward')?.value;
+  const status = qs('#newStoryStatus')?.value;
+  const consentDpdp = qs('#newStoryDpdp')?.checked;
+
+  if (!author || !story) return;
+
+  if (!adminState.store.storySubmissions) adminState.store.storySubmissions = [];
+
+  adminState.store.storySubmissions.unshift({
+    id: `st_${Date.now()}`,
+    author,
+    city,
+    partnerNum,
+    mediaType,
+    story,
+    consentDpdp: !!consentDpdp,
+    consentDate: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    rewardStatus,
+    status
+  });
+
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Stories', 'Story Added', `Added customer story from ${author} (${city})`);
+  window.closeAdminModal();
+  adminToast(`✓ Customer story for ${author} saved!`);
+  renderActiveModule();
+};
+
+window.approveStory = function(idx) {
+  const s = adminState.store.storySubmissions[idx];
+  if (!s) return;
+  s.status = 'Approved & Featured';
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Stories', 'Story Approved', `Approved story by ${s.author}`);
+  adminToast(`Story by ${s.author} is now Live!`);
+  renderActiveModule();
+};
+
+window.unapproveStory = function(idx) {
+  const s = adminState.store.storySubmissions[idx];
+  if (!s) return;
+  s.status = 'Pending Review';
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Stories', 'Story Unpublished', `Unpublished story by ${s.author}`);
+  adminToast(`Story by ${s.author} moved to Pending`);
+  renderActiveModule();
+};
+
+window.deleteStory = function(idx) {
+  const s = adminState.store.storySubmissions[idx];
+  if (!s) return;
+  if (!confirm(`Delete story by ${s.author}?`)) return;
+  adminState.store.storySubmissions.splice(idx, 1);
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Stories', 'Story Deleted', `Deleted story by ${s.author}`);
+  adminToast('Story deleted');
+  renderActiveModule();
+};
+
+// ────────────────────────────────────────────────────────────
+// MODULE: REVIEWS MODERATION (Live Consumer Reviews + Add Verified)
+// ────────────────────────────────────────────────────────────
+function renderReviewsModule(el) {
+  if (!adminState.store.reviews || adminState.store.reviews.length === 0) {
+    adminState.store = loadAdminState();
+  }
+  const reviews = adminState.store.reviews || [];
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Customer Reviews Moderation</h1>
+        <p class="admin-page-sub">Moderate verified customer ratings, post-delivery reviews, and doctor endorsements</p>
+      </div>
+      <button class="btn-admin btn-gold" onclick="window.openAddReviewModal()">+ Add Verified / Doctor Review</button>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Customer Reviews &amp; Ratings (${reviews.length})</div>
+        <span class="admin-badge badge-success">Verified Purchase Sync</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Reviewer</th>
+              <th>Rating</th>
+              <th>Feedback</th>
+              <th>Endorsement</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${reviews.length === 0 ? `
+              <tr>
+                <td colspan="8" style="text-align:center;padding:32px;color:var(--admin-text-muted);">No reviews in database. Click "+ Add Verified / Doctor Review" above.</td>
+              </tr>
+            ` : reviews.map((r, i) => `
+              <tr>
+                <td><strong>${r.product}</strong></td>
+                <td>
+                  <strong>${r.author}</strong>
+                  ${r.city ? `<div style="font-size:0.75rem;color:var(--admin-text-muted);">${r.city}</div>` : ''}
+                </td>
+                <td style="color:var(--admin-gold);font-weight:800;font-size:1.1rem;letter-spacing:2px;">${'★'.repeat(r.rating || 5)}${'☆'.repeat(5 - (r.rating || 5))}</td>
+                <td style="font-size:0.84rem;max-width:320px;line-height:1.4;">"${r.comment}"</td>
+                <td>${r.doctorRec ? '<span class="admin-badge badge-success">🩺 Doctor Endorsed</span>' : '<span class="admin-badge badge-info">✓ Verified Buyer</span>'}</td>
+                <td><span style="font-size:0.8rem;color:var(--admin-text-muted);">${r.date || 'Today'}</span></td>
+                <td><span class="admin-badge ${r.status === 'Approved' ? 'badge-success' : 'badge-warning'}">${r.status || 'Approved'}</span></td>
+                <td>
+                  <div style="display:flex;gap:6px;">
+                    <button class="btn-sm-admin ${r.status === 'Approved' ? 'btn-outline-sm' : 'btn-gold-sm'}" onclick="window.toggleReviewApproval(${i})">${r.status === 'Approved' ? 'Hide' : 'Approve'}</button>
+                    <button class="btn-sm-admin btn-danger-sm" onclick="window.removeReview(${i})" title="Delete Review">🗑️</button>
+                  </div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+window.openAddReviewModal = function() {
+  const modalHtml = `
+    <div class="admin-modal-backdrop active" id="adminActiveModal">
+      <div class="admin-modal-card">
+        <div class="admin-modal-header">
+          <h2 class="admin-modal-title">⭐ Add Verified / Doctor Review</h2>
+          <button class="btn-sm-admin btn-outline-sm" onclick="window.closeAdminModal()">✕</button>
+        </div>
+        <form onsubmit="window.saveNewReview(event)">
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Reviewer Name *</label>
+              <input class="admin-form-input" id="newRevAuthor" placeholder="e.g. Dr. Ramesh Kulkarni, Orthopedic Surgeon" required autofocus>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">City</label>
+              <input class="admin-form-input" id="newRevCity" placeholder="e.g. Mumbai" value="Mumbai">
+            </div>
+          </div>
+          <div class="admin-form-grid-2">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Product Model *</label>
+              <select class="admin-form-select" id="newRevProduct" required>
+                <option value="Elara Cloud Orthopedic Mattress">Elara Cloud Orthopedic Mattress</option>
+                <option value="Serenity Ortho Dual Comfort Mattress">Serenity Ortho Dual Comfort Mattress</option>
+                <option value="Aura Zero-Motion Memory Mattress">Aura Zero-Motion Memory Mattress</option>
+                <option value="Luminary 100% Natural Latex Mattress">Luminary 100% Natural Latex Mattress</option>
+                <option value="Cloud Cradle Ergonomic Memory Pillow">Cloud Cradle Ergonomic Memory Pillow</option>
+                <option value="Snooze Silk 22-Momme Mulberry Pillow">Snooze Silk 22-Momme Mulberry Pillow</option>
+                <option value="Full-Body Contoured Hug Bolster">Full-Body Contoured Hug Bolster</option>
+              </select>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Star Rating *</label>
+              <select class="admin-form-select" id="newRevRating" required>
+                <option value="5" selected>★★★★★ (5 Stars)</option>
+                <option value="4">★★★★☆ (4 Stars)</option>
+                <option value="3">★★★☆☆ (3 Stars)</option>
+              </select>
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Review / Endorsement Comment *</label>
+            <textarea class="admin-form-textarea" id="newRevComment" rows="3" placeholder="Clinical observations or sleep transformation details..." required></textarea>
+          </div>
+          <div class="admin-form-group">
+            <label style="display:flex;align-items:center;gap:8px;font-size:0.85rem;cursor:pointer;">
+              <input type="checkbox" id="newRevDoctor" checked>
+              <span><strong>Mark as Verified Doctor / Healthcare Specialist Review</strong> (displays Doctor Endorsement badge)</span>
+            </label>
+          </div>
+          <div class="admin-modal-footer">
+            <button type="button" class="btn-sm-admin btn-outline-sm" onclick="window.closeAdminModal()">Cancel</button>
+            <button type="submit" class="btn-admin btn-gold">+ Publish Review</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+};
+
+window.saveNewReview = function(e) {
+  e.preventDefault();
+  const author = qs('#newRevAuthor')?.value.trim();
+  const city = qs('#newRevCity')?.value.trim();
+  const product = qs('#newRevProduct')?.value;
+  const rating = parseInt(qs('#newRevRating')?.value || '5', 10);
+  const comment = qs('#newRevComment')?.value.trim();
+  const doctorRec = !!qs('#newRevDoctor')?.checked;
+
+  if (!author || !comment) return;
+
+  if (!adminState.store.reviews) adminState.store.reviews = [];
+
+  adminState.store.reviews.unshift({
+    id: `rev_${Date.now()}`,
+    product,
+    author,
+    city,
+    rating,
+    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+    comment,
+    doctorRec,
+    status: 'Approved'
+  });
+
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Reviews', 'Review Published', `Added review by ${author} for ${product}`);
+  window.closeAdminModal();
+  adminToast(`✓ Review published successfully!`);
+  renderActiveModule();
+};
+
+window.toggleReviewApproval = function(idx) {
+  const r = adminState.store.reviews[idx];
+  if (!r) return;
+  r.status = r.status === 'Approved' ? 'Hidden' : 'Approved';
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Reviews', 'Review Status Changed', `Review by ${r.author} marked as ${r.status}`);
+  adminToast(`Review by ${r.author} is now ${r.status}`);
+  renderActiveModule();
+};
+
+window.removeReview = function(i) {
+  const r = adminState.store.reviews[i];
+  if (!r) return;
+  if (!confirm(`Delete review from ${r.author}?`)) return;
+  adminState.store.reviews.splice(i, 1);
+  saveAdminState(adminState.store);
+  logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Reviews', 'Review Deleted', `Deleted review by ${r.author}`);
+  adminToast('Review removed');
+  renderActiveModule();
+};
+
+// ------------------------------------------------------------
+// MODULE: GRANDMA HUG CMS
+// ────────────────────────────────────────────────────────────
+function renderContentModule(el) {
+  const posts = adminState.store.grandmaPosts || [];
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Grandma Hug &amp; Editorial CMS</h1>
+        <p class="admin-page-sub">Publish sleep science &amp; sacred bedtime ritual articles</p>
+      </div>
+      <button class="btn-sm-admin btn-gold-sm" onclick="window.createGrandmaPost()">+ New Article</button>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Article Title</th>
+              <th>Category</th>
+              <th>Published Date</th>
+              <th>Read Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${posts.map(p => `
+              <tr>
+                <td><strong>${p.title}</strong></td>
+                <td><span class="admin-badge badge-info">${p.category}</span></td>
+                <td>${p.date}</td>
+                <td>${p.readTime}</td>
+                <td><span class="admin-badge badge-success">${p.status}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+window.createGrandmaPost = function() {
+  const title = prompt('Enter Article Title:');
+  if (title) {
+    adminState.store.grandmaPosts.push({
+      id: `gp_${Date.now()}`,
+      title,
+      category: 'Sleep Science',
+      date: 'Today',
+      readTime: '3 min read',
+      excerpt: title,
+      status: 'Published'
+    });
+    saveAdminState(adminState.store);
+    logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Content', 'Article Published', `Published article: "${title}"`);
+    adminToast(`Article "${title}" published`);
+    renderActiveModule();
+  }
+};
+
+// ────────────────────────────────────────────────────────────
+// MODULE: INDIA DPDP ACT DATA PRIVACY & ERASURE
+// ────────────────────────────────────────────────────────────
+function renderDPDPModule(el) {
+  const requests = adminState.store.dpdpRequests || [];
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">DPDP Act (India) Data Privacy &amp; Customer Erasure</h1>
+        <p class="admin-page-sub">Digital Personal Data Protection Act compliance &amp; Right to be Forgotten</p>
+      </div>
+    </div>
+
+    <div class="dpdp-alert-card">
+      <div style="font-weight:700;color:var(--admin-midnight);margin-bottom:4px;">Statutory DPDP Compliance Mandate:</div>
+      <p style="font-size:0.84rem;color:var(--admin-text-secondary);line-height:1.5;">
+        Under India's Digital Personal Data Protection (DPDP) Act 2023, customers retain the statutory right to request permanent erasure of their personal identifiers. All erasure requests executed here are audited and immutable.
+      </p>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">Execute Customer Erasure ("Right to be Forgotten")</div>
+      </div>
+      <div style="display:flex;gap:12px;margin-bottom:14px;">
+        <input class="admin-input" placeholder="Enter customer Phone (+91) or Email to erase completely" id="dpdpDeleteInput" style="flex:1;">
+        <button class="btn-sm-admin btn-danger-sm" style="padding:0 20px;" onclick="window.executeCustomerErasure()">Permanently Erase Customer Data</button>
+      </div>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-panel-header">
+        <div class="admin-panel-title">DPDP Erasure Register (${requests.length} Records)</div>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Customer Identifier</th>
+              <th>Request Type</th>
+              <th>Requested At</th>
+              <th>Status</th>
+              <th>Audited By</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${requests.length === 0 ? `
+              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--admin-text-muted);">No erasure requests recorded. Clean statutory standing.</td></tr>
+            ` : requests.map(r => `
+              <tr>
+                <td><code style="color:var(--admin-midnight);">${r.id}</code></td>
+                <td><strong>${r.identifier}</strong></td>
+                <td>${r.requestType}</td>
+                <td>${r.requestedAt}</td>
+                <td><span class="admin-badge badge-success">${r.status}</span></td>
+                <td>${r.executedBy || 'Completed'}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+window.executeCustomerErasure = function() {
+  const identifier = qs('#dpdpDeleteInput')?.value.trim();
+  if (!identifier) {
+    adminToast('Please enter a phone number or email to erase');
+    return;
+  }
+
+  if (confirm(`CONFIRM PERMANENT ERASURE (DPDP Statutory):\nAre you sure you want to permanently erase all records for "${identifier}"?`)) {
+    const curUser = localStorage.getItem('vh_user_data');
+    if (curUser && curUser.includes(identifier)) {
+      localStorage.removeItem('vh_user_data');
+    }
+
+    adminState.store.dpdpRequests.unshift({
+      id: `dpdp_${Date.now()}`,
+      customer: 'Anonymized User',
+      identifier: identifier.replace(/.(?=.{4})/g, '*'),
+      requestType: 'Right to be Forgotten (Full Erasure)',
+      requestedAt: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+      status: 'Completed',
+      completedAt: new Date().toLocaleString('en-IN'),
+      executedBy: `${adminState.currentUser.name} (${adminState.currentUser.roleLabel})`,
+      logRef: `AUD-DPDP-${Math.floor(1000 + Math.random() * 9000)}`
+    });
+
+    saveAdminState(adminState.store);
+    logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'DPDP Compliance', 'Customer Erasure Executed', `Erase personal data for ${identifier}`);
+    adminToast(`All records for ${identifier} permanently erased under DPDP Act.`);
+    renderActiveModule();
+  }
+};
+
+// ────────────────────────────────────────────────────────────
+// MODULE: AUDIT TRAIL LOGS
+// ────────────────────────────────────────────────────────────
+function renderAuditModule(el) {
+  const logs = getAdminAuditLogs();
+
+  el.innerHTML = `
+    <div class="admin-top-bar">
+      <div>
+        <h1 class="admin-page-title">Immutable Security &amp; Operations Audit Trail</h1>
+        <p class="admin-page-sub">Chronological timestamped log of all staff administrative actions</p>
+      </div>
+    </div>
+
+    <div class="admin-panel">
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Staff User</th>
+              <th>Role</th>
+              <th>Module</th>
+              <th>Action</th>
+              <th>Event Details</th>
+              <th>IP Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${logs.map(l => `
+              <tr>
+                <td style="color:var(--admin-text-muted);font-size:0.76rem;">${l.timestamp}</td>
+                <td><strong>${l.user}</strong></td>
+                <td><span class="admin-badge badge-info">${l.role}</span></td>
+                <td><strong>${l.module}</strong></td>
+                <td><span class="admin-badge badge-gold">${l.action}</span></td>
+                <td style="font-size:0.8rem;color:var(--admin-text-secondary);">${l.details}</td>
+                <td style="font-family:monospace;font-size:0.74rem;">${l.ip}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+

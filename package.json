@@ -9,8 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "three": "^0.160.0",
-    "canvas-confetti": "^1.9.2"
+    "@electric-sql/pglite": "^0.5.8",
+    "canvas-confetti": "^1.9.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "pg": "^8.23.0",
+    "three": "^0.160.0"
   },
   "devDependencies": {
     "vite": "^5.1.0"

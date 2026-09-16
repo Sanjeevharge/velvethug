@@ -1,0 +1,6 @@
+2026/09/16-00:28:35.884 348c Reusing MANIFEST C:\Users\Sanjeev\Desktop\velvethug\scratch\temp_cdp_profile\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/09/16-00:28:35.885 348c Recovering log #4
+2026/09/16-00:28:35.885 348c Reusing old log C:\Users\Sanjeev\Desktop\velvethug\scratch\temp_cdp_profile\Default\EdgeCoupons/coupons_data.db/000004.log 
+2026/09/16-00:28:37.017 55bc Level-0 table #8: started
+2026/09/16-00:28:37.021 55bc Level-0 table #8: 683444 bytes OK
+2026/09/16-00:28:37.022 55bc Delete type=0 #4

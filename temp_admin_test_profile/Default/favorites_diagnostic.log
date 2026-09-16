@@ -1,0 +1,31 @@
+2026-09-15 19:21:08.599: [INFO] CurrentProfilePath: C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile\Default
+2026-09-15 19:21:08.599: [INFO] Profiles total count: 1
+2026-09-15 19:21:08.599: [INFO] Profile: name=Profile 1 path=C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile\Default lastActive=null
+2026-09-15 19:21:08.599: [INFO] LastUsedProfileDir: C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile\Default
+2026-09-15 19:21:08.599: [INFO] VisibilityChanged: 0
+2026-09-15 19:21:08.610: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.611: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.612: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.613: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.614: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.615: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.616: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.617: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.618: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.619: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:08.639: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:21:08.639: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:21:08.639: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:21:08.640: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:21:08.640: [INFO] OnDoneLoading sync enabled: 0
+2026-09-15 19:21:08.640: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-15 19:21:08.640: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-15 19:21:08.640: [INFO] BookmarksSnapshot Startup total=4 bar=4 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-15 19:21:08.641: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:09.713: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 0
+2026-09-15 19:21:09.715: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-15 19:21:09.717: [INFO] Primary account changed.
+2026-09-15 19:21:09.717: [INFO] OnPrimaryAccountChanged PrimaryAccountChangeEvent::Type::kSet
+2026-09-15 19:21:09.724: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-15 19:21:09.739: [INFO] RecordSyncInitDuration has_sync_been_enabled: 0 state: 3
+2026-09-15 19:21:12.653: [INFO] Sync initialization duration: 2831ms

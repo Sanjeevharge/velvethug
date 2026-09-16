@@ -1,0 +1,138 @@
+{
+   "checksum": "365fea19457c644c38c2eefc6a671529",
+   "roots": {
+      "bookmark_bar": {
+         "children": [ {
+            "date_added": "13433972312039668",
+            "date_last_used": "0",
+            "guid": "88f3e836-ed9e-43db-9082-507975c9f003",
+            "id": "16",
+            "name": "McAfee Security",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=McAfee&c=261&locale=ACJ&pf=1111&tp=edge",
+            "visit_count": 0
+         }, {
+            "date_added": "13433972312039483",
+            "date_last_used": "0",
+            "guid": "990082b2-c5e7-4762-812a-4954f1cf2b95",
+            "id": "15",
+            "name": "Agoda",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=Agoda&c=261&locale=ACJ&pf=1111&tp=edge",
+            "visit_count": 0
+         }, {
+            "date_added": "13433972312039243",
+            "date_last_used": "0",
+            "guid": "9ea29e77-6a2d-4263-b8aa-90f024ab336b",
+            "id": "14",
+            "name": "Adobe offers",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=Adobe&c=261&locale=ACJ&pf=1111&tp=edge&RedeemCode=YnBy396HDjFfPQ7XiO9AdkqTZyG3RJJVBnI5eTfKH53sS7DiB3X88mmBznM95o%2fT4J%2b9BDAKCGs%2ba9NR54tYEsRXOF3I5l%2f42pj0e%2fplIC7tBEqouLZjCqwQF4ORScX7xnMz8rvVHPKrbDWpU1V5e330XBmTrFYAsHJp7e8mOmA%3d",
+            "visit_count": 0
+         }, {
+            "date_added": "13433972312038710",
+            "date_last_used": "0",
+            "guid": "bc2d0b7b-e05a-4182-b94e-a4fe305304c8",
+            "id": "13",
+            "name": "Dropbox Offer",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=dropbox&c=261&locale=ACJ&pf=1111&tp=edge",
+            "visit_count": 0
+         }, {
+            "date_added": "13433972254127885",
+            "date_last_used": "0",
+            "guid": "cb8df297-2278-4fe2-8975-067bfc2fbb72",
+            "id": "10",
+            "name": "McAfee Security",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=McAfee&c=261&locale=ACJ&pf=1111&tp=edge",
+            "visit_count": 0
+         }, {
+            "date_added": "13433972254127708",
+            "date_last_used": "0",
+            "guid": "036bb822-cdde-45d7-a671-86f2ef289eb4",
+            "id": "9",
+            "name": "Agoda",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=Agoda&c=261&locale=ACJ&pf=1111&tp=edge",
+            "visit_count": 0
+         }, {
+            "date_added": "13433972254127485",
+            "date_last_used": "0",
+            "guid": "1bc392b3-1362-4249-8aed-c90c4d5cc0fb",
+            "id": "8",
+            "name": "Adobe offers",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=Adobe&c=261&locale=ACJ&pf=1111&tp=edge&RedeemCode=YnBy396HDjFfPQ7XiO9AdkqTZyG3RJJVBnI5eTfKH53sS7DiB3X88mmBznM95o%2fT4J%2b9BDAKCGs%2ba9NR54tYEsRXOF3I5l%2f42pj0e%2fplIC7tBEqouLZjCqwQF4ORScX7xnMz8rvVHPKrbDWpU1V5e330XBmTrFYAsHJp7e8mOmA%3d",
+            "visit_count": 0
+         }, {
+            "date_added": "13433972254126925",
+            "date_last_used": "0",
+            "guid": "60a1de54-cf84-4bf5-9d57-48daf5f28348",
+            "id": "7",
+            "name": "Dropbox Offer",
+            "show_icon": false,
+            "source": "oem_preload",
+            "type": "url",
+            "url": "https://js.redirect.hp.com/jumpstation?bd=dropbox&c=261&locale=ACJ&pf=1111&tp=edge",
+            "visit_count": 0
+         } ],
+         "date_added": "13433972253978328",
+         "date_last_used": "0",
+         "date_modified": "13433972312039668",
+         "guid": "0bc5d13f-2cba-5d74-951f-3f233fe6c908",
+         "id": "1",
+         "name": "Favorites bar",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "other": {
+         "children": [  ],
+         "date_added": "13433972253978328",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "82b081ec-3dd3-529c-8475-ab6c344590dd",
+         "id": "2",
+         "name": "Other favorites",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "synced": {
+         "children": [  ],
+         "date_added": "13433972253978328",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "4cf2e351-0e85-532b-bb37-df045d8f8d0f",
+         "id": "3",
+         "name": "Mobile favorites",
+         "source": "unknown",
+         "type": "folder"
+      },
+      "workspaces_v2": {
+         "children": [  ],
+         "date_added": "13433972253978328",
+         "date_last_used": "0",
+         "date_modified": "0",
+         "guid": "75aa6670-344f-549d-b742-660f029506ab",
+         "id": "5",
+         "name": "Workspaces",
+         "source": "unknown",
+         "type": "folder"
+      }
+   },
+   "version": 1
+}

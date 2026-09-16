@@ -1,0 +1,39 @@
+2026-09-15 19:32:29.189: [INFO] CurrentProfilePath: C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile_sync\Default
+2026-09-15 19:32:29.189: [INFO] Profiles total count: 1
+2026-09-15 19:32:29.189: [INFO] Profile: name=Profile 1 path=C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile_sync\Default lastActive=null
+2026-09-15 19:32:29.189: [INFO] LastUsedProfileDir: C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile_sync\Default
+2026-09-15 19:32:29.189: [INFO] VisibilityChanged: 0
+2026-09-15 19:32:29.224: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:29.224: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:29.224: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:29.225: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:29.225: [INFO] OnDoneLoading sync enabled: 0
+2026-09-15 19:32:29.225: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-15 19:32:29.225: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-15 19:32:29.225: [INFO] BookmarksSnapshot Startup total=4 bar=4 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-15 19:32:36.335: [INFO] CurrentProfilePath: C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile_sync\Default
+2026-09-15 19:32:36.335: [INFO] Profiles total count: 1
+2026-09-15 19:32:36.335: [INFO] Profile: name=Profile 1 path=C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile_sync\Default lastActive=null
+2026-09-15 19:32:36.335: [INFO] LastUsedProfileDir: C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile_sync\Default
+2026-09-15 19:32:36.335: [INFO] VisibilityChanged: 0
+2026-09-15 19:32:36.349: [INFO] OnDoneLoading sync enabled: 0
+2026-09-15 19:32:36.349: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-15 19:32:36.349: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-15 19:32:36.349: [INFO] BookmarksSnapshot Startup total=4 bar=4 other=0 mobile=0 showBar=0 showBarNTP=1
+2026-09-15 19:32:36.386: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:36.387: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:36.387: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:36.387: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:43.520: [INFO] CurrentProfilePath: C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile_sync\Default
+2026-09-15 19:32:43.520: [INFO] Profiles total count: 1
+2026-09-15 19:32:43.520: [INFO] Profile: name=Profile 1 path=C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile_sync\Default lastActive=null
+2026-09-15 19:32:43.520: [INFO] LastUsedProfileDir: C:\Users\Sanjeev\Desktop\velvethug\temp_admin_test_profile_sync\Default
+2026-09-15 19:32:43.520: [INFO] VisibilityChanged: 0
+2026-09-15 19:32:43.554: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:43.554: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:43.555: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:43.555: [INFO] BookmarkNodeAdded, ABU: 0
+2026-09-15 19:32:43.555: [INFO] OnDoneLoading sync enabled: 0
+2026-09-15 19:32:43.555: [INFO] BookmarkModelLoaded, ids_reassigned: 0
+2026-09-15 19:32:43.555: [INFO] BookmarksLoadDropped droppedNodes=0
+2026-09-15 19:32:43.555: [INFO] BookmarksSnapshot Startup total=12 bar=12 other=0 mobile=0 showBar=0 showBarNTP=1
