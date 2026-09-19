@@ -32,6 +32,23 @@ const adminState = {
 function qs(sel, ctx = document) { return ctx.querySelector(sel); }
 function qsa(sel, ctx = document) { return [...ctx.querySelectorAll(sel)]; }
 
+const ADMIN_TOKEN_KEY = 'vh_admin_token';
+const nativeFetch = window.fetch.bind(window);
+window.fetch = (input, init = {}) => {
+  const url = typeof input === 'string' ? input : input.url;
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  if (url?.includes('/api/company') && token) {
+    init.headers = { ...(init.headers || {}), Authorization: `Bearer ${token}` };
+  }
+  return nativeFetch(input, init).then(response => {
+    if (response.status === 401 && url?.includes('/api/company')) {
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
+      adminState.currentUser = null;
+    }
+    return response;
+  });
+};
+
 window.qs = qs;
 window.qsa = qsa;
 
@@ -274,16 +291,38 @@ window.submitAdminLogin = function() {
   }
 
   adminState.selectedRoleForLogin = user;
+  adminState._pendingPassword = pass;
   adminState.loginStep = '2fa';
   renderAuthScreen();
 };
 
-window.verify2FACode = function() {
+window.verify2FACode = async function() {
   const code = qs('#admin2faInput')?.value.trim();
   const user = adminState.selectedRoleForLogin;
 
   if (code !== user.twoFactorSecret && code !== '8942') {
     adminToast('Invalid 2FA code. Please enter the valid code.');
+    return;
+  }
+
+  try {
+    const response = await nativeFetch('/api/company/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, password: adminState._pendingPassword, twoFactorCode: code })
+    });
+    const raw = await response.text();
+    let result;
+    try {
+      result = raw ? JSON.parse(raw) : {};
+    } catch {
+      throw new Error('Backend unavailable. Start the backend with npm run server, then reload this page.');
+    }
+    if (!response.ok || !result.success) throw new Error(result.error || 'Backend login failed');
+    localStorage.setItem(ADMIN_TOKEN_KEY, result.token);
+    adminState._pendingPassword = null;
+  } catch (error) {
+    adminToast(error.message);
     return;
   }
 
@@ -317,6 +356,7 @@ window.adminLogout = function() {
   if (adminState.currentUser) {
     logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Security', 'Session Terminated', 'Staff signed out');
   }
+  localStorage.removeItem(ADMIN_TOKEN_KEY);
   adminState.currentUser = null;
   adminState.activeModule = 'dashboard';
   renderAuthScreen();

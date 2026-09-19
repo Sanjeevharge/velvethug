@@ -393,6 +393,28 @@
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    body.light-mode {
+      --bg-dark: #F5F7FB;
+      --card-bg: #FFFFFF;
+      --card-border: #D9E0EC;
+      --gold: #8A6500;
+      --gold-light: #6B4F00;
+      --sky: #087EA4;
+      --emerald: #047857;
+      --text-main: #172033;
+      --text-muted: #5E6B82;
+      --code-bg: #EEF2F7;
+    }
+    body.light-mode header { background: rgba(255,255,255,0.94); }
+    body.light-mode .partition-panel { background: #F8FAFD; }
+    body.light-mode .section-card { box-shadow: 0 8px 24px rgba(31,41,55,0.06); }
+    body.light-mode .section-title,
+    body.light-mode .brand-title h1 { color: var(--gold-light); }
+    body.light-mode table.data-table th { background: #E5EBF4; color: #5A4200; }
+    body.light-mode table.data-table td { color: #1F2937; border-bottom-color: #D9E0EC; }
+    body.light-mode .console-box { color: #075E54; }
+    body.light-mode .partition-header { border-bottom-color: #D9E0EC; }
   </style>
 </head>
 <body>
@@ -406,6 +428,7 @@
       </div>
       <div class="header-nav">
         <button class="nav-btn" onclick="refreshDashboard()">🔄 Refresh Live Metrics</button>
+        <button class="nav-btn" id="themeToggleBtn" onclick="toggleInspectorTheme()">☀️ Light Mode</button>
         <a href="/" class="nav-btn">🛍️ Storefront</a>
         <a href="/admin.html" class="nav-btn primary">🛡️ Operations Portal</a>
       </div>
@@ -568,6 +591,29 @@
   </main>
 
   <script>
+    function applyInspectorTheme() {
+      const light = localStorage.getItem('vh_inspector_theme') === 'light';
+      document.body.classList.toggle('light-mode', light);
+      const button = document.getElementById('themeToggleBtn');
+      if (button) button.textContent = light ? '🌙 Dark Mode' : '☀️ Light Mode';
+    }
+    function toggleInspectorTheme() {
+      const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+      localStorage.setItem('vh_inspector_theme', next);
+      applyInspectorTheme();
+    }
+    applyInspectorTheme();
+
+    const inspectorFetch = window.fetch.bind(window);
+    window.fetch = (input, init = {}) => {
+      const url = typeof input === 'string' ? input : input.url;
+      const token = localStorage.getItem('vh_admin_token');
+      if (token && (url?.includes('/api/company') || url?.includes('/api/system'))) {
+        init.headers = { ...(init.headers || {}), Authorization: `Bearer ${token}` };
+      }
+      return inspectorFetch(input, init);
+    };
+
     let activeSchema = 'company';
     let activeTable = 'products';
 
@@ -877,6 +923,7 @@ Status: Ultra-Fast sub-millisecond execution verified.`;
 
     // Auto load on boot
     refreshDashboard();
+    setInterval(refreshDashboard, 15000);
   </script>
 </body>
 </html>

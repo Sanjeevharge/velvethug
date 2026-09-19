@@ -18,6 +18,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+const adminTokens = new Map();
 
 // Middleware
 app.use(cors());
@@ -34,6 +35,41 @@ app.use((req, res, next) => {
     }
   });
   next();
+});
+
+function bearerToken(req) {
+  return req.headers.authorization?.replace(/^Bearer\s+/i, '') || null;
+}
+
+async function requireAdmin(req, res, next) {
+  try {
+    const token = bearerToken(req);
+    const tokenRecord = token && adminTokens.get(token);
+    if (!tokenRecord || tokenRecord.expiresAt < Date.now()) {
+      if (token) adminTokens.delete(token);
+      return res.status(401).json({ success: false, error: 'Admin authentication required' });
+    }
+    const staff = await query('SELECT id, name, email, role FROM company.staff_users WHERE id = $1', [tokenRecord.staffId]);
+    if (!staff.rows.length) return res.status(401).json({ success: false, error: 'Admin account unavailable' });
+    req.admin = staff.rows[0];
+    next();
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+}
+
+app.use('/api/company', (req, res, next) => {
+  if (req.path === '/auth/login' && req.method === 'POST') return next();
+  return requireAdmin(req, res, next);
+});
+app.use('/api/system', (req, res, next) => {
+  const safeDiagnostics = req.method === 'GET' && (
+    req.path === '/schema-overview' ||
+    req.path === '/table-data/company/products' ||
+    req.path === '/table-data/company/inventory'
+  );
+  if (safeDiagnostics) return next();
+  return requireAdmin(req, res, next);
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -709,7 +745,12 @@ app.post('/api/user/checkout', async (req, res) => {
 // Customer Past Orders
 app.get('/api/user/orders', async (req, res) => {
   try {
-    const { customerId, email, phone } = req.query;
+    let { customerId, email, phone } = req.query;
+    const authToken = req.headers.authorization?.replace('Bearer ', '');
+    if (authToken && !customerId && !email && !phone) {
+      const sessionRes = await query('SELECT customer_id FROM users.sessions WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP', [authToken]);
+      customerId = sessionRes.rows[0]?.customer_id;
+    }
     let sql = `
       SELECT 
         o.*,
@@ -857,6 +898,7 @@ app.post('/api/company/auth/login', async (req, res) => {
     `, [staff.id, staff.name]);
 
     const staffToken = 'vh_admin_' + crypto.randomBytes(32).toString('hex');
+    adminTokens.set(staffToken, { staffId: staff.id, expiresAt: Date.now() + (8 * 60 * 60 * 1000) });
 
     res.json({
       success: true,

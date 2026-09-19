@@ -15,6 +15,7 @@ import {
   getStoredReturns,
   saveStoredReturns
 } from './data/adminStore.js';
+import { api } from './api.js';
 
 import { soundEngine } from './components/Soundscape.js';
 
@@ -24,6 +25,92 @@ import { soundEngine } from './components/Soundscape.js';
 const STORAGE_KEY_USER = 'vh_user_data';
 const STORAGE_KEY_CART = 'vh_cart_data';
 const STORAGE_KEY_FOUNDING = 'vh_founding_count';
+const STORAGE_KEY_SESSION = 'vh_backend_session';
+
+function getBackendSessionId() {
+  let id = localStorage.getItem(STORAGE_KEY_SESSION);
+  if (!id) {
+    id = `guest_${crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random().toString(36).slice(2)}`}`;
+    localStorage.setItem(STORAGE_KEY_SESSION, id);
+  }
+  return id;
+}
+
+function mapBackendCart(items = []) {
+  return items.map(item => {
+    const product = getProductById(item.productId) || {
+      id: item.productId,
+      name: item.name,
+      basePrice: item.unitPrice,
+      image: item.image,
+      category: item.category
+    };
+    return { id: item.id, product, productId: item.productId, size: item.size, qty: item.quantity, price: item.unitPrice };
+  });
+}
+
+function mapBackendOrder(order) {
+  return {
+    ...order,
+    date: order.created_at ? new Date(order.created_at).toLocaleDateString('en-IN') : 'Just now',
+    total: Number(order.total_amount ?? order.total ?? order.amount ?? 0),
+    amount: Number(order.total_amount ?? order.total ?? order.amount ?? 0),
+    status: order.order_status || order.status || 'confirmed',
+    trackingId: order.tracking_number || order.trackingId,
+    address: order.delivery_address || order.address || 'Registered Address',
+    items: (order.items || []).map(item => ({
+      ...item,
+      name: item.productName || item.product_name || item.name,
+      qty: item.quantity || item.qty || 1
+    }))
+  };
+}
+
+async function refreshCustomerOrders() {
+  if (!state.user?.id || !api.token) return [];
+  const result = await api.getUserOrders({ customerId: state.user.id });
+  if (!result?.success) throw new Error(result?.error || 'Unable to load orders');
+  state.user.orders = (result.data || []).map(mapBackendOrder);
+  saveStoredUser(state.user);
+  return state.user.orders;
+}
+
+async function hydrateBackendState() {
+  try {
+    const [catalogRes, promoRes, quizRes, cartRes, sessionRes] = await Promise.all([
+      api.getProducts(),
+      api.getPromos(),
+      api.getQuizQuestions(),
+      api.getCart(getBackendSessionId()),
+      api.getSession()
+    ]);
+    if (catalogRes?.success && Array.isArray(catalogRes.data) && catalogRes.data.length) {
+      PRODUCTS.splice(0, PRODUCTS.length, ...catalogRes.data);
+    }
+    if (promoRes?.success && Array.isArray(promoRes.data) && promoRes.data.length) {
+      ACTIVE_PROMOS.splice(0, ACTIVE_PROMOS.length, ...promoRes.data.map(p => ({
+        ...p,
+        coupon: p.code || p.coupon,
+        message: p.description || p.message,
+        endsAt: p.end_date ? new Date(p.end_date) : null
+      })));
+    }
+    if (quizRes?.success && Array.isArray(quizRes.data) && quizRes.data.length) {
+      SLEEP_QUIZ.splice(0, SLEEP_QUIZ.length, ...quizRes.data);
+    }
+    if (cartRes?.success) state.cart = mapBackendCart(cartRes.items);
+    if (sessionRes?.success && sessionRes.customer) {
+      state.user = sessionRes.customer;
+    } else {
+      state.user = null;
+      localStorage.removeItem(STORAGE_KEY_USER);
+    }
+    return true;
+  } catch (error) {
+    console.warn('[Velvet Hug] Backend unavailable; retaining local session cache:', error.message);
+    return false;
+  }
+}
 
 function purgeLegacyMockUser() {
   try {
@@ -155,7 +242,7 @@ const state = {
   promoIndex: 0,
   quizAnswers: {},
   quizStep: 0,
-  user: loadStoredUser(),
+  user: api.token ? loadStoredUser() : null,
   searchQuery: '',
   pdpProduct: null,
   checkoutStep: 'details', // details | payment | success
@@ -545,7 +632,16 @@ function closeCart() {
   }
 }
 
-function addToCart(productId, size = 'Standard', qty = 1, overridePrice = null) {
+async function refreshBackendCart() {
+  const response = await api.getCart(getBackendSessionId());
+  if (response?.success) {
+    state.cart = mapBackendCart(response.items);
+    updateCartBadge();
+    renderCart();
+  }
+}
+
+async function addToCart(productId, size = 'Standard', qty = 1, overridePrice = null) {
   const product = getProductById(productId);
   if (!product) return;
 
@@ -554,34 +650,53 @@ function addToCart(productId, size = 'Standard', qty = 1, overridePrice = null) 
     ? overridePrice
     : Math.round(product.basePrice * getSizeMultiplier(size));
 
-  const existingIndex = state.cart.findIndex(i => i.product.id === productId && i.size === size);
-  if (existingIndex > -1) {
-    state.cart[existingIndex].qty += qty;
-  } else {
-    state.cart.push({ product, size, qty, price: effectivePrice });
+  try {
+    await api.addToCart({ sessionId: getBackendSessionId(), productId, size, quantity: qty });
+    await refreshBackendCart();
+  } catch (error) {
+    const existingIndex = state.cart.findIndex(i => i.product.id === productId && i.size === size);
+    if (existingIndex > -1) state.cart[existingIndex].qty += qty;
+    else state.cart.push({ product, size, qty, price: effectivePrice });
+    saveStoredCart(state.cart);
+    console.warn('[Cart] Backend add failed; local fallback used:', error.message);
   }
-
-  saveStoredCart(state.cart);
   updateCartBadge();
   toast(`✓ Added "${product.name}" (${size}) to cart!`);
   openCart();
 }
 
-function removeFromCart(index) {
-  state.cart.splice(index, 1);
-  saveStoredCart(state.cart);
-  updateCartBadge();
-  renderCart();
+async function removeFromCart(index) {
+  const item = state.cart[index];
+  try {
+    if (item?.id) await api.removeCartItem(item.id);
+    else throw new Error('Cart item is not persisted yet');
+    await refreshBackendCart();
+  } catch (error) {
+    state.cart.splice(index, 1);
+    saveStoredCart(state.cart);
+    updateCartBadge();
+    renderCart();
+    console.warn('[Cart] Backend removal failed; local fallback used:', error.message);
+  }
 }
 
-function updateCartQty(index, delta) {
+async function updateCartQty(index, delta) {
   state.cart[index].qty += delta;
   if (state.cart[index].qty <= 0) {
-    removeFromCart(index);
+    await removeFromCart(index);
   } else {
-    saveStoredCart(state.cart);
-    renderCart();
-    updateCartBadge();
+    try {
+      await api.clearCart(getBackendSessionId());
+      for (const item of state.cart) {
+        await api.addToCart({ sessionId: getBackendSessionId(), productId: item.product.id, size: item.size, quantity: item.qty });
+      }
+      await refreshBackendCart();
+    } catch (error) {
+      saveStoredCart(state.cart);
+      renderCart();
+      updateCartBadge();
+      console.warn('[Cart] Backend quantity update failed; local fallback used:', error.message);
+    }
   }
 }
 
@@ -850,14 +965,15 @@ function addToCartFromPDP() {
   closePDP();
 }
 
-function openCheckoutDirect() {
+async function openCheckoutDirect() {
   if (state.pdpProduct) {
     const size = state.selectedPDPSize || (state.pdpProduct.sizes && state.pdpProduct.sizes[0]) || 'Standard';
     const mult = getSizeMultiplier(size);
     const price = Math.round(state.pdpProduct.basePrice * mult);
-    addToCart(state.pdpProduct.id, size, 1, price);
+    await addToCart(state.pdpProduct.id, size, 1, price);
   }
   closePDP();
+  closeCart();
   openCheckout();
 }
 
@@ -957,7 +1073,7 @@ function renderPDP(product) {
         <button class="btn btn-gold btn-lg btn-block" onclick="addToCartFromPDP()">
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;margin-right:4px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Add to Cart
         </button>
-        <button class="btn btn-outline btn-lg btn-block" onclick="closePDP();openCheckoutDirect()">
+        <button class="btn btn-outline btn-lg btn-block" onclick="openCheckoutDirect()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:-2px;margin-right:4px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Instant Buy Now
         </button>
       </div>
@@ -1595,7 +1711,7 @@ function initAuth() {
     if (qs('#otpPhoneStep')) qs('#otpPhoneStep').style.display = 'block';
   });
 
-  qs('#confirmGoogleLoginBtn')?.addEventListener('click', () => {
+  qs('#confirmGoogleLoginBtn')?.addEventListener('click', async () => {
     const name = qs('#googleNameInput')?.value?.trim();
     const email = qs('#googleEmailInput')?.value?.trim();
     const phone = qs('#googlePhoneInput')?.value?.trim();
@@ -1609,48 +1725,24 @@ function initAuth() {
       return;
     }
 
-    let userOrders = [];
+    let authResult;
     try {
-      const rawAdmin = localStorage.getItem('vh_admin_store_v1');
-      if (rawAdmin) {
-        const adminStore = JSON.parse(rawAdmin);
-        userOrders = (adminStore.orders || []).filter(o => 
-          (email && o.email && o.email.toLowerCase() === email.toLowerCase()) ||
-          (phone && o.phone && o.phone.replace(/\D/g, '').endsWith(phone.slice(-10)))
-        );
+      authResult = await api.loginOrRegister({
+        name,
+        email,
+        phone: phone || undefined,
+        isFounding: state.foundingCount <= FOUNDING_PARTNER_LIMIT
+      });
+      state.user = { ...authResult.customer, orders: [], addresses: [], wishlist: [] };
+      try {
+        const ordersResult = await api.getUserOrders({ customerId: state.user.id });
+        state.user.orders = ordersResult?.success ? (ordersResult.data || []).map(mapBackendOrder) : [];
+      } catch (orderError) {
+        console.warn('[Auth] Customer signed in; order refresh deferred:', orderError.message);
       }
-    } catch (e) {}
-
-    let existingUser = null;
-    try {
-      const allUsersRaw = localStorage.getItem('vh_registered_users');
-      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : {};
-      existingUser = allUsers[email] || (phone ? allUsers[phone] : null);
-    } catch (e) {}
-
-    if (existingUser) {
-      existingUser.name = name;
-      existingUser.email = email;
-      if (phone) existingUser.phone = phone;
-      if (userOrders.length && (!existingUser.orders || !existingUser.orders.length)) {
-        existingUser.orders = userOrders;
-      }
-      state.user = existingUser;
-    } else {
-      state.user = {
-        name: name,
-        email: email,
-        phone: phone || '',
-        avatar: name[0].toUpperCase(),
-        foundingNumber: state.foundingCount <= FOUNDING_PARTNER_LIMIT ? state.foundingCount : null,
-        isFounding: state.foundingCount <= FOUNDING_PARTNER_LIMIT,
-        isAmbassador: false,
-        referralCode: `VELVET-${email.split('@')[0].toUpperCase().slice(0, 5)}${Math.floor(100 + Math.random() * 900)}`,
-        referralStats: { count: 0, earned: 0, pending: 0 },
-        orders: userOrders,
-        addresses: [],
-        wishlist: []
-      };
+    } catch (error) {
+      toast(`Sign-in failed: ${error.message}`);
+      return;
     }
 
     saveStoredUser(state.user);
@@ -1716,7 +1808,7 @@ function initAuth() {
     if (qs('#otpPhoneStep')) qs('#otpPhoneStep').style.display = 'block';
   });
 
-  qs('#verifyOtpBtn')?.addEventListener('click', () => {
+  qs('#verifyOtpBtn')?.addEventListener('click', async () => {
     const p = state.pendingLogin || {};
     const phone = qs('#loginPhoneInput')?.value?.trim() || p.phone;
     const name  = qs('#loginNameInput')?.value?.trim() || p.name || 'Sleep Partner';
@@ -1727,48 +1819,24 @@ function initAuth() {
       return;
     }
 
-    let userOrders = [];
+    let authResult;
     try {
-      const rawAdmin = localStorage.getItem('vh_admin_store_v1');
-      if (rawAdmin) {
-        const adminStore = JSON.parse(rawAdmin);
-        userOrders = (adminStore.orders || []).filter(o => 
-          (o.phone && o.phone.replace(/\D/g, '').endsWith(phone.slice(-10))) ||
-          (email && o.email && o.email.toLowerCase() === email.toLowerCase())
-        );
+      authResult = await api.loginOrRegister({
+        name,
+        email: email || undefined,
+        phone,
+        isFounding: state.foundingCount <= FOUNDING_PARTNER_LIMIT
+      });
+      state.user = { ...authResult.customer, orders: [], addresses: [], wishlist: [] };
+      try {
+        const ordersResult = await api.getUserOrders({ customerId: state.user.id });
+        state.user.orders = ordersResult?.success ? (ordersResult.data || []).map(mapBackendOrder) : [];
+      } catch (orderError) {
+        console.warn('[Auth] Customer signed in; order refresh deferred:', orderError.message);
       }
-    } catch (e) {}
-
-    let existingUser = null;
-    try {
-      const allUsersRaw = localStorage.getItem('vh_registered_users');
-      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : {};
-      existingUser = allUsers[phone] || (email ? allUsers[email] : null);
-    } catch (e) {}
-
-    if (existingUser) {
-      if (name && name !== 'Sleep Partner') existingUser.name = name;
-      if (email) existingUser.email = email;
-      existingUser.phone = phone;
-      if (userOrders.length && (!existingUser.orders || !existingUser.orders.length)) {
-        existingUser.orders = userOrders;
-      }
-      state.user = existingUser;
-    } else {
-      state.user = {
-        name: name,
-        phone: phone,
-        email: email,
-        avatar: (name || 'S')[0].toUpperCase(),
-        foundingNumber: state.foundingCount <= FOUNDING_PARTNER_LIMIT ? state.foundingCount : null,
-        isFounding: state.foundingCount <= FOUNDING_PARTNER_LIMIT,
-        isAmbassador: false,
-        referralCode: `VELVET-${phone.slice(-4)}`,
-        referralStats: { count: 0, earned: 0, pending: 0 },
-        orders: userOrders,
-        addresses: [],
-        wishlist: []
-      };
+    } catch (error) {
+      toast(`Sign-in failed: ${error.message}`);
+      return;
     }
 
     saveStoredUser(state.user);
@@ -2118,6 +2186,7 @@ function renderAccountTabContent() {
 }
 
 function logoutUser() {
+  api.logout();
   state.user = null;
   state.pendingLogin = null;
   saveStoredUser(null);
@@ -2204,6 +2273,11 @@ function renderAccountPage() {
   }
 
   renderAccountPageTab();
+  if (_accountPageTab === 'orders' && api.token && u.id) {
+    refreshCustomerOrders()
+      .then(() => renderAccountPageTab())
+      .catch(error => console.warn('[Account] Order refresh failed:', error.message));
+  }
 }
 
 function switchAccountPageTab(tab) {
@@ -2955,123 +3029,45 @@ function openBankOtpModal(amount) {
   qs('#bankOtpModal')?.classList.add('active');
 }
 
-function completeOrderProcess(amount) {
-  // 1. Increment live counter (continuous, does not reset or stop at 1000)
-  state.foundingCount++;
-  setStoredFoundingCount(state.foundingCount);
-  const counterEl = qs('#foundingCounterNum');
-  if (counterEl) counterEl.textContent = state.foundingCount.toLocaleString('en-IN');
-  const labelEl = qs('#foundingCounterLabel');
-  if (labelEl) {
-    if (state.foundingCount >= 1000) {
-      labelEl.textContent = `All 1,000 Founding spots claimed! Now welcoming Sleep Partner #${state.foundingCount}`;
-    } else {
-      labelEl.textContent = `${1000 - state.foundingCount} Founding spots remaining of 1,000`;
-    }
+async function completeOrderProcess(amount) {
+  const coName = qs('#coName')?.value?.trim() || state.user?.name || '';
+  const coPhone = qs('#coPhone')?.value?.trim() || state.user?.phone || '';
+  const coEmail = qs('#coEmail')?.value?.trim() || state.user?.email || '';
+  const address = qs('#coAddress')?.value?.trim() || 'Bangalore';
+  if (!coName || !coPhone) {
+    toast('Please enter your name and phone number before payment.');
+    return;
   }
 
-  // 2. Assign/Ensure user account exists and record order
-  const orderId = 'VH-' + Math.floor(100000 + Math.random() * 900000);
-  const isFoundingBuyer = state.foundingCount <= 1000;
-  const partnerNum = state.foundingCount;
-
-  const orderObj = {
-    id: orderId,
-    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-    status: 'Confirmed',
-    step: 1,
-    trackingId: 'VH-TRK-' + Math.floor(10000 + Math.random() * 90000),
-    items: state.cart.map(i => ({ name: `${i.product.name} (${i.size})`, price: i.product.basePrice, qty: i.qty })),
-    total: amount,
-    address: qs('#coAddress')?.value || 'MG Road, Bangalore',
-    partnerNumber: partnerNum,
-    isFounding: isFoundingBuyer
-  };
-
-  if (!state.user) {
-    const coName = qs('#coName')?.value?.trim() || 'Sleep Partner';
-    const coPhone = qs('#coPhone')?.value?.trim() || '';
-    const coEmail = qs('#coEmail')?.value?.trim() || '';
-    state.user = {
-      name: coName,
-      phone: coPhone,
-      email: coEmail,
-      avatar: coName[0]?.toUpperCase() || 'V',
-      foundingNumber: partnerNum,
-      isFounding: isFoundingBuyer,
-      isAmbassador: false,
-      referralCode: 'VELVET-' + Math.floor(1000 + Math.random() * 9000),
-      referralStats: { count: 0, earned: 0, pending: 0 },
-      orders: [orderObj],
-      addresses: [{ id: 'a1', tag: 'Home', name: coName, phone: coPhone, line: qs('#coAddress')?.value?.trim() || '', city: qs('#coCity')?.value?.trim() || 'Bangalore', state: 'Karnataka', pincode: qs('#coPin')?.value?.trim() || '560001', isDefault: true }],
-      wishlist: []
-    };
-  } else {
-    state.user.orders = state.user.orders || [];
-    state.user.orders.unshift(orderObj);
-    if (!state.user.foundingNumber) {
-      state.user.foundingNumber = partnerNum;
-      state.user.isFounding = isFoundingBuyer;
-    }
-  }
-
-  saveStoredUser(state.user);
-  updateHeaderUserUI();
-
-  // 3. Sync to Admin Portal Store & Audit Trail (Real-time live reflection)
   try {
-    const rawAdmin = localStorage.getItem('vh_admin_store_v1');
-    const adminStore = rawAdmin ? JSON.parse(rawAdmin) : { orders: [], inventory: {} };
-    adminStore.orders = adminStore.orders || [];
-
-    const itemsSummary = (state.cart || []).map(i => `${i.product.name} (${i.size}) × ${i.qty}`).join(', ');
-
-    const newAdminOrder = {
-      id: orderId,
-      customer: state.user.name,
-      phone: state.user.phone ? `+91 ${state.user.phone}` : 'Unspecified',
-      email: state.user.email || '',
-      partnerNum: state.user.foundingNumber || 'Sleep Partner',
-      date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-      items: itemsSummary || 'Velvet Hug Sleep System',
-      amount: amount,
-      paymentMode: state.paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : (state.paymentMethod === 'upi' ? 'UPI (Google Pay / PhonePe)' : (state.paymentMethod === 'card' ? 'Credit/Debit Card (3D Secure)' : 'Net Banking')),
-      paymentStatus: state.paymentMethod === 'cod' ? 'Pending Doorstep Verification' : 'Reconciled & Settled',
-      deliveryStatus: 'Crafted in Lab',
-      trackingId: orderObj.trackingId,
-      address: qs('#coAddress')?.value || 'Indiranagar, Bangalore'
-    };
-
-    adminStore.orders.unshift(newAdminOrder);
-    localStorage.setItem('vh_admin_store_v1', JSON.stringify(adminStore));
-
-    // Log to immutable Audit Trail
-    const rawAudit = localStorage.getItem('vh_admin_audit_logs');
-    const auditLogs = rawAudit ? JSON.parse(rawAudit) : [];
-    auditLogs.unshift({
-      id: `aud_${Date.now()}`,
-      timestamp: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-      user: 'E-Commerce Storefront',
-      role: 'Customer Checkout',
-      module: 'Orders',
-      action: 'New Order Placed',
-      details: `New order ${orderId} placed by ${state.user.name} (${itemsSummary}) totaling ₹${amount.toLocaleString('en-IN')}`,
-      ip: '127.0.0.1 (Customer Client)'
+    const auth = await api.loginOrRegister({ name: coName, email: coEmail || undefined, phone: coPhone, isFounding: true });
+    if (auth?.customer) state.user = auth.customer;
+    const result = await api.checkout({
+      customerId: state.user?.id,
+      customerName: coName,
+      customerEmail: coEmail,
+      customerPhone: coPhone,
+      deliveryAddress: address,
+      paymentMethod: state.paymentMethod,
+      couponUsed: state.appliedCoupon,
+      sessionId: getBackendSessionId(),
+      items: state.cart.map(item => ({ productId: item.product.id, size: item.size, quantity: item.qty }))
     });
-    localStorage.setItem('vh_admin_audit_logs', JSON.stringify(auditLogs.slice(0, 200)));
-  } catch (e) {
-    console.error('Error syncing order to admin store:', e);
+    if (!result?.success) throw new Error(result?.error || 'Checkout failed');
+    state.user = { ...state.user, lastOrder: result.data };
+    await refreshCustomerOrders();
+    saveStoredUser(state.user);
+    state.cart = [];
+    saveStoredCart(state.cart);
+    updateHeaderUserUI();
+    updateCartBadge();
+    state.checkoutStep = 'success';
+    renderCheckout();
+    toast(`🎉 Order ${result.data.orderId} confirmed and saved securely.`);
+  } catch (error) {
+    console.error('[Checkout]', error);
+    toast(`Checkout failed: ${error.message}`);
   }
-
-  // 4. Clear cart and persist
-  state.cart = [];
-  saveStoredCart(state.cart);
-  updateCartBadge();
-
-  // 5. Advance to success screen
-  state.checkoutStep = 'success';
-  renderCheckout();
-  toast('🎉 Order Confirmed! You are now a Sleep Partner.');
 }
 
 function proceedToPayment() {
@@ -3414,6 +3410,12 @@ function renderQuizResults() {
 
   if (!recommended.length) recommended = PRODUCTS.filter(p => p.category === 'mattresses').slice(0, 3);
   recommended = recommended.slice(0, 3);
+  api.submitQuizDiagnosis({
+    sessionOrCustomerId: state.user?.id || getBackendSessionId(),
+    answers: ans,
+    recommendedProductId: recommended[0]?.id,
+    recommendedFirmness: recommended[0]?.firmness || 'Medium-Firm'
+  }).catch(error => console.warn('[Quiz] Backend persistence failed:', error.message));
 
   el.innerHTML = `
     <div style="text-align:center;margin-bottom:20px;">
@@ -3628,14 +3630,30 @@ export function closeReturnRequestModal() {
   qs('#returnRequestModal')?.classList.remove('active');
 }
 
-export function submitReturnForm(e) {
+export async function submitReturnForm(e) {
   e.preventDefault();
   const orderId = qs('#returnOrderSelect')?.value || 'VH-890214';
   const type = qs('#returnRequestType')?.value || 'Firmness Exchange';
   const reason = qs('#returnReason')?.value || 'Spine requires firmer support';
   const address = qs('#returnPickupAddress')?.value || 'Bangalore';
 
-  const rmaId = `VH-RET-${Math.floor(10000 + Math.random() * 90000)}`;
+  let rmaId;
+  try {
+    const result = await api.submitReturn({
+      orderId,
+      customerName: state.user?.name || 'Sleep Partner',
+      customerPhone: state.user?.phone || '',
+      customerEmail: state.user?.email || '',
+      requestType: type,
+      reason,
+      pickupAddress: address
+    });
+    if (!result?.success) throw new Error(result?.error || 'Return request failed');
+    rmaId = result.rmaId;
+  } catch (error) {
+    toast(`Return request failed: ${error.message}`);
+    return;
+  }
 
   const returnTicket = {
     rmaId,
@@ -4138,7 +4156,8 @@ window.toggleConsumerTheme = function() {
 // ────────────────────────────────────────────────────────────
 // MASTER INIT
 // ────────────────────────────────────────────────────────────
-function init() {
+async function init() {
+  await hydrateBackendState();
   initConsumerTheme();
   initPromoBanner();
   initNavigation();

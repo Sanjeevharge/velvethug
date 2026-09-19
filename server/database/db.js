@@ -6,7 +6,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { PGlite } from '@electric-sql/pglite';
-import pg from 'pg';
 import dotenv from 'dotenv';
 
 import { PRODUCTS, CATEGORIES, DOCTORS, ACTIVE_PROMOS, SLEEP_QUIZ } from '../../src/data/products.js';
@@ -16,10 +15,13 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DATA_DIR = path.resolve(__dirname, '../../data/postgres_store');
+// Keep the embedded database separate from any native PostgreSQL data directory
+// that may have been created by older local development scripts.
+const DATA_DIR = path.resolve(__dirname, '../../data/pglite_store');
 
 let pgliteInstance = null;
 let pgPoolInstance = null;
+let pgModulePromise = null;
 let isInitialized = false;
 let initPromise = null;
 
@@ -37,6 +39,9 @@ export async function initDb() {
     console.log(`[Database] Initializing PostgreSQL engine... Mode: ${isExternalPostgres ? 'pg.Pool (External/Cloud)' : 'PGlite (Local Persistent On-Disk)'}`);
 
     if (isExternalPostgres) {
+      // Load pg only when a real external database is configured. This keeps
+      // local PGlite startup independent from platform-specific pg installs.
+      const { default: pg } = await (pgModulePromise ||= import('pg'));
       pgPoolInstance = new pg.Pool({
         connectionString: process.env.DATABASE_URL,
         ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }

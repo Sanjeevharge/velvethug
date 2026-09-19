@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./src/styles/admin.css?v=1.1">
+  <link rel="stylesheet" href="/src/styles/admin.css?v=1.2">
 </head>
 <body class="admin-body">
 
@@ -49,6 +49,8 @@
     </div>
   </div>
 
+  <a href="/backend-inspector" target="_blank" rel="noopener" style="position:fixed;left:24px;bottom:24px;z-index:10000;color:#8a6914;background:#fffdf5;border:1px solid #d4af37;border-radius:8px;padding:10px 14px;font-size:0.8rem;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.08);">⚙ Open Backend Diagnostics</a>
+
   <!-- Main Authenticated Portal Layout -->
   <div id="adminPortalLayout" class="admin-layout" style="display:none;">
 
@@ -75,6 +77,7 @@
           <span>⏳ Session Idle Timeout:</span>
           <strong id="adminIdleCountdown" style="color:var(--admin-gold);">15:00</strong>
         </div>
+        <a href="/backend-inspector" target="_blank" rel="noopener" class="btn-admin-logout" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px;">⚙ Backend Diagnostics</a>
         <button class="btn-admin-logout" onclick="window.adminLogout()">🚪 Sign Out</button>
       </div>
     </aside>
@@ -97,6 +100,6 @@
   </script>
 
   <!-- Admin JS Module -->
-  <script type="module" src="./src/admin.js?v=2.3"></script>
+  <script type="module" src="/src/admin.js?v=2.4"></script>
 </body>
 </html>
