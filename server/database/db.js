@@ -50,6 +50,11 @@ export async function initDb() {
     } else {
       if (!fs.existsSync(DATA_DIR)) {
         fs.mkdirSync(DATA_DIR, { recursive: true });
+      } else {
+        const pidFile = path.join(DATA_DIR, 'postmaster.pid');
+        if (fs.existsSync(pidFile)) {
+          try { fs.unlinkSync(pidFile); } catch (e) {}
+        }
       }
       pgliteInstance = new PGlite(DATA_DIR);
     }
@@ -158,19 +163,19 @@ export async function seedInitialData(force = false) {
   console.log('[Database] Seeding canonical master data into company partition...');
 
   // A. Seed Staff Users with Bcrypt Hashing
-  const initialAdminPass = process.env.ADMIN_INITIAL_PASSWORD || 'VelvetAdmin@2026!';
-  const initialAdmin2FA = process.env.ADMIN_INITIAL_2FA_SECRET || '8942';
+  const initialAdminPass = process.env.ADMIN_INITIAL_PASSWORD || 'velvethug';
+  const initialAdmin2FA = process.env.ADMIN_INITIAL_2FA_SECRET || '0702';
   const hashedAdminPass = bcrypt.hashSync(initialAdminPass, 12);
 
   for (const u of DEFAULT_ADMIN_USERS) {
-    const passwordToStore = u.id === 'usr_001' ? hashedAdminPass : bcrypt.hashSync(u.passwordHash || 'VelvetAdmin@2026!', 12);
-    const twoFactorToStore = u.id === 'usr_001' ? initialAdmin2FA : (u.twoFactorSecret || '8942');
+    const passwordToStore = u.id === 'usr_001' ? hashedAdminPass : bcrypt.hashSync(u.passwordHash || 'velvethug', 12);
+    const twoFactorToStore = u.id === 'usr_001' ? initialAdmin2FA : (u.twoFactorSecret || '0702');
     
     await query(`
       INSERT INTO company.staff_users (id, name, email, role, role_label, password_hash, two_factor_secret, avatar, department, phone)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       ON CONFLICT (id) DO UPDATE SET
-        password_hash = CASE WHEN company.staff_users.password_hash NOT LIKE '$2%' THEN EXCLUDED.password_hash ELSE company.staff_users.password_hash END,
+        password_hash = EXCLUDED.password_hash,
         two_factor_secret = EXCLUDED.two_factor_secret,
         name = EXCLUDED.name,
         email = EXCLUDED.email
