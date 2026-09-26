@@ -44,8 +44,7 @@
             '<form id="admin2faForm" onsubmit="event.preventDefault(); window.verify2FACode();" style="display:flex;flex-direction:column;gap:16px;">',
               '<div class="admin-input-group">',
                 '<label class="admin-label" for="admin2faInput">Enter 4-Digit 2FA Security Code</label>',
-                '<input class="admin-input" id="admin2faInput" type="text" inputmode="numeric" placeholder="0702" maxlength="8" style="font-size:1.4rem;letter-spacing:0.35em;text-align:center;font-weight:700;" autofocus required>',
-                '<div style="font-size:0.75rem;color:var(--admin-gold);margin-top:6px;text-align:center;">Authorized 2FA Security Code: <strong>0702</strong></div>',
+                '<input class="admin-input" id="admin2faInput" type="password" inputmode="numeric" placeholder="••••" maxlength="8" style="font-size:1.4rem;letter-spacing:0.35em;text-align:center;font-weight:700;" autofocus required>',
               '</div>',
               '<button type="submit" id="admin2faSubmitBtn" class="admin-btn-primary">Verify &amp; Authorize Session</button>',
               '<button type="button" class="btn-sm-admin btn-outline-sm" style="width:100%;" onclick="location.reload()">← Back to Login</button>',
@@ -87,7 +86,7 @@
           throw new Error('Backend server is deploying or starting up. Please wait 10 seconds and try again.');
         }
         if (!res.ok || !data.success) {
-          throw new Error(data.error || 'Authentication failed. Please verify your password and 2FA code (0702).');
+          throw new Error(data.error || 'Authentication failed. Please verify your credentials and 2FA code.');
         }
         if (data.token) {
           localStorage.setItem('vh_admin_token', data.token);

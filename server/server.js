@@ -20,19 +20,9 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Production CORS Configuration
-const allowedOrigins = process.env.CORS_ORIGIN 
-  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-  : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:8080', 'http://127.0.0.1:8080'];
-
+// Production & Cloud CORS Configuration
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.netlify.app') || origin.endsWith('velvethug.in')) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS policy: Not allowed by origin'));
-    }
-  },
+  origin: true,
   credentials: true
 }));
 
