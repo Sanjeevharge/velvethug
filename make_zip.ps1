@@ -27,7 +27,10 @@ $includeFiles = @(
     "server.ps1",
     "README.md",
     "robots.txt",
-    "sitemap.xml"
+    "sitemap.xml",
+    "Dockerfile",
+    "render.yaml",
+    ".env.example"
 )
 
 # Add root files
