@@ -582,6 +582,29 @@ function initSearch() {
 
   // Global Cmd+K / Ctrl+K shortcut
   window.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      window.closeSearch?.();
+      window.closeCart?.();
+      window.closePDP?.();
+      window.closeQuiz?.();
+      window.closeCheckout?.();
+      window.closeAccountModal?.();
+      window.closeLoginModal?.();
+      window.closePromoAd?.();
+      window.closeEmiModal?.();
+      window.closeReturnRequestModal?.();
+      window.closeSubmitStoryModal?.();
+      window.closeOrderReviewModal?.();
+      window.closeCorporateInquiry?.();
+      window.closePrivacyPolicyModal?.();
+      window.closeTermsModal?.();
+      qsa('.modal-backdrop.active, .cart-drawer-backdrop.active, .promo-modal-backdrop.active').forEach(el => {
+        el.classList.remove('active', 'open');
+        if (el.style.display === 'flex' || el.style.display === 'block') el.style.display = 'none';
+      });
+      document.body.style.overflow = '';
+      return;
+    }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
       e.preventDefault();
       searchModal?.classList.add('active');

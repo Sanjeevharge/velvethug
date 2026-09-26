@@ -9,6 +9,55 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles/admin.css?v=1.2">
+  <script>
+    window.submitAdminLogin = window.submitAdminLogin || function() {
+      var emailEl = document.getElementById('adminEmailInput');
+      var passEl = document.getElementById('adminPasswordInput');
+      var email = emailEl ? emailEl.value.trim().toLowerCase() : '';
+      var pass = passEl ? passEl.value.trim() : '';
+
+      if (!email || !email.includes('@')) {
+        alert('Please enter your official staff email address.');
+        if (emailEl) emailEl.focus();
+        return;
+      }
+      if (!pass) {
+        alert('Please enter your administrator password.');
+        if (passEl) passEl.focus();
+        return;
+      }
+
+      window._pendingEmail = email;
+      window._pendingPassword = pass;
+
+      var authContainer = document.getElementById('adminAuthContainer');
+      if (authContainer) {
+        authContainer.innerHTML = [
+          '<div class="admin-auth-card">',
+            '<div class="admin-auth-header">',
+              '<div class="admin-auth-logo">Velvet Hug</div>',
+              '<div class="admin-auth-subtitle">Two-Factor Authentication (2FA)</div>',
+            '</div>',
+            '<div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border-gold);border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:0.84rem;color:var(--admin-midnight);text-align:center;">',
+              'Authenticating Staff: <strong>' + email + '</strong>',
+            '</div>',
+            '<form id="admin2faForm" onsubmit="event.preventDefault(); window.verify2FACode();" style="display:flex;flex-direction:column;gap:16px;">',
+              '<div class="admin-input-group">',
+                '<label class="admin-label" for="admin2faInput">Enter 4-Digit 2FA Security Code</label>',
+                '<input class="admin-input" id="admin2faInput" type="text" inputmode="numeric" placeholder="••••" maxlength="8" style="font-size:1.4rem;letter-spacing:0.35em;text-align:center;font-weight:700;" autofocus required>',
+              '</div>',
+              '<button type="submit" id="admin2faSubmitBtn" class="admin-btn-primary">Verify &amp; Authorize Session</button>',
+              '<button type="button" class="btn-sm-admin btn-outline-sm" style="width:100%;" onclick="location.reload()">← Back to Login</button>',
+            '</form>',
+          '</div>'
+        ].join('');
+        setTimeout(function() {
+          var input = document.getElementById('admin2faInput');
+          if (input) input.focus();
+        }, 50);
+      }
+    };
+  </script>
 </head>
 <body class="admin-body">
 
@@ -88,6 +137,6 @@
   </script>
 
   <!-- Admin JS Module -->
-  <script type="module" src="/src/admin.js?v=2.4"></script>
+  <script type="module" src="/src/admin.js?v=3.0"></script>
 </body>
 </html>
