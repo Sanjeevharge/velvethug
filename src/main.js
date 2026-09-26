@@ -533,20 +533,31 @@ function initSoundscape() {
 // ────────────────────────────────────────────────────────────
 // SEARCH MODAL
 // ────────────────────────────────────────────────────────────
+function openSearch() {
+  const searchModal = qs('#searchModal');
+  const searchInput = qs('#searchInput');
+  if (searchModal) {
+    searchModal.classList.add('active');
+    setTimeout(() => searchInput?.focus(), 100);
+  }
+}
+
+function closeSearch() {
+  qs('#searchModal')?.classList.remove('active');
+}
+
+window.openSearch = openSearch;
+window.closeSearch = closeSearch;
+
 function initSearch() {
   const searchModal = qs('#searchModal');
   const searchInput = qs('#searchInput');
   const searchResults = qs('#searchResults');
 
-  qs('#headerSearchBtn')?.addEventListener('click', () => {
-    searchModal?.classList.add('active');
-    setTimeout(() => searchInput?.focus(), 100);
-  });
-  qs('#searchModalClose')?.addEventListener('click', () => {
-    searchModal?.classList.remove('active');
-  });
+  qs('#headerSearchBtn')?.addEventListener('click', openSearch);
+  qs('#searchModalClose')?.addEventListener('click', closeSearch);
   searchModal?.addEventListener('click', e => {
-    if (e.target === searchModal) searchModal.classList.remove('active');
+    if (e.target === searchModal) closeSearch();
   });
 
   searchInput?.addEventListener('input', e => {
@@ -4157,7 +4168,6 @@ window.toggleConsumerTheme = function() {
 // MASTER INIT
 // ────────────────────────────────────────────────────────────
 async function init() {
-  await hydrateBackendState();
   initConsumerTheme();
   initPromoBanner();
   initNavigation();
@@ -4186,10 +4196,24 @@ async function init() {
   history.replaceState({ page: initialPage }, '', initialPage === 'home' ? '#' : `#${initialPage}`);
   navigateTo(initialPage, false);
 
+  // Background hydration
+  hydrateBackendState().then(() => {
+    updateCartBadge();
+    if (['mattresses', 'pillows', 'accessories'].includes(state.currentPage)) {
+      renderCategoryPage(state.currentPage);
+    }
+  }).catch(e => console.warn('[Backend Hydration]', e.message));
+
   console.log('🛏️ Velvet Hug — Be Held, Every Night. Complete Application Ready.');
 }
 
-document.addEventListener('DOMContentLoaded', init);
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => init());
+  } else {
+    init();
+  }
+}
 
 // REST AMBASSADOR SIMULATION HELPER
 window.simulateReferralTest = function() {

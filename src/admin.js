@@ -167,9 +167,38 @@ async function syncWithPostgresBackend() {
   }
 }
 
-export function initAdminAuth() {
+export async function initAdminAuth() {
   initAdminTheme();
-  syncWithPostgresBackend();
+
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  if (token) {
+    try {
+      const checkRes = await nativeFetch('/api/company/stats', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (checkRes.ok) {
+        const statsData = await checkRes.json();
+        if (statsData.success) {
+          adminState.currentUser = {
+            id: 'usr_001',
+            name: 'Subashini',
+            email: 'subashini@velvethug.in',
+            role: 'super_admin',
+            roleLabel: 'Sole Administrator'
+          };
+          renderAuthScreen();
+          syncWithPostgresBackend();
+          startIdleTimer();
+          return;
+        }
+      } else {
+        localStorage.removeItem(ADMIN_TOKEN_KEY);
+      }
+    } catch (e) {
+      console.warn('[Admin Auth Re-verification]', e);
+    }
+  }
+
   renderAuthScreen();
   startIdleTimer();
 }
@@ -190,15 +219,13 @@ function renderAuthScreen() {
   authContainer.style.display = 'flex';
   portalContainer.style.display = 'none';
 
-  const staffList = getAdminUsers();
-
   if (adminState.isLockedOut) {
     authContainer.innerHTML = `
       <div class="admin-auth-card" style="text-align:center;">
-        <div style="font-size:2rem;margin-bottom:12px;color:var(--admin-rose);">Security Lockout</div>
+        <div style="font-size:2rem;margin-bottom:12px;color:var(--admin-rose);">🔒 Security Lockout</div>
         <h2 style="font-family:var(--admin-font-serif);color:var(--admin-midnight);margin-bottom:8px;">Access Temporarily Suspended</h2>
         <p style="font-size:0.86rem;color:var(--admin-text-secondary);margin-bottom:20px;line-height:1.6;">
-          Three consecutive failed authentication attempts were detected. For statutory compliance under DPDP guidelines, access has been temporarily restricted.
+          Five consecutive failed authentication attempts were detected. For statutory compliance under DPDP guidelines, access has been restricted.
         </p>
         <button class="admin-btn-primary" onclick="window.unlockAdminDemo()">Reset Security Lockout</button>
       </div>`;
@@ -210,21 +237,27 @@ function renderAuthScreen() {
       <div class="admin-auth-card">
         <div class="admin-auth-header">
           <div class="admin-auth-logo">Velvet Hug</div>
-          <div class="admin-auth-subtitle">Two-Factor Authentication</div>
+          <div class="admin-auth-subtitle">Two-Factor Authentication (2FA)</div>
         </div>
         
         <div style="background:var(--admin-surface-subtle);border:1px solid var(--admin-border-gold);border-radius:8px;padding:12px 14px;margin-bottom:20px;font-size:0.84rem;color:var(--admin-midnight);text-align:center;">
-          Authenticating Staff: <strong>${adminState._pendingEmail || 'Administrator'}</strong>
+          Authenticating Staff: <strong>${adminState._pendingEmail || 'subashini@velvethug.in'}</strong>
         </div>
 
-        <div class="admin-input-group">
-          <label class="admin-label">Enter 2FA Security Code</label>
-          <input class="admin-input" id="admin2faInput" placeholder="••••" maxlength="8" style="font-size:1.3rem;letter-spacing:0.35em;text-align:center;" autofocus>
-        </div>
+        <form id="admin2faForm" onsubmit="event.preventDefault(); window.verify2FACode();" style="display:flex;flex-direction:column;gap:16px;">
+          <div class="admin-input-group">
+            <label class="admin-label" for="admin2faInput">Enter 4-Digit 2FA Security Code</label>
+            <input class="admin-input" id="admin2faInput" type="text" inputmode="numeric" placeholder="••••" maxlength="8" style="font-size:1.4rem;letter-spacing:0.35em;text-align:center;font-weight:700;" autofocus required>
+          </div>
 
-        <button class="admin-btn-primary" onclick="window.verify2FACode()">Verify &amp; Authorize Session</button>
-        <button class="btn-sm-admin btn-outline-sm" style="width:100%;margin-top:10px;" onclick="window.cancel2FA()">Back to Login</button>
+          <button type="submit" id="admin2faSubmitBtn" class="admin-btn-primary">Verify &amp; Authorize Session</button>
+          <button type="button" class="btn-sm-admin btn-outline-sm" style="width:100%;" onclick="window.cancel2FA()">← Back to Login</button>
+        </form>
       </div>`;
+    setTimeout(() => {
+      const input = qs('#admin2faInput');
+      if (input) input.focus();
+    }, 50);
     return;
   }
 
@@ -236,30 +269,40 @@ function renderAuthScreen() {
         <div class="admin-auth-subtitle">Operations &amp; Security Control Center</div>
       </div>
 
-      <div class="admin-input-group">
-        <label class="admin-label">Official Staff Email</label>
-        <input class="admin-input" id="adminEmailInput" type="email" autocomplete="username" placeholder="name@velvethug.in">
-      </div>
+      <form id="adminCredentialsForm" onsubmit="event.preventDefault(); window.submitAdminLogin();" style="display:flex;flex-direction:column;gap:16px;">
+        <div class="admin-input-group">
+          <label class="admin-label" for="adminEmailInput">Official Staff Email</label>
+          <input class="admin-input" id="adminEmailInput" type="email" autocomplete="username" placeholder="name@velvethug.in" value="${adminState._pendingEmail || 'subashini@velvethug.in'}" required>
+        </div>
 
-      <div class="admin-input-group">
-        <label class="admin-label">Password</label>
-        <input class="admin-input" type="password" id="adminPasswordInput" autocomplete="current-password" placeholder="••••••••••••">
-      </div>
+        <div class="admin-input-group">
+          <label class="admin-label" for="adminPasswordInput">Password</label>
+          <input class="admin-input" type="password" id="adminPasswordInput" autocomplete="current-password" placeholder="••••••••••••" required>
+        </div>
 
-      <button class="admin-btn-primary" onclick="window.submitAdminLogin()">Proceed to 2FA Verification</button>
+        <button type="submit" id="adminSubmitBtn" class="admin-btn-primary">Proceed to 2FA Verification</button>
+      </form>
     </div>`;
+  setTimeout(() => {
+    const pInput = qs('#adminPasswordInput');
+    if (pInput && !pInput.value) pInput.focus();
+  }, 50);
 }
 
 window.submitAdminLogin = function() {
-  const email = qs('#adminEmailInput')?.value.trim().toLowerCase();
-  const pass = qs('#adminPasswordInput')?.value.trim();
+  const emailInput = qs('#adminEmailInput');
+  const passInput = qs('#adminPasswordInput');
+  const email = emailInput?.value.trim().toLowerCase();
+  const pass = passInput?.value.trim();
 
   if (!email || !email.includes('@')) {
     adminToast('Please enter your official staff email address.');
+    if (emailInput) emailInput.focus();
     return;
   }
   if (!pass) {
     adminToast('Please enter your administrator password.');
+    if (passInput) passInput.focus();
     return;
   }
 
@@ -270,13 +313,21 @@ window.submitAdminLogin = function() {
 };
 
 window.verify2FACode = async function() {
-  const code = qs('#admin2faInput')?.value.trim();
+  const codeInput = qs('#admin2faInput');
+  const submitBtn = qs('#admin2faSubmitBtn');
+  const code = codeInput?.value.trim();
   const email = adminState._pendingEmail;
   const password = adminState._pendingPassword;
 
   if (!code) {
     adminToast('Please enter your 2FA security code.');
+    if (codeInput) codeInput.focus();
     return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Verifying Security Token...';
   }
 
   try {
@@ -290,7 +341,7 @@ window.verify2FACode = async function() {
     try {
       result = raw ? JSON.parse(raw) : {};
     } catch {
-      throw new Error('Backend unavailable. Start the backend with npm run server, then reload this page.');
+      throw new Error('Backend server is starting or unreachable. Please try again in a few seconds.');
     }
     if (!response.ok || !result.success) throw new Error(result.error || 'Authentication failed');
     localStorage.setItem(ADMIN_TOKEN_KEY, result.token);
@@ -311,6 +362,14 @@ window.verify2FACode = async function() {
     syncWithPostgresBackend();
   } catch (error) {
     adminToast(error.message);
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Verify & Authorize Session';
+    }
+    if (codeInput) {
+      codeInput.value = '';
+      codeInput.focus();
+    }
   }
 };
 
@@ -327,9 +386,18 @@ window.unlockAdminDemo = function() {
   adminToast('Security lockout reset.');
 };
 
-window.adminLogout = function() {
+window.adminLogout = async function() {
   if (adminState.currentUser) {
     logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Security', 'Session Terminated', 'Staff signed out');
+  }
+  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  if (token) {
+    try {
+      await nativeFetch('/api/company/auth/logout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (e) {}
   }
   localStorage.removeItem(ADMIN_TOKEN_KEY);
   adminState.currentUser = null;
@@ -2668,5 +2736,16 @@ function renderAuditModule(el) {
       </div>
     </div>
   `;
+}
+
+// Auto-initialize Admin Auth & Theme on load
+if (typeof window !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initAdminAuth();
+    });
+  } else {
+    initAdminAuth();
+  }
 }
 

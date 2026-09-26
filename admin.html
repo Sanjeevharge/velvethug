@@ -24,17 +24,19 @@
         ⚠️ <strong>Notice:</strong> Browser security restricts ES modules when opened via <code>file:///</code>. Please run <code>start-server.bat</code> and visit <strong><a href="http://localhost:8080/admin.html" style="color:#B45309;font-weight:700;">http://localhost:8080/admin.html</a></strong> for full real-time database reactivity.
       </div>
 
-      <div class="admin-input-group">
-        <label class="admin-label">Official Staff Email</label>
-        <input class="admin-input" id="adminEmailInput" type="email" autocomplete="username" placeholder="name@velvethug.in">
-      </div>
+      <form id="adminCredentialsForm" onsubmit="event.preventDefault(); window.submitAdminLogin();" style="display:flex;flex-direction:column;gap:16px;">
+        <div class="admin-input-group">
+          <label class="admin-label" for="adminEmailInput">Official Staff Email</label>
+          <input class="admin-input" id="adminEmailInput" type="email" autocomplete="username" placeholder="name@velvethug.in" value="subashini@velvethug.in" required>
+        </div>
 
-      <div class="admin-input-group">
-        <label class="admin-label">Password</label>
-        <input class="admin-input" type="password" id="adminPasswordInput" autocomplete="current-password" placeholder="••••••••••••">
-      </div>
+        <div class="admin-input-group">
+          <label class="admin-label" for="adminPasswordInput">Password</label>
+          <input class="admin-input" type="password" id="adminPasswordInput" autocomplete="current-password" placeholder="••••••••••••" required>
+        </div>
 
-      <button class="admin-btn-primary" onclick="window.submitAdminLogin()">Proceed to 2FA Verification</button>
+        <button type="submit" id="adminSubmitBtn" class="admin-btn-primary">Proceed to 2FA Verification</button>
+      </form>
     </div>
   </div>
 
