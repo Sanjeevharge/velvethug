@@ -936,12 +936,6 @@ app.post('/api/company/auth/login', async (req, res) => {
     const staff = staffRes.rows[0];
 
     // 3. Strict Bcrypt Password Verification with Auto-Upgrade
-    let isPasswordValid = false;
-    if (staff.password_hash && staff.password_hash.startsWith('$2')) {
-      isPasswordValid = bcrypt.compareSync(password, staff.password_hash);
-    }
-    
-    // Verify against configured initial admin password from .env
     const cleanPass = String(password || '').trim();
     let isPasswordValid = false;
     if (staff.password_hash && staff.password_hash.startsWith('$2')) {
