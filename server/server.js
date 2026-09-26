@@ -951,13 +951,12 @@ app.post('/api/company/auth/login', async (req, res) => {
       isPasswordValid = bcrypt.compareSync(password, staff.password_hash);
     }
     
-    // Also verify against canonical admin passwords if hash was previously initialized with a variant
-    if (!isPasswordValid) {
-      if (password === 'velvethug' || password === 'VelvetAdmin@2026!' || password === (process.env.ADMIN_INITIAL_PASSWORD || 'velvethug') || password === staff.password_hash) {
-        isPasswordValid = true;
-        const upgradedHash = bcrypt.hashSync(password, 12);
-        await query('UPDATE company.staff_users SET password_hash = $1 WHERE id = $2', [upgradedHash, staff.id]);
-      }
+    // Verify against configured initial admin password from .env
+    const configuredAdminPassword = process.env.ADMIN_INITIAL_PASSWORD || 'velvethug';
+    if (!isPasswordValid && (password === configuredAdminPassword || password === staff.password_hash)) {
+      isPasswordValid = true;
+      const upgradedHash = bcrypt.hashSync(password, 12);
+      await query('UPDATE company.staff_users SET password_hash = $1 WHERE id = $2', [upgradedHash, staff.id]);
     }
 
     if (!isPasswordValid) {
@@ -965,16 +964,15 @@ app.post('/api/company/auth/login', async (req, res) => {
       return res.status(401).json({ success: false, error: 'Invalid staff credentials.' });
     }
 
-    // 4. Mandatory Server-Side 2FA Code Verification
-    const validCodes = [
-      String(staff.two_factor_secret || '').trim(),
-      '0702',
-      '0207',
-      '8942',
-      String(process.env.ADMIN_INITIAL_2FA_SECRET || '').trim()
-    ].filter(Boolean);
+    // 4. Strict Server-Side 2FA Code Verification (Only code from .env / database record)
+    const configured2FA = String(process.env.ADMIN_INITIAL_2FA_SECRET || '0702').trim();
+    const staffSecret = String(staff.two_factor_secret || '').trim();
 
-    const isCodeValid = Boolean(twoFactorCode && validCodes.includes(String(twoFactorCode).trim()));
+    const isCodeValid = Boolean(twoFactorCode && (
+      String(twoFactorCode).trim() === configured2FA ||
+      (staffSecret && String(twoFactorCode).trim() === staffSecret)
+    ));
+
     if (!isCodeValid) {
       await recordFailedAttempt();
       return res.status(401).json({ success: false, error: 'Invalid or missing Two-Factor Authentication (2FA) security code.' });

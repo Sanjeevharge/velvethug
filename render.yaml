@@ -15,9 +15,9 @@ services:
       - key: DATABASE_SSL
         value: true
       - key: ADMIN_INITIAL_PASSWORD
-        generateValue: true
+        value: "velvethug"
       - key: ADMIN_INITIAL_2FA_SECRET
-        value: "8942"
+        value: "0702"
 
 databases:
   - name: velvethug-postgres
