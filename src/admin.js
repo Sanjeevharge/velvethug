@@ -67,6 +67,19 @@ window.closeAssignOfficerModal = function() {
   if (m) m.remove();
 };
 
+window.togglePasswordVisibility = function(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  const isPass = input.type === 'password';
+  input.type = isPass ? 'text' : 'password';
+  if (btn) {
+    btn.innerHTML = isPass
+      ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>'
+      : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+    btn.setAttribute('aria-label', isPass ? 'Hide characters' : 'Show characters');
+  }
+};
+
 function adminToast(msg, dur = 2800) {
   const t = qs('#adminToast');
   if (!t) return;
@@ -259,7 +272,12 @@ function renderAuthScreen() {
         <form id="admin2faForm" onsubmit="event.preventDefault(); window.verify2FACode();" style="display:flex;flex-direction:column;gap:16px;">
           <div class="admin-input-group">
             <label class="admin-label" for="admin2faInput">Enter 4-Digit 2FA Security Code</label>
-            <input class="admin-input" id="admin2faInput" type="text" inputmode="numeric" placeholder="••••" maxlength="8" style="font-size:1.4rem;letter-spacing:0.35em;text-align:center;font-weight:700;" autofocus required>
+            <div style="position:relative;display:flex;align-items:center;">
+              <input class="admin-input" id="admin2faInput" type="password" inputmode="numeric" placeholder="••••" maxlength="8" style="font-size:1.4rem;letter-spacing:0.35em;text-align:center;font-weight:700;padding-right:44px;" autofocus required>
+              <button type="button" onclick="window.togglePasswordVisibility('admin2faInput', this)" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--admin-midnight);opacity:0.65;display:flex;align-items:center;justify-content:center;padding:6px;" title="Show/Hide Security Code" aria-label="Toggle code visibility">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
           </div>
 
           <button type="submit" id="admin2faSubmitBtn" class="admin-btn-primary">Verify &amp; Authorize Session</button>
@@ -289,7 +307,12 @@ function renderAuthScreen() {
 
         <div class="admin-input-group">
           <label class="admin-label" for="adminPasswordInput">Password</label>
-          <input class="admin-input" type="password" id="adminPasswordInput" autocomplete="current-password" placeholder="••••••••••••" required>
+          <div style="position:relative;display:flex;align-items:center;">
+            <input class="admin-input" type="password" id="adminPasswordInput" autocomplete="current-password" placeholder="••••••••••••" style="padding-right:44px;" required>
+            <button type="button" onclick="window.togglePasswordVisibility('adminPasswordInput', this)" style="position:absolute;right:10px;background:none;border:none;cursor:pointer;color:var(--admin-midnight);opacity:0.65;display:flex;align-items:center;justify-content:center;padding:6px;" title="Show/Hide Password" aria-label="Toggle password visibility">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
         </div>
 
         <button type="submit" id="adminSubmitBtn" class="admin-btn-primary">Proceed to 2FA Verification</button>
