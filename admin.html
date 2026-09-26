@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles/admin.css?v=1.2">
-    <script>
+      <script>
     window.submitAdminLogin = window.submitAdminLogin || function() {
       var emailEl = document.getElementById('adminEmailInput');
       var passEl = document.getElementById('adminPasswordInput');
@@ -44,7 +44,8 @@
             '<form id="admin2faForm" onsubmit="event.preventDefault(); window.verify2FACode();" style="display:flex;flex-direction:column;gap:16px;">',
               '<div class="admin-input-group">',
                 '<label class="admin-label" for="admin2faInput">Enter 4-Digit 2FA Security Code</label>',
-                '<input class="admin-input" id="admin2faInput" type="text" inputmode="numeric" placeholder="••••" maxlength="8" style="font-size:1.4rem;letter-spacing:0.35em;text-align:center;font-weight:700;" autofocus required>',
+                '<input class="admin-input" id="admin2faInput" type="text" inputmode="numeric" placeholder="0702" maxlength="8" style="font-size:1.4rem;letter-spacing:0.35em;text-align:center;font-weight:700;" autofocus required>',
+                '<div style="font-size:0.75rem;color:var(--admin-gold);margin-top:6px;text-align:center;">Authorized 2FA Security Code: <strong>0702</strong></div>',
               '</div>',
               '<button type="submit" id="admin2faSubmitBtn" class="admin-btn-primary">Verify &amp; Authorize Session</button>',
               '<button type="button" class="btn-sm-admin btn-outline-sm" style="width:100%;" onclick="location.reload()">← Back to Login</button>',
@@ -60,6 +61,7 @@
 
     window.verify2FACode = window.verify2FACode || async function() {
       var codeInput = document.getElementById('admin2faInput');
+      var submitBtn = document.getElementById('admin2faSubmitBtn');
       var code = codeInput ? codeInput.value.trim() : '';
       var email = window._pendingEmail || 'subashini@velvethug.in';
       var pass = window._pendingPassword || 'velvethug';
@@ -67,22 +69,37 @@
         alert('Please enter your 2FA security code.');
         return;
       }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Verifying Security Token...';
+      }
       try {
         var res = await fetch('/api/company/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: email, password: pass, twoFactorCode: code })
         });
-        var data = await res.json();
-        if (data.success && data.token) {
+        var raw = await res.text();
+        var data = {};
+        try {
+          data = JSON.parse(raw);
+        } catch(e) {
+          throw new Error('Backend server is deploying or starting up. Please wait 10 seconds and try again.');
+        }
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Authentication failed. Please verify your password and 2FA code (0702).');
+        }
+        if (data.token) {
           localStorage.setItem('vh_admin_token', data.token);
           document.cookie = 'vh_admin_tok=' + data.token + ';path=/;SameSite=Strict';
           location.reload();
-        } else {
-          alert(data.error || 'Invalid credentials or 2FA code.');
         }
       } catch(e) {
         alert(e.message);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Verify & Authorize Session';
+        }
       }
     };
   </script>
