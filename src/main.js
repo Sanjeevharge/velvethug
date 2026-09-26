@@ -4206,3 +4206,26 @@ window.simulateReferralTest = function() {
   renderAccountModal();
   renderAccountPage();
 };
+
+// ────────────────────────────────────────────────────────────
+// LEGAL & PRIVACY POLICY MODALS
+// ────────────────────────────────────────────────────────────
+window.openPrivacyPolicyModal = function() {
+  const el = document.getElementById('privacyModal');
+  if (el) { el.style.display = 'flex'; el.classList.add('active'); }
+};
+
+window.closePrivacyPolicyModal = function() {
+  const el = document.getElementById('privacyModal');
+  if (el) { el.style.display = 'none'; el.classList.remove('active'); }
+};
+
+window.openTermsModal = function() {
+  const el = document.getElementById('termsModal');
+  if (el) { el.style.display = 'flex'; el.classList.add('active'); }
+};
+
+window.closeTermsModal = function() {
+  const el = document.getElementById('termsModal');
+  if (el) { el.style.display = 'none'; el.classList.remove('active'); }
+};

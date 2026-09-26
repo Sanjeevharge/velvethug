@@ -134,3 +134,26 @@ test('admin login returns a usable server token', async () => {
   assert.equal(inventory.response.status, 200);
   assert.equal(inventory.body.success, true);
 });
+
+test('admin login rejects invalid password or missing 2FA code', async () => {
+  const badPass = await request('/api/company/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: 'subashini@velvethug.in', password: 'WrongPassword123!', twoFactorCode: '8942' })
+  });
+  assert.equal(badPass.response.status, 401);
+  assert.equal(badPass.body.success, false);
+
+  const missing2FA = await request('/api/company/auth/login', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: 'subashini@velvethug.in', password: 'VelvetAdmin@2026!' })
+  });
+  assert.equal(missing2FA.response.status, 401);
+  assert.equal(missing2FA.body.success, false);
+});
+
+test('system diagnostic routes reject unauthenticated requests', async () => {
+  const { response, body } = await request('/api/system/schema-overview');
+  assert.equal(response.status, 401);
+  assert.equal(body.success, false);
+});
+

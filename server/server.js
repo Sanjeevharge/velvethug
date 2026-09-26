@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 
 import { initDb, query, transaction, getHealth, resetUsersData, resetCompanyData, fullReset } from './database/db.js';
 
@@ -18,11 +19,24 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
-const adminTokens = new Map();
 
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+// Production CORS Configuration
+const allowedOrigins = process.env.CORS_ORIGIN 
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+  : ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:8080', 'http://127.0.0.1:8080'];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.netlify.app') || origin.endsWith('velvethug.in')) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy: Not allowed by origin'));
+    }
+  },
+  credentials: true
+}));
+
+app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Request logging & query execution benchmark header
@@ -41,17 +55,29 @@ function bearerToken(req) {
   return req.headers.authorization?.replace(/^Bearer\s+/i, '') || null;
 }
 
+/**
+ * Persistent Admin Authorization Middleware
+ * Validates token against company.admin_sessions in PostgreSQL
+ */
 async function requireAdmin(req, res, next) {
   try {
     const token = bearerToken(req);
-    const tokenRecord = token && adminTokens.get(token);
-    if (!tokenRecord || tokenRecord.expiresAt < Date.now()) {
-      if (token) adminTokens.delete(token);
+    if (!token) {
       return res.status(401).json({ success: false, error: 'Admin authentication required' });
     }
-    const staff = await query('SELECT id, name, email, role FROM company.staff_users WHERE id = $1', [tokenRecord.staffId]);
-    if (!staff.rows.length) return res.status(401).json({ success: false, error: 'Admin account unavailable' });
-    req.admin = staff.rows[0];
+
+    const sessionRes = await query(`
+      SELECT s.token, s.staff_id, s.expires_at, u.id, u.name, u.email, u.role, u.role_label, u.avatar, u.department, u.phone
+      FROM company.admin_sessions s
+      JOIN company.staff_users u ON s.staff_id = u.id
+      WHERE s.token = $1 AND s.expires_at > CURRENT_TIMESTAMP
+    `, [token]);
+
+    if (!sessionRes.rows.length) {
+      return res.status(401).json({ success: false, error: 'Admin session expired or invalid. Please sign in again.' });
+    }
+
+    req.admin = sessionRes.rows[0];
     next();
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -62,15 +88,9 @@ app.use('/api/company', (req, res, next) => {
   if (req.path === '/auth/login' && req.method === 'POST') return next();
   return requireAdmin(req, res, next);
 });
-app.use('/api/system', (req, res, next) => {
-  const safeDiagnostics = req.method === 'GET' && (
-    req.path === '/schema-overview' ||
-    req.path === '/table-data/company/products' ||
-    req.path === '/table-data/company/inventory'
-  );
-  if (safeDiagnostics) return next();
-  return requireAdmin(req, res, next);
-});
+
+// Protect all system routes behind admin authentication
+app.use('/api/system', requireAdmin);
 
 // ══════════════════════════════════════════════════════════════════════════════
 // 1. HEALTH & METRICS DIAGNOSTICS
@@ -863,42 +883,100 @@ app.post('/api/user/quiz/submit', async (req, res) => {
 // 5. COMPANY & OPERATIONS ADMIN API (SCHEMA: "company")
 // ══════════════════════════════════════════════════════════════════════════════
 
-// Staff Login
+// Staff Login with Server-Side Rate Limiting, Mandatory 2FA & Bcrypt Verification
 app.post('/api/company/auth/login', async (req, res) => {
   try {
     const { email, password, twoFactorCode } = req.body;
+    const ip = req.ip || req.socket.remoteAddress || '127.0.0.1';
+
     if (!email || !password) {
-      return res.status(400).json({ success: false, error: 'Email and password required' });
+      return res.status(400).json({ success: false, error: 'Staff email and password are required' });
     }
 
-    const staffRes = await query('SELECT * FROM company.staff_users WHERE LOWER(email) = $1', [email.toLowerCase().trim()]);
+    const cleanEmail = email.toLowerCase().trim();
+
+    // 1. Check Server-Side Rate Limiting & Account Lockout
+    const attemptRes = await query(
+      'SELECT attempt_count, locked_until FROM company.login_attempts WHERE identifier = $1',
+      [cleanEmail]
+    );
+
+    if (attemptRes.rows.length > 0) {
+      const { attempt_count, locked_until } = attemptRes.rows[0];
+      if (locked_until && new Date(locked_until) > new Date()) {
+        const remainingMinutes = Math.ceil((new Date(locked_until) - new Date()) / 60000);
+        return res.status(429).json({
+          success: false,
+          error: `Security Lockout Active: Account locked due to repeated failed attempts. Please retry in ${remainingMinutes} minute(s).`
+        });
+      }
+    }
+
+    // 2. Fetch staff record
+    const staffRes = await query('SELECT * FROM company.staff_users WHERE LOWER(email) = $1', [cleanEmail]);
+    
+    // Helper to register failed attempt
+    const recordFailedAttempt = async () => {
+      await query(`
+        INSERT INTO company.login_attempts (identifier, ip_address, attempt_count, last_attempt, locked_until)
+        VALUES ($1, $2, 1, CURRENT_TIMESTAMP, NULL)
+        ON CONFLICT (identifier) DO UPDATE SET
+          attempt_count = company.login_attempts.attempt_count + 1,
+          last_attempt = CURRENT_TIMESTAMP,
+          ip_address = $2,
+          locked_until = CASE WHEN company.login_attempts.attempt_count + 1 >= 5 THEN CURRENT_TIMESTAMP + INTERVAL '15 minutes' ELSE NULL END
+      `, [cleanEmail, ip]);
+    };
+
     if (staffRes.rows.length === 0) {
-      return res.status(401).json({ success: false, error: 'Invalid staff credentials' });
+      await recordFailedAttempt();
+      return res.status(401).json({ success: false, error: 'Invalid staff credentials or unauthorized access.' });
     }
 
     const staff = staffRes.rows[0];
 
-    // Password verification
-    if (password !== staff.password_hash && password !== 'VelvetAdmin@2026!') {
-      return res.status(401).json({ success: false, error: 'Invalid password' });
+    // 3. Strict Bcrypt Password Verification (No Plaintext Bypasses)
+    let isPasswordValid = false;
+    if (staff.password_hash.startsWith('$2')) {
+      isPasswordValid = bcrypt.compareSync(password, staff.password_hash);
+    } else {
+      // In case of unmigrated password hash, check and immediately upgrade to bcrypt
+      isPasswordValid = (password === staff.password_hash);
+      if (isPasswordValid) {
+        const upgradedHash = bcrypt.hashSync(password, 12);
+        await query('UPDATE company.staff_users SET password_hash = $1 WHERE id = $2', [upgradedHash, staff.id]);
+      }
     }
 
-    // 2FA Verification (default 8942)
-    if (twoFactorCode && twoFactorCode !== staff.two_factor_secret && twoFactorCode !== '8942') {
-      return res.status(401).json({ success: false, error: 'Invalid 2FA security code' });
+    if (!isPasswordValid) {
+      await recordFailedAttempt();
+      return res.status(401).json({ success: false, error: 'Invalid staff credentials.' });
     }
 
-    // Update last login
+    // 4. Mandatory Server-Side 2FA Code Verification
+    if (!twoFactorCode || String(twoFactorCode).trim() !== String(staff.two_factor_secret).trim()) {
+      await recordFailedAttempt();
+      return res.status(401).json({ success: false, error: 'Invalid or missing Two-Factor Authentication (2FA) security code.' });
+    }
+
+    // 5. Successful Authentication -> Clear failed attempts
+    await query('DELETE FROM company.login_attempts WHERE identifier = $1', [cleanEmail]);
+
+    // 6. Update last login
     await query('UPDATE company.staff_users SET last_login = CURRENT_TIMESTAMP WHERE id = $1', [staff.id]);
 
-    // Audit log
+    // 7. Audit log insertion
     await query(`
-      INSERT INTO company.audit_logs (staff_id, staff_name, action, entity_type, entity_id, details_json)
-      VALUES ($1, $2, 'STAFF_LOGIN', 'AUTH', $1, '{"role":"super_admin","status":"authenticated"}'::jsonb)
-    `, [staff.id, staff.name]);
+      INSERT INTO company.audit_logs (staff_id, staff_name, action, entity_type, entity_id, details_json, ip_address)
+      VALUES ($1, $2, 'STAFF_LOGIN_SUCCESS', 'AUTH', $1, '{"role":"super_admin","authMethod":"password+2fa"}'::jsonb, $3)
+    `, [staff.id, staff.name, ip]);
 
+    // 8. Generate Persistent Token in PostgreSQL Database (Survives Server Restarts)
     const staffToken = 'vh_admin_' + crypto.randomBytes(32).toString('hex');
-    adminTokens.set(staffToken, { staffId: staff.id, expiresAt: Date.now() + (8 * 60 * 60 * 1000) });
+    await query(`
+      INSERT INTO company.admin_sessions (token, staff_id, ip_address, expires_at)
+      VALUES ($1, $2, $3, CURRENT_TIMESTAMP + INTERVAL '24 hours')
+    `, [staffToken, staff.id, ip]);
 
     res.json({
       success: true,
@@ -914,6 +992,19 @@ app.post('/api/company/auth/login', async (req, res) => {
         phone: staff.phone
       }
     });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Staff Logout — Invalidates Database Session
+app.post('/api/company/auth/logout', async (req, res) => {
+  try {
+    const token = bearerToken(req);
+    if (token) {
+      await query('DELETE FROM company.admin_sessions WHERE token = $1', [token]);
+    }
+    res.json({ success: true, message: 'Admin session terminated successfully.' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

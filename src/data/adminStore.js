@@ -12,12 +12,9 @@ export const DEFAULT_ADMIN_USERS = [
     email: 'subashini@velvethug.in',
     role: 'super_admin',
     roleLabel: 'Sole Administrator',
-    passwordHash: 'VelvetAdmin@2026!',
-    twoFactorSecret: '8942',
     avatar: 'S',
     department: 'Sole Administrator & Founder Operations',
-    lastLogin: 'Today, 10:15 AM',
-    phone: '+91 98800 11223'
+    phone: '+91 80 6900 8358'
   }
 ];
 
@@ -49,11 +46,11 @@ export const ROLE_PERMISSIONS = {
 };
 
 export const FIELD_SPECIALISTS = [
-  { id: 'spec_1', name: 'Ramesh Kumar', phone: '+91 98440 98765', role: 'Logistics Specialist Lead', vehicle: 'Eco-Van #02 (Bangalore Central)' },
-  { id: 'spec_2', name: 'Kavitha S.', phone: '+91 98112 34567', role: 'Sleep Assessment Specialist', vehicle: 'Inspection Van #04 (Bangalore South)' },
-  { id: 'spec_3', name: 'Anand Rao', phone: '+91 98440 12345', role: 'Master Restorer & Upholsterer', vehicle: 'Mobile Renewal Lab #01 (Indiranagar Lab)' },
-  { id: 'spec_4', name: 'Suresh Patil', phone: '+91 98800 44556', role: 'UV-C Hygiene & Core Specialist', vehicle: 'Sanitization Unit #03 (Whitefield)' },
-  { id: 'spec_5', name: 'Vikram Anand', phone: '+91 97411 22334', role: 'Quality Control Lead', vehicle: 'Inspection Unit #05 (North BLR)' }
+  { id: 'spec_1', name: 'Logistics Dispatch Lead', phone: '+91 80 6900 8358 (Ext 101)', role: 'Logistics Specialist Lead', vehicle: 'Eco-Van #02 (Bangalore Central)' },
+  { id: 'spec_2', name: 'Ergonomic Sleep Specialist', phone: '+91 80 6900 8358 (Ext 102)', role: 'Sleep Assessment Specialist', vehicle: 'Inspection Van #04 (Bangalore South)' },
+  { id: 'spec_3', name: 'Restoration Master', phone: '+91 80 6900 8358 (Ext 103)', role: 'Master Restorer & Upholsterer', vehicle: 'Mobile Renewal Lab #01 (Indiranagar Lab)' },
+  { id: 'spec_4', name: 'Hygiene & Core Technician', phone: '+91 80 6900 8358 (Ext 104)', role: 'UV-C Hygiene & Core Specialist', vehicle: 'Sanitization Unit #03 (Whitefield)' },
+  { id: 'spec_5', name: 'Quality Inspection Lead', phone: '+91 80 6900 8358 (Ext 105)', role: 'Quality Control Lead', vehicle: 'Inspection Unit #05 (North BLR)' }
 ];
 
 const STORAGE_KEY_RETURNS = 'vh_returns_data';

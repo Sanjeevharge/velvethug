@@ -21,12 +21,30 @@ CREATE TABLE IF NOT EXISTS company.staff_users (
     role VARCHAR(64) NOT NULL DEFAULT 'super_admin',
     role_label VARCHAR(128) NOT NULL DEFAULT 'Sole Administrator',
     password_hash VARCHAR(255) NOT NULL,
-    two_factor_secret VARCHAR(32) NOT NULL DEFAULT '8942',
+    two_factor_secret VARCHAR(32) NOT NULL,
     avatar VARCHAR(10) DEFAULT 'S',
     department VARCHAR(255) DEFAULT 'Sole Administrator & Founder Operations',
-    phone VARCHAR(32) DEFAULT '+91 98800 11223',
+    phone VARCHAR(32) DEFAULT '+91 80 6900 8358',
     last_login TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 1b. Persistent Admin Sessions (Survives Server Restarts)
+CREATE TABLE IF NOT EXISTS company.admin_sessions (
+    token VARCHAR(128) PRIMARY KEY,
+    staff_id VARCHAR(64) NOT NULL REFERENCES company.staff_users(id) ON DELETE CASCADE,
+    ip_address VARCHAR(64),
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 1c. Server-Side Rate Limiting & Account Lockout
+CREATE TABLE IF NOT EXISTS company.login_attempts (
+    identifier VARCHAR(255) PRIMARY KEY,
+    ip_address VARCHAR(64),
+    attempt_count INT DEFAULT 0,
+    locked_until TIMESTAMP WITH TIME ZONE,
+    last_attempt TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- 2. Category Master

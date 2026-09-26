@@ -614,6 +614,48 @@
       return inspectorFetch(input, init);
     };
 
+    
+    function getAdminToken() {
+      const cookieTok = ('; ' + document.cookie).split('; vh_admin_tok=').pop().split(';').shift();
+      return cookieTok || localStorage.getItem('vh_admin_token') || null;
+    }
+
+    function getAuthHeaders() {
+      const tok = getAdminToken();
+      return tok ? { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+    }
+
+    async function promptAdminAuth() {
+      const email = prompt('Administrator Email:');
+      if (!email) return false;
+      const password = prompt('Administrator Password:');
+      if (!password) return false;
+      const twoFactorCode = prompt('2FA Code:');
+      if (!twoFactorCode) return false;
+
+      try {
+        const res = await fetch('/api/company/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, twoFactorCode })
+        }).then(r => r.json());
+
+        if (res.success && res.token) {
+          localStorage.setItem('vh_admin_token', res.token);
+          document.cookie = 'vh_admin_tok=' + res.token + ';path=/;SameSite=Strict';
+          alert('Authenticated successfully.');
+          refreshDashboard();
+          return true;
+        } else {
+          alert('Authentication failed: ' + (res.error || 'Invalid credentials'));
+          return false;
+        }
+      } catch (e) {
+        alert('Authentication error: ' + e.message);
+        return false;
+      }
+    }
+
     let activeSchema = 'company';
     let activeTable = 'products';
 
@@ -634,7 +676,7 @@
 
     async function loadSchemaOverview() {
       try {
-        const res = await fetch('/api/system/schema-overview').then(r => r.json());
+        const res = await fetch('/api/system/schema-overview', { headers: getAuthHeaders() }).then(r => r.json());
         if (res.success) {
           renderSchemaTables('companyTableList', 'company', res.schemas.company);
           renderSchemaTables('usersTableList', 'users', res.schemas.users);
@@ -674,7 +716,7 @@
       speedEl.textContent = 'Querying PostgreSQL...';
 
       try {
-        const res = await fetch(`/api/system/table-data/${activeSchema}/${activeTable}?limit=50`).then(r => r.json());
+        const res = await fetch(`/api/system/table-data/${activeSchema}/${activeTable}?limit=50`, { headers: getAuthHeaders() }).then(r => r.json());
         if (res.success && res.data.length > 0) {
           speedEl.textContent = `Retrieved ${res.count} rows in ${res.latencyMs}ms`;
 
@@ -820,7 +862,7 @@ Status: Ultra-Fast sub-millisecond execution verified.`;
       const log = document.getElementById('consoleOutput');
       log.textContent = `[AUDIT LOG] Fetching latest DPDP audit logs from company.audit_logs...`;
 
-      const res = await fetch('/api/company/audit-logs').then(r => r.json());
+      const res = await fetch('/api/company/audit-logs', { headers: getAuthHeaders() }).then(r => r.json());
       if (res.success) {
         let text = `[DPDP AUDIT LOG STREAM] (${res.count} immutable entries retrieved in ${res.latencyMs}ms)\n`;
         text += `------------------------------------------------------------\n`;
@@ -839,7 +881,7 @@ Status: Ultra-Fast sub-millisecond execution verified.`;
       log.textContent = `[SYSTEM RESET] Purging all records in "users" schema...`;
 
       try {
-        const res = await fetch('/api/system/reset-users', { method: 'POST' }).then(r => r.json());
+        const res = await fetch('/api/system/reset-users', { method: 'POST', headers: getAuthHeaders() }).then(r => r.json());
         if (res.success) {
           log.textContent = `[SYSTEM RESET COMPLETE] "users" Schema Cleanly Purged!
 ------------------------------------------------------------
@@ -870,7 +912,7 @@ Status: Ultra-Fast sub-millisecond execution verified.`;
       log.textContent = `[SYSTEM RESET] Restoring master catalog in "company" schema...`;
 
       try {
-        const res = await fetch('/api/system/reset-company', { method: 'POST' }).then(r => r.json());
+        const res = await fetch('/api/system/reset-company', { method: 'POST', headers: getAuthHeaders() }).then(r => r.json());
         if (res.success) {
           log.textContent = `[SYSTEM RESET COMPLETE] "company" Master Catalog Restored!
 ------------------------------------------------------------
@@ -897,7 +939,7 @@ Status: Ultra-Fast sub-millisecond execution verified.`;
       log.textContent = `[FULL SYSTEM RESET] Executing synchronous reset across Storefront, PostgreSQL, and Admin Portal...`;
 
       try {
-        const res = await fetch('/api/system/full-reset', { method: 'POST' }).then(r => r.json());
+        const res = await fetch('/api/system/full-reset', { method: 'POST', headers: getAuthHeaders() }).then(r => r.json());
         if (res.success) {
           log.textContent = `[FULL SYSTEM RESET COMPLETE] All 3 Layers 100% Synchronized!
 ------------------------------------------------------------

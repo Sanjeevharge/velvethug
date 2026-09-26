@@ -1,4 +1,4 @@
-# Script to build a Web-Standard Zip archive with forward slashes (/) for Netlify/Linux servers
+# Script to build a complete Full-Stack Web-Standard Zip archive with forward slashes (/) for Netlify/Linux/Cloud servers
 
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -12,8 +12,23 @@ if (Test-Path $zipPath) {
 
 $zip = [System.IO.Compression.ZipFile]::Open($zipPath, [System.IO.Compression.ZipArchiveMode]::Create)
 
-$includeDirs = @("src", "public")
-$includeFiles = @("index.html", "admin.html")
+$includeDirs = @("src", "public", "server", "shopify-theme")
+$includeFiles = @(
+    "index.html", 
+    "admin.html", 
+    "backend-inspector.html", 
+    "_redirects", 
+    "netlify.toml", 
+    "logo.jpeg",
+    "package.json",
+    "package-lock.json",
+    "vite.config.js",
+    "start-server.bat",
+    "server.ps1",
+    "README.md",
+    "robots.txt",
+    "sitemap.xml"
+)
 
 # Add root files
 foreach ($file in $includeFiles) {
@@ -48,4 +63,4 @@ foreach ($dir in $includeDirs) {
 $zip.Dispose()
 
 Write-Host ""
-Write-Host "✅ Created 100% Linux/Web-Standard velvethug_deploy.zip successfully!" -ForegroundColor Green
+Write-Host "✅ Created 100% Linux/Web-Standard full-stack velvethug_deploy.zip successfully!" -ForegroundColor Green

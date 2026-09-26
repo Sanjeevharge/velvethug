@@ -26,30 +26,17 @@
 
       <div class="admin-input-group">
         <label class="admin-label">Official Staff Email</label>
-        <input class="admin-input" id="adminEmailInput" placeholder="name@velvethug.in" value="subashini@velvethug.in">
+        <input class="admin-input" id="adminEmailInput" type="email" autocomplete="username" placeholder="name@velvethug.in">
       </div>
 
       <div class="admin-input-group">
         <label class="admin-label">Password</label>
-        <input class="admin-input" type="password" id="adminPasswordInput" placeholder="••••••••••••" value="VelvetAdmin@2026!">
+        <input class="admin-input" type="password" id="adminPasswordInput" autocomplete="current-password" placeholder="••••••••••••">
       </div>
 
       <button class="admin-btn-primary" onclick="window.submitAdminLogin()">Proceed to 2FA Verification</button>
-
-      <!-- Single Admin Quick Login -->
-      <div class="admin-quick-roles">
-        <div class="quick-roles-title">Sole Administrator:</div>
-        <div class="quick-role-chips" style="grid-template-columns:1fr;">
-          <div class="quick-role-chip" onclick="window.quickSelectRole('usr_001')" style="text-align:center;padding:12px;">
-            <strong>Subashini</strong><br>
-            <span style="font-size:0.75rem;color:var(--admin-text-secondary);">Sole Administrator (Full Operations &amp; Management)</span>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
-
-  <a href="/backend-inspector" target="_blank" rel="noopener" style="position:fixed;left:24px;bottom:24px;z-index:10000;color:#8a6914;background:#fffdf5;border:1px solid #d4af37;border-radius:8px;padding:10px 14px;font-size:0.8rem;font-weight:700;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.08);">⚙ Open Backend Diagnostics</a>
 
   <!-- Main Authenticated Portal Layout -->
   <div id="adminPortalLayout" class="admin-layout" style="display:none;">
@@ -77,7 +64,6 @@
           <span>⏳ Session Idle Timeout:</span>
           <strong id="adminIdleCountdown" style="color:var(--admin-gold);">15:00</strong>
         </div>
-        <a href="/backend-inspector" target="_blank" rel="noopener" class="btn-admin-logout" style="display:block;text-align:center;text-decoration:none;margin-bottom:8px;">⚙ Backend Diagnostics</a>
         <button class="btn-admin-logout" onclick="window.adminLogout()">🚪 Sign Out</button>
       </div>
     </aside>
