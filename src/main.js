@@ -2243,6 +2243,9 @@ window.openAccountModal = openAccountModal;
 window.closeAccountModal = closeAccountModal;
 window.switchAccountTab = switchAccountTab;
 window.logoutUser = logoutUser;
+window.renderAccountPage = renderAccountPage;
+window.switchAccountPageTab = switchAccountPageTab;
+window.state = state;
 
 // ────────────────────────────────────────────────────────────
 // DEDICATED ACCOUNT PAGE (view-account)

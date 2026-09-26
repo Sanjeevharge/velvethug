@@ -1490,6 +1490,19 @@
         </div>
       </div>
     </div>
+
+    <!-- If logged in -->
+    <div id="accountPageLoggedIn" class="container" style="display:none;padding:32px 0 64px;">
+
+      <!-- Profile Summary Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:28px;background:var(--bg-surface);border:1px solid rgba(76,63,94,0.12);border-radius:var(--radius-lg);padding:24px 28px;">
+        <div style="display:flex;align-items:center;gap:18px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--midnight-blue),var(--muted-violet));display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:1.6rem;font-weight:700;color:#FDFBF7;" id="acctAvatar">V</div>
+          <div>
+            <div style="font-family:var(--font-serif);font-size:1.35rem;font-weight:700;color:var(--text-primary);" id="acctName">Sleep Partner</div>
+            <div style="font-size:0.82rem;color:var(--text-muted);" id="acctContact">—</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;" id="acctBadges"></div>
+          </div>
         </div>
         <button class="btn btn-outline btn-sm" onclick="logoutUser()">Sign Out</button>
       </div>
