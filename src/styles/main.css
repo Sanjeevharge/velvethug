@@ -174,8 +174,19 @@ input, select, textarea { font-family: inherit; touch-action: manipulation; }
 .rating-text { font-size: 0.75rem; color: var(--text-muted); }
 
 /* Page View Switching */
-.page-view { display: none; }
-.page-view.active { display: block; }
+.page-view {
+  display: none;
+  opacity: 0;
+}
+.page-view.active {
+  display: block;
+  opacity: 1;
+  animation: pageViewFadeIn 0.12s ease-out;
+}
+@keyframes pageViewFadeIn {
+  from { opacity: 0.85; }
+  to { opacity: 1; }
+}
 
 /* 3D Viewer Placeholder */
 .viewer-3d-wrap {

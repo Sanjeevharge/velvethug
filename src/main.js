@@ -325,7 +325,7 @@ function navigateTo(page, pushHistory = true) {
     history.pushState({ page }, '', page === 'home' ? '#' : `#${page}`);
   }
 
-  // Hide all views and show target view
+  // Hide all views and show target view instantly
   qsa('.page-view').forEach(v => {
     v.classList.remove('active');
     v.style.display = 'none';
@@ -350,7 +350,7 @@ function navigateTo(page, pushHistory = true) {
     if (window._pauseHeroCarousel) window._pauseHeroCarousel();
   }
 
-  // If navigating to a category page, render its contents
+  // If navigating to a category page, ensure its contents are rendered
   if (['mattresses', 'pillows', 'accessories'].includes(page)) {
     state.activeCategory = page;
     renderCategoryPage(page);
@@ -378,7 +378,8 @@ function navigateTo(page, pushHistory = true) {
   qsa('.mobile-nav-item').forEach(m => {
     m.classList.toggle('active', m.dataset.mobilePage === page);
   });
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Instant top scroll for 60/120fps responsive mobile experience
+  window.scrollTo(0, 0);
 }
 
 // Single handler for browser Back/Forward navigation
@@ -1068,7 +1069,7 @@ function renderPDP(product) {
     <div>
       <div class="pdp-gallery-main">
         <img src="${product.image || ''}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;"
-             onerror="this.parentElement.innerHTML='<div style=\\'height:300px;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary);font-size:4rem;\\'>🛏️</div>'">
+             onerror="this.src='./src/assets/logo.jpeg'">
       </div>
       
       <div style="margin-top:20px;">
@@ -1640,7 +1641,7 @@ function renderProductCard(p) {
       
       <div class="product-card-media">
         <img src="${p.image || ''}" alt="${p.name}"
-             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22240%22><rect width=%22400%22 height=%22240%22 fill=%22%23F7F5F0%22/><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2264%22>🛏️</text></svg>'">
+             onerror="this.src='./src/assets/logo.jpeg'">
         ${p.has3D ? '<button class="card-floating-3d-btn">⟳ 3D View</button>' : ''}
       </div>
       

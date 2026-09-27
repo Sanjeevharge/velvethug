@@ -6,11 +6,14 @@
   <title>Velvet Hug — Be Held, Every Night</title>
   <meta name="description" content="Velvet Hug crafts premium mattresses, pillows and sleep accessories for Indian bodies. Sleep engineered for the way you rest.">
   <meta name="theme-color" content="#0A1128">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230A1128'/%3E%3Ctext y='68' x='50' font-size='56' text-anchor='middle'%3E%F0%9F%9B%8F%EF%B8%8F%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="./src/assets/logo.svg">
+  <link rel="icon" type="image/jpeg" href="./src/assets/logo.jpeg">
+  <link rel="apple-touch-icon" href="./src/assets/logo.jpeg">
+  <link rel="shortcut icon" href="./src/assets/logo.jpeg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="./src/styles/main.css?v=3.0">
-  <link rel="stylesheet" href="./src/styles/components.css?v=3.9">
+  <link rel="stylesheet" href="./src/styles/main.css?v=3.1">
+  <link rel="stylesheet" href="./src/styles/components.css?v=4.0">
   <script>
     window.goToPage = function(page) {
       if (window.navigateTo) {
@@ -28,7 +31,7 @@
         document.querySelectorAll('.nav-link').forEach(function(l) {
           l.classList.toggle('active', l.getAttribute('data-page') === page);
         });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo(0, 0);
       }
     };
     window.goToAccount = function() {
@@ -726,8 +729,8 @@
       <div class="container">
         <div class="meet-grid">
           <div class="meet-image-wrap">
-            <img src="./src/assets/images/meet_velvet_hug.jpg" alt="Velvet Hug mattress craftsmanship"
-                 onerror="this.parentElement.innerHTML='<div style=\'height:460px;display:flex;align-items:center;justify-content:center;background:var(--bg-secondary);border-radius:var(--radius-lg);font-size:5rem;\'>🛏️</div>'">
+            <img src="/images/meet_velvet_hug.jpg" alt="Velvet Hug mattress craftsmanship"
+                 onerror="this.src='./src/assets/logo.jpeg'">
             <div class="meet-image-badge">
               <div style="font-family:var(--font-serif);font-size:0.84rem;font-weight:700;color:var(--midnight-blue);">Crafted in India</div>
               <div style="font-size:0.72rem;color:var(--text-muted);">For Indian bodies. Every body.</div>

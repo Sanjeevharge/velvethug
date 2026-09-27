@@ -2233,9 +2233,11 @@ app.get('/api/shopify/export-catalog', async (req, res) => {
 });
 
 
-// Fast favicon handler to prevent 200 index.html fallback loop
+// Serve official company logo for /favicon.ico
 app.get('/favicon.ico', (req, res) => {
-  res.status(204).end();
+  res.setHeader('Cache-Control', 'public, max-age=86400');
+  res.type('image/svg+xml');
+  res.sendFile(path.join(ROOT_DIR, 'src', 'assets', 'logo.svg'));
 });
 
 // Explicit administration and backend inspector routes
