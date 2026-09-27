@@ -28,10 +28,14 @@ body {
   overflow-x: clip;
   position: relative;
 }
-a { text-decoration: none; color: inherit; }
-button { cursor: pointer; border: none; background: transparent; font-family: inherit; }
+a { text-decoration: none; color: inherit; touch-action: manipulation; }
+button { cursor: pointer; border: none; background: transparent; font-family: inherit; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 img { display: block; max-width: 100%; }
-input, select, textarea { font-family: inherit; }
+input, select, textarea { font-family: inherit; touch-action: manipulation; }
+.btn, .nav-link, .mobile-nav-item, .product-card, .ecosystem-card, .quiz-option-card, .pdp-chip-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
 
 /* ── CSS Variables ─────────────────────────── */
 :root {
