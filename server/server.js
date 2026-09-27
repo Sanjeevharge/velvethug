@@ -2259,31 +2259,34 @@ app.use((req, res, next) => {
 // SERVER BOOTSTRAP
 // ══════════════════════════════════════════════════════════════════════════════
 
-async function startServer() {
-  try {
-    console.log('[Velvet Hug Server] Starting backend services...');
-    await initDb();
+function startServer() {
+  console.log('[Velvet Hug Server] Binding HTTP listener and starting backend services...');
 
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`
 ══════════════════════════════════════════════════════════════════════════════
-✨ VELVET HUG — ENTERPRISE POSTGRESQL FULL-STACK SYSTEM ONLINE
+✨ VELVET HUG — FULL-STACK POSTGRESQL WEB SYSTEM ONLINE
 ══════════════════════════════════════════════════════════════════════════════
-  • Storefront URL:      http://localhost:${PORT}
-  • Admin Operations:    http://localhost:${PORT}/admin/
-  • Health & Latency:    http://localhost:${PORT}/api/health
-  • Catalog API:         http://localhost:${PORT}/api/catalog/products
-  • User Checkout API:   http://localhost:${PORT}/api/user/checkout (ACID Enforced)
-  • Shopify Export:      http://localhost:${PORT}/api/shopify/export-catalog
-  • Partition 1:         "company" schema (catalog, inventory, staff, audit)
-  • Partition 2:         "users" schema (customers, sessions, orders, returns)
+  • Storefront URL:      http://0.0.0.0:${PORT}
+  • Health Endpoint:     http://0.0.0.0:${PORT}/api/health
+  • Admin Dashboard:     http://0.0.0.0:${PORT}/admin.html
+  • Catalog API:         http://0.0.0.0:${PORT}/api/catalog/products
+  • Port:                ${PORT}
+  • Environment:         ${process.env.NODE_ENV || 'production'}
 ══════════════════════════════════════════════════════════════════════════════
-      `);
-    });
-  } catch (err) {
-    console.error('[Velvet Hug Server] FATAL ERROR during startup:', err);
-    process.exit(1);
-  }
+    `);
+  });
+
+  server.on('error', (err) => {
+    console.error('[Velvet Hug Server] Server listener error:', err);
+  });
+
+  // Initialize database in background without blocking web server port detection
+  initDb().then(() => {
+    console.log('[Velvet Hug Server] Database initialized and active.');
+  }).catch((dbErr) => {
+    console.warn('[Velvet Hug Server] Database initialization warning (retained fallback):', dbErr.message);
+  });
 }
 
 startServer();

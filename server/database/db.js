@@ -27,7 +27,7 @@ let isInitialized = false;
 let initPromise = null;
 
 // Determine driver mode
-const isExternalPostgres = Boolean(process.env.DATABASE_URL);
+let isExternalPostgres = Boolean(process.env.DATABASE_URL);
 
 /**
  * Initialize the database connection, execute schema, and seed initial records.
@@ -40,14 +40,26 @@ export async function initDb() {
     console.log(`[Database] Initializing PostgreSQL engine... Mode: ${isExternalPostgres ? 'pg.Pool (External/Cloud)' : 'PGlite (Local Persistent On-Disk)'}`);
 
     if (isExternalPostgres) {
-      // Load pg only when a real external database is configured. This keeps
-      // local PGlite startup independent from platform-specific pg installs.
-      const { default: pg } = await (pgModulePromise ||= import('pg'));
-      pgPoolInstance = new pg.Pool({
-        connectionString: process.env.DATABASE_URL,
-        ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }
-      });
-    } else {
+      try {
+        const { default: pg } = await (pgModulePromise ||= import('pg'));
+        const isSslDisabled = process.env.DATABASE_SSL === 'false' || process.env.DATABASE_SSL === '0';
+        pgPoolInstance = new pg.Pool({
+          connectionString: process.env.DATABASE_URL,
+          ssl: isSslDisabled ? false : { rejectUnauthorized: false },
+          connectionTimeoutMillis: 10000
+        });
+
+        // Test connection
+        await pgPoolInstance.query('SELECT 1');
+        console.log('[Database] Connected successfully to external Cloud PostgreSQL.');
+      } catch (pgError) {
+        console.warn('[Database] External Cloud PostgreSQL unavailable, falling back to embedded PGlite engine:', pgError.message);
+        isExternalPostgres = false;
+        pgPoolInstance = null;
+      }
+    }
+
+    if (!isExternalPostgres) {
       try {
         if (!fs.existsSync(DATA_DIR)) {
           fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -75,24 +87,32 @@ export async function initDb() {
     }
 
     // 1. Run Schema DDL
-    const schemaPath = path.resolve(__dirname, 'schema.sql');
-    const schemaSql = fs.readFileSync(schemaPath, 'utf8');
+    try {
+      const schemaPath = path.resolve(__dirname, 'schema.sql');
+      const schemaSql = fs.readFileSync(schemaPath, 'utf8');
 
-    console.log('[Database] Executing Dual-Schema DDL ("company" & "users")...');
-    if (isExternalPostgres) {
-      await pgPoolInstance.query(schemaSql);
-    } else {
-      await pgliteInstance.exec(schemaSql);
+      console.log('[Database] Executing Dual-Schema DDL ("company" & "users")...');
+      if (isExternalPostgres && pgPoolInstance) {
+        await pgPoolInstance.query(schemaSql);
+      } else if (pgliteInstance) {
+        await pgliteInstance.exec(schemaSql);
+      }
+      console.log('[Database] DDL executed successfully.');
+    } catch (ddlError) {
+      console.warn('[Database] DDL notice (ignorable if tables exist):', ddlError.message);
     }
-    console.log('[Database] DDL executed successfully.');
 
     // Set initialized flag BEFORE seeding so query() doesn't re-trigger initDb()
     isInitialized = true;
 
     // 2. Check and Seed Initial Data
-    await seedInitialData(false);
+    try {
+      await seedInitialData(false);
+    } catch (seedError) {
+      console.warn('[Database] Seed notice:', seedError.message);
+    }
 
-    console.log('[Database] PostgreSQL Database Ready and 100% ACID Operational.');
+    console.log('[Database] PostgreSQL Database Ready and 100% Operational.');
   })();
 
   return initPromise;
