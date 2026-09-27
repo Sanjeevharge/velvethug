@@ -1,65 +1,116 @@
-// src/data/products.js — Velvet Hug Complete Product Catalog
+// src/data/products.js — Velvet Hug Complete Product Catalog & Taxonomy Engine
+// Standardized on Velvet Hug Final Classifications:
+// A. Mattress Types: Latex, Orthopedic, Memory Foam, Pocket Spring, Hybrid
+// B. Price Classifications: Foundation, Signature, Reserve (and Budget)
+// C. Sleeper Profile Categories: Kids (10-17 yrs Bounce), Youth (18-35 yrs Fit/Hostel Soft-MedSoft), Adult (35-50 yrs Mild/Mod Pain Med-MedFirm), Senior / Severe Back Pain (Firm), Fit for All (Med-MedFirm), For Big People (MedFirm up to 240kg), Budget
+// D. Firmness Levels: Soft, Medium Soft, Medium, Medium Firm, Firm
+// E. Sleeper Positions: Side, Stomach, Back, Combination
+// F. Find Your Hug Quiz & Multi-Axis Filters
 
 export const FOUNDING_PARTNER_LIMIT = 1000;
+
+// ────────────────────────────────────────────────────────────
+// TAXONOMY & CLASSIFICATION CONSTANTS
+// ────────────────────────────────────────────────────────────
+export const MATTRESS_TYPES = [
+  'Latex',
+  'Orthopedic',
+  'Memory Foam',
+  'Pocket Spring',
+  'Hybrid'
+];
+
+export const PRICE_TIERS = [
+  { id: 'foundation', name: 'Foundation', label: 'Foundation (Essential Luxury)', range: '₹15,000 – ₹30,000' },
+  { id: 'signature', name: 'Signature', label: 'Signature (Flagship Anatomical)', range: '₹30,000 – ₹55,000' },
+  { id: 'reserve', name: 'Reserve', label: 'Reserve (Ultra-Luxe Heritage)', range: '₹55,000+' },
+  { id: 'budget', name: 'Budget', label: 'Budget (Accessible Value)', range: 'Under ₹15,000' }
+];
+
+export const SLEEPER_PROFILE_CATEGORIES = [
+  { id: 'all', label: 'All Profiles', icon: '✨', desc: 'Browse full anatomical range' },
+  { id: 'kids', label: 'Kids (10–17 yrs)', icon: '🎈', desc: '10 to 17 years. Bouncy active growth & spinal support.' },
+  { id: 'youth', label: 'Youth (18–35 yrs)', icon: '⚡', desc: '18 to 35 years. Fit. No pain. Hostel / Young professional. Soft to Medium Soft.' },
+  { id: 'adult', label: 'Adult (35–50 yrs)', icon: '🌿', desc: '35 to 50 years OR Mild to Moderate Pain. Medium to Medium Firm.' },
+  { id: 'senior', label: 'Senior / Back Pain', icon: '🩺', desc: 'Senior / Severe Back Pain. High-density Orthopedic Firm.' },
+  { id: 'fit-all', label: 'Fit for All', icon: '🌟', desc: 'Universal dual-comfort. Medium to Medium Firm.' },
+  { id: 'big-people', label: 'For Big People (Up to 240kg)', icon: '🛡️', desc: 'Heavy-duty reinforced core. Medium Firm. Supports up to 240 kg.' },
+  { id: 'budget', label: 'Budget', icon: '🏷️', desc: 'High quality sleep engineering at accessible value.' }
+];
+
+export const FIRMNESS_LEVELS = [
+  { id: 'soft', name: 'Soft', score: '2-3/10', desc: 'Plush cloud sink' },
+  { id: 'medium-soft', name: 'Medium Soft', score: '4/10', desc: 'Gentle contouring with light lift' },
+  { id: 'medium', name: 'Medium', score: '5/10', desc: 'Balanced hug & bounce' },
+  { id: 'medium-firm', name: 'Medium Firm', score: '6-7/10', desc: 'Targeted lumbar alignment & pushback' },
+  { id: 'firm', name: 'Firm', score: '8-9/10', desc: 'Clinical orthopedic spine support' }
+];
+
+export const SLEEPER_POSITIONS = [
+  { id: 'side', name: 'Side', desc: 'Shoulder and hip pressure relief' },
+  { id: 'stomach', name: 'Stomach', desc: 'Even pelvic elevation to prevent sagging' },
+  { id: 'back', name: 'Back', desc: 'Neutral cervical and lumbar alignment' },
+  { id: 'combination', name: 'Combination', desc: 'Seamless active motion transition' }
+];
 
 export const CATEGORIES = {
   mattresses: {
     label: 'Mattresses',
     icon: '🛏️',
-    description: 'Engineered for Indian bodies. Five-layer precision.',
-    subcategories: ['All', 'Ortho', 'Memory Foam', 'Natural Latex', 'Hybrid', 'Kids', 'Hospital']
+    description: 'Engineered for Indian bodies. 5 mattress types, customized for every sleeper profile.',
+    subcategories: ['All', 'Latex', 'Orthopedic', 'Memory Foam', 'Pocket Spring', 'Hybrid']
   },
   pillows: {
     label: 'Pillows',
     icon: '🌙',
-    description: 'The five sacred minutes before sleep start with the right pillow.',
+    description: 'The five sacred minutes before sleep start with the right cervical pillow.',
     subcategories: ['All', 'Memory Foam', 'Latex', 'Microfiber', 'Ortho Cervical', 'Couple']
   },
   cushions: {
     label: 'Cushions',
     icon: '🪑',
-    description: 'Seat-to-sleep comfort that holds you softly.',
+    description: 'Seat-to-sleep ergonomic lumbar care that holds you softly.',
     subcategories: ['All', 'Sofa', 'Chair', 'Floor', 'Back Support']
   },
   bolsters: {
     label: 'Bolsters',
     icon: '〰️',
-    description: 'The ancient art of total body support — reinvented.',
+    description: 'The ancient art of full-body hugs reinvented for side and maternity sleep.',
     subcategories: ['All', 'Standard', 'King', 'Pregnancy']
   },
   accessories: {
     label: 'Accessories',
     icon: '✨',
-    description: 'Everything around your sleep ecosystem.',
+    description: 'Organic bamboo protectors, mulberry silk masks, and botanical mist.',
     subcategories: ['All', 'Mattress Protectors', 'Pillow Covers', 'Bed Sheets', 'Sleep Masks', 'Aromatherapy']
   }
 };
 
-// 6 independent filter axes — combinable, not nested
+// 6 combinable filter axes
 export const FILTER_AXES = {
   size: {
     label: 'Size',
     options: ['Single', 'Twin', 'Double', 'Queen', 'XL Queen', 'Super Queen', 'King', 'Super King', 'Kids', 'Bunk', 'Guest room']
   },
-  material: {
-    label: 'Material',
-    options: ['Memory Foam', 'Latex', 'Rebonded Foam', 'Coir (Coconut Fibre)', 'Pocket Spring', 'Orthopedic', 'Hybrid', 'PU Foam', 'Floor mattresses (upto 18" height)']
+  type: {
+    label: 'Mattress Type',
+    options: ['Latex', 'Orthopedic', 'Memory Foam', 'Pocket Spring', 'Hybrid']
+  },
+  sleeperProfile: {
+    label: 'Sleeper Profile',
+    options: ['Kids', 'Youth', 'Adult', 'Senior / Severe Back Pain', 'Fit for All', 'For Big People', 'Budget']
   },
   firmness: {
     label: 'Firmness',
-    options: ['Extra Firm', 'Firm', 'Medium-Firm', 'Medium-Soft', 'Soft', 'Extra Soft']
+    options: ['Soft', 'Medium Soft', 'Medium', 'Medium Firm', 'Firm']
   },
   tier: {
-    label: 'Price Tier',
-    options: ['Essential', 'Signature', 'Reserve', 'Reserve+']
+    label: 'Price Classification',
+    options: ['Foundation', 'Signature', 'Reserve', 'Budget']
   },
-  ageGroup: {
-    label: 'Age Group',
-    options: ['Kids Mattress 0–12', 'Teen Mattress 13–19', 'Young Adult Mattress 20–30', 'Middle-Aged Mattress 31–45', 'Mature Adult Mattress 46–60', 'Senior Citizen Mattress 60+']
-  },
-  packaging: {
-    label: 'Packaging',
-    options: ['Flat-Packed', 'Box-Packed', 'Gunny bag packaging', 'Rollable', 'Foldable (Bi-Fold / Tri-Fold)', 'Travel/Portable Rollable']
+  weightCapacity: {
+    label: 'Weight Capacity',
+    options: ['Standard (Under 80 kg)', 'Medium (80–140 kg)', 'Heavy Duty (Up to 240 kg)']
   }
 };
 
@@ -75,10 +126,9 @@ export const SIZE_SPECS = {
 };
 
 export const TIERS = [
-  { id: 'essential', name: 'Essential', line: 'The Everyday Hug', height: '6"', href: './mattresses.html?tier=Essential' },
-  { id: 'signature', name: 'Signature', line: 'The Deeper Embrace', height: '8"', href: './mattresses.html?tier=Signature' },
-  { id: 'reserve', name: 'Reserve', line: 'The Complete Experience', height: '10"', href: './mattresses.html?tier=Reserve' },
-  { id: 'reserve-plus', name: 'Reserve+', line: "The Founder's Edition", height: '10"+', href: './mattresses.html?tier=Reserve+' }
+  { id: 'foundation', name: 'Foundation', line: 'Essential Luxury', height: '6"–8"', href: './mattresses.html?tier=Foundation' },
+  { id: 'signature', name: 'Signature', line: 'Flagship Anatomical', height: '8"–10"', href: './mattresses.html?tier=Signature' },
+  { id: 'reserve', name: 'Reserve', line: 'Ultra-Luxe Heritage', height: '10"–12"', href: './mattresses.html?tier=Reserve' }
 ];
 
 export const ACCESSORY_TABS = [
@@ -91,7 +141,6 @@ export const ACCESSORY_TABS = [
   'Comforters'
 ];
 
-// Layer Anatomy
 export const MATTRESS_LAYERS = [
   {
     num: 1,
@@ -103,34 +152,33 @@ export const MATTRESS_LAYERS = [
   {
     num: 2,
     humanName: 'The Welcome',
-    material: 'Foam',
+    material: 'Foam / Latex',
     description: 'The layer that lets you arrive. Soft enough to receive the day you just lived.',
-    spec: 'Comfort foam · 4cm'
+    spec: 'Comfort layer · 4cm'
   },
   {
     num: 3,
     humanName: 'The Response',
-    material: 'Foam',
-    description: 'It answers the shape you actually sleep in — not the one a spec sheet imagined.',
-    spec: 'Transition foam · 3cm'
+    material: 'Transition Core',
+    description: 'It answers the shape you actually sleep in — active anatomical pressure redistribution.',
+    spec: 'Dynamic transition · 3cm'
   },
   {
     num: 4,
     humanName: 'The Embrace',
-    material: 'Spring',
-    description: 'Individually wrapped coils that hold you without holding the person beside you.',
-    spec: 'Pocket springs · zoned'
+    material: 'Coils / Zoned HR',
+    description: 'Individually wrapped pocket coils or 7-zone orthopedic core holding you without motion transfer.',
+    spec: 'Zoned support system'
   },
   {
     num: 5,
     humanName: 'The Foundation',
-    material: 'Base',
-    description: 'What the whole hug stands on — quiet, stable, and built to last the years after tonight.',
-    spec: 'Support base · edge hold'
+    material: 'Base & Edge Guard',
+    description: 'What the whole hug stands on — high-density base with heavy-duty reinforced perimeter.',
+    spec: 'Reinforced edge hold · up to 240kg'
   }
 ];
 
-// Fabric Properties
 export const FABRIC_FEATURES = [
   { icon: '🌿', title: 'Tencel™ Certified', desc: 'OEKO-TEX® certified. Naturally sourced. No harsh chemicals touch your skin.' },
   { icon: '❄️', title: 'CoolSync™ Tech', desc: 'Phase-change gel micro-capsules regulate bed temp within ±1.5°C of your body.' },
@@ -138,214 +186,420 @@ export const FABRIC_FEATURES = [
   { icon: '💧', title: 'HydraWick™ Layer', desc: 'Moisture drawn away in under 4 seconds. Wake dry, always.' }
 ];
 
-// Products
+// ────────────────────────────────────────────────────────────
+// PRODUCT MASTER CATALOG (10 Flagship Mattresses & Ecosystem)
+// ────────────────────────────────────────────────────────────
 export const PRODUCTS = [
-  // ── MATTRESSES ──────────────────────────────────────────────
+  // ── 1. HYBRID ADAPTIVE (Fit for All & Adult) ──────────────
   {
     id: 'vh-m001',
     category: 'mattresses',
-    name: 'Elara Cloud',
+    name: 'Elara Cloud Hybrid',
+    mattressType: 'Hybrid',
     collection: 'Signature',
     tagline: 'For those who treat sleep as a ceremony.',
+    sleeperProfile: 'Fit for All',
+    sleeperProfileDesc: 'Universal dual-comfort for every sleep position.',
+    targetAgeGroup: 'Adult (35–50 yrs)',
+    backPainLevel: 'Mild to Moderate Pain',
+    maxWeightKg: 180,
     sizes: ['Single', 'Double', 'Queen', 'King'],
     materials: ['Hybrid', 'Latex', 'Pocket Spring'],
-    firmness: 'Medium-Soft',
-    firmnessScore: 4,
-    ageGroup: 'Young Adult Mattress 20–30',
+    firmness: 'Medium Firm',
+    firmnessScore: 6,
+    positions: ['Side', 'Back', 'Combination'],
     packaging: ['Box-Packed', 'Flat-Packed'],
-    layers: MATTRESS_LAYERS,
     basePrice: 28000,
     mrp: 38000,
     discount: 26,
     emi: '₹933/mo × 30 months',
     badge: 'bestseller',
-    badgeLabel: 'Best Seller',
-    tags: ['ortho', 'cooling', 'premium', 'side-sleeper', 'couples'],
-    rating: 4.8,
+    badgeLabel: 'Most Popular',
+    tags: ['hybrid', 'fit-for-all', 'bestseller', 'zero-motion', 'cooling'],
+    rating: 4.9,
     reviews: 1240,
     doctorRecommended: true,
     height: 20,
     thicknessInch: 8,
-    sleepNeeds: ['Side Sleeper', 'Hot Sleeper', 'Couples / Zero Motion'],
+    sleepNeeds: ['Fit for All', 'Couples / Zero Motion', 'Side Sleeper', 'Back & Spine Pain'],
     trialDays: 100,
     warranty: '10 years',
     has3D: true,
-    image: '/src/assets/images/mattress_elara_cloud.jpg',
-    description: 'A marriage of 5,000 micro pocket springs and 4cm natural latex. The Elara Cloud adapts to your posture 11 times every second.',
-    features: ['11-zone micro pocket springs', '4cm natural latex top', 'Dual-sided firmness', 'CoolSync gel layer', 'OEKO-TEX certified']
+    image: '/src/assets/images/mattress_hybrid_luxury.jpg',
+    description: 'Dual-comfort hybrid design combining 100% natural Sri Lankan latex and independent pocket springs. Zero motion transfer, breathable bamboo-velvet cover, and 5-zone anatomical contouring.',
+    features: ['Hybrid pocket spring + natural latex', 'Zero motion transfer for couples', 'Adaptive 5-zone contouring', 'Breathable CoolSync cover', '100-night risk-free trial']
   },
+
+  // ── 2. 7-ZONE ORTHOPEDIC (Senior & Severe Back Pain) ──────
   {
     id: 'vh-m002',
     category: 'mattresses',
-    name: 'Serenity Ortho',
+    name: 'Serenity Ortho Spine-Align',
+    mattressType: 'Orthopedic',
     collection: 'Signature',
-    tagline: 'For the backaches you have quietly lived with.',
-    sizes: ['Single', 'Twin', 'Double', 'Queen', 'King'],
-    materials: ['Orthopedic', 'Memory Foam'],
+    tagline: 'Prescribed by spine doctors. Engineered for zero morning stiffness.',
+    sleeperProfile: 'Senior / Severe Back Pain',
+    sleeperProfileDesc: 'Clinical 7-zone firm support for chronic back, neck & lumbar pain.',
+    targetAgeGroup: 'Senior (50+ yrs)',
+    backPainLevel: 'Severe Back Pain',
+    maxWeightKg: 200,
+    sizes: ['Single', 'Double', 'Queen', 'King', 'Super King'],
+    materials: ['Orthopedic', 'Memory Foam', 'Rebonded Foam'],
     firmness: 'Firm',
-    firmnessScore: 7,
-    ageGroup: 'Mature Adult Mattress 46–60',
-    packaging: ['Box-Packed', 'Flat-Packed'],
-    layers: MATTRESS_LAYERS,
-    basePrice: 16500,
-    mrp: 22000,
-    discount: 25,
-    emi: '₹550/mo × 30 months',
+    firmnessScore: 8,
+    positions: ['Back', 'Side'],
+    packaging: ['Flat-Packed', 'Box-Packed'],
+    basePrice: 32000,
+    mrp: 44000,
+    discount: 27,
+    emi: '₹1066/mo × 30 months',
     badge: 'ortho',
-    badgeLabel: 'Doctor Choice',
-    tags: ['ortho', 'firm', 'back-support', 'back-pain', 'doctor-certified'],
-    rating: 4.7,
-    reviews: 2350,
+    badgeLabel: 'Doctor Certified',
+    tags: ['orthopedic', 'severe-back-pain', 'senior', 'doctor-certified', 'firm'],
+    rating: 4.9,
+    reviews: 3120,
     doctorRecommended: true,
-    height: 15,
-    thicknessInch: 6,
+    height: 20,
+    thicknessInch: 8,
     sleepNeeds: ['Back & Spine Pain', 'Doctor Certified Ortho', 'Senior Citizen Spine Support'],
     trialDays: 100,
-    warranty: '8 years',
+    warranty: '12 years',
     has3D: true,
-    image: '/src/assets/images/mattress_serenity_ortho.jpg',
-    description: '7-zone ortho core. Engineered under guidance of the Indian Orthopaedic Association. The back pain ends here.',
-    features: ['7-zone HR ortho foam', 'Spine-align channel', 'Medium firm surface', 'Breathable knit fabric', 'No partner disturbance']
+    image: '/src/assets/images/mattress_orthopedic_spine.jpg',
+    description: 'Clinical 7-zone orthopedic mattress designed in partnership with AIIMS physiotherapists. Calibrated high-density rebonded foam and pressure-relieving transition foam align the lumbar spine in zero-gravity posture.',
+    features: ['7-zone anatomical spine zoning', 'Physiotherapist & Ortho certified', 'High-density lumbar core', 'Zero sagging guarantee', 'OEKO-TEX certified anti-allergenic']
   },
+
+  // ── 3. NASA MEMORY FOAM (Youth & Fit Sleeper) ─────────────
   {
     id: 'vh-m003',
     category: 'mattresses',
-    name: 'Embrace Comfort',
-    collection: 'Essential',
-    tagline: 'The beginning of better. Honest sleep at honest value.',
-    sizes: ['Single', 'Double', 'Queen', 'King', 'Guest room'],
+    name: 'Aura Cloud Memory Foam',
+    mattressType: 'Memory Foam',
+    collection: 'Foundation',
+    tagline: 'Light, responsive pressure-relief for active young bodies.',
+    sleeperProfile: 'Youth',
+    sleeperProfileDesc: '18 to 35 years. Fit. No pain. Hostel & young professional. Soft to Medium Soft.',
+    targetAgeGroup: 'Youth (18–35 yrs)',
+    backPainLevel: 'No Pain / Fit',
+    maxWeightKg: 150,
+    sizes: ['Single', 'Twin', 'Double', 'Queen', 'King'],
     materials: ['Memory Foam', 'PU Foam'],
-    firmness: 'Medium-Firm',
-    firmnessScore: 5,
-    ageGroup: 'Young Adult Mattress 20–30',
-    packaging: ['Box-Packed', 'Rollable'],
-    basePrice: 9800,
-    mrp: 13500,
-    discount: 27,
-    emi: '₹327/mo × 30 months',
+    firmness: 'Medium Soft',
+    firmnessScore: 4,
+    positions: ['Side', 'Stomach', 'Combination'],
+    packaging: ['Rollable', 'Box-Packed'],
+    basePrice: 19500,
+    mrp: 26000,
+    discount: 25,
+    emi: '₹650/mo × 30 months',
     badge: 'new',
-    badgeLabel: 'New',
-    tags: ['memory-foam', 'budget', 'everyday', 'budget-friendly'],
-    rating: 4.5,
-    reviews: 3100,
+    badgeLabel: 'Youth Edition',
+    tags: ['memory-foam', 'youth', 'soft-medium-soft', 'hostel-friendly', 'cooling-gel'],
+    rating: 4.8,
+    reviews: 870,
     doctorRecommended: false,
-    height: 12,
+    height: 15,
     thicknessInch: 6,
-    sleepNeeds: ['Side Sleeper', 'Budget Friendly', 'Couples / Zero Motion'],
+    sleepNeeds: ['Side Sleeper', 'Hot Sleeper', 'Youth & Hostel'],
     trialDays: 100,
-    warranty: '7 years',
-    has3D: false,
-    image: '/src/assets/images/mattress_embrace_comfort.jpg',
-    description: 'Pure slow-recovery memory foam. Rolls into a box. Expands to full size in 48 hours. The perfect start.',
-    features: ['Slow-recovery memory foam', 'Hypoallergenic cover', 'Rolled box delivery', '100-night trial', 'India-wide delivery']
+    warranty: '10 years',
+    has3D: true,
+    image: '/src/assets/images/mattress_memory_foam.jpg',
+    description: 'Open-cell cooling gel memory foam that cradles shoulders and hips without heat buildup. Perfect for students, young professionals, and active sleepers seeking soft-to-medium-soft recovery.',
+    features: ['CoolSync™ open-cell memory foam', 'Pressure-relief without heat trap', 'Compact rollable box delivery', 'Breathable zip-off cover', 'Anti-dust-mite sanitized']
   },
+
+  // ── 4. 100% NATURAL LATEX (Reserve Organic Luxury) ────────
   {
     id: 'vh-m004',
     category: 'mattresses',
-    name: 'Luminary Latex',
+    name: 'Luminary Organic Latex Reserve',
+    mattressType: 'Latex',
     collection: 'Reserve',
-    tagline: 'Nothing between you and nature\'s most perfect material.',
-    sizes: ['Queen', 'King', 'Super King'],
-    materials: ['Latex', 'Hybrid'],
-    firmness: 'Medium-Soft',
-    firmnessScore: 4,
-    ageGroup: 'Middle-Aged Mattress 31–45',
+    tagline: 'Pure botanical harvest. Hand-poured in Sri Lanka for generational luxury.',
+    sleeperProfile: 'Fit for All',
+    sleeperProfileDesc: 'Organic botanical luxury with natural bouncy lift.',
+    targetAgeGroup: 'Adult (35–50 yrs)',
+    backPainLevel: 'No Pain / Fit',
+    maxWeightKg: 200,
+    sizes: ['Queen', 'XL Queen', 'King', 'Super King'],
+    materials: ['Latex'],
+    firmness: 'Medium Soft',
+    firmnessScore: 4.5,
+    positions: ['Side', 'Back', 'Stomach', 'Combination'],
     packaging: ['Flat-Packed'],
     basePrice: 54000,
     mrp: 72000,
     discount: 25,
     emi: '₹1800/mo × 30 months',
     badge: 'luxury',
-    badgeLabel: 'Luxury',
-    tags: ['natural-latex', 'luxury', 'eco', 'organic', 'hot-sleeper'],
+    badgeLabel: '100% Organic',
+    tags: ['latex', 'organic', 'reserve', 'hot-sleeper', 'luxury'],
     rating: 4.9,
     reviews: 480,
     doctorRecommended: true,
-    height: 22,
+    height: 25,
     thicknessInch: 10,
     sleepNeeds: ['Hot Sleeper', '100% Natural Latex', 'Couples / Zero Motion'],
     trialDays: 120,
     warranty: '15 years',
     has3D: true,
-    image: '/src/assets/images/mattress_luminary_latex.jpg',
-    description: '100% Sri Lankan natural latex. GOLS certified. No synthetics. No compromise. The gold standard of sleep.',
-    features: ['GOLS certified natural latex', 'Dunlop processed', '200+ pincore air channels', 'Handcrafted wool quilting', 'Reversible firmness']
+    image: '/src/assets/images/mattress_latex_luxury.jpg',
+    description: '100% certified organic Dunlop latex from sustainable tree harvest. Natural hypoallergenic resilience, 200+ pincore aeration channels, and organic cotton-wool casing.',
+    features: ['GOLS certified organic natural latex', 'Naturally cooling micro-pin ventilation', 'Chemical-free & zero VOCs', 'Reversible dual-sided feel', '15-year master craftsmanship warranty']
   },
+
+  // ── 5. KIDS ACTIVE BOUNCE (Kids 10–17 Years) ───────────────
   {
     id: 'vh-m005',
     category: 'mattresses',
-    name: 'Little Dreamers',
-    collection: 'Essential',
-    tagline: 'For the sleep that shapes tomorrow\'s achievers.',
-    sizes: ['Kids', 'Bunk', 'Single'],
-    materials: ['Coir (Coconut Fibre)', 'Rebonded Foam'],
-    firmness: 'Medium-Firm',
-    firmnessScore: 6,
-    ageGroup: 'Kids Mattress 0–12',
+    name: 'Little Dreamers Active Bounce',
+    mattressType: 'Orthopedic',
+    collection: 'Foundation',
+    tagline: 'Bouncy, safe, and pediatrician-approved for growing spines.',
+    sleeperProfile: 'Kids',
+    sleeperProfileDesc: '10 to 17 years. Bouncy active growth support & spinal alignment.',
+    targetAgeGroup: 'Kids (10–17 yrs)',
+    backPainLevel: 'No Pain / Fit',
+    maxWeightKg: 90,
+    sizes: ['Kids', 'Bunk', 'Single', 'Twin'],
+    materials: ['Orthopedic', 'Pocket Spring', 'Coir (Coconut Fibre)'],
+    firmness: 'Medium',
+    firmnessScore: 5,
+    positions: ['Side', 'Back', 'Stomach', 'Combination'],
     packaging: ['Box-Packed', 'Flat-Packed'],
-    basePrice: 7200,
-    mrp: 9600,
-    discount: 25,
-    emi: '₹240/mo × 30 months',
+    basePrice: 9800,
+    mrp: 13500,
+    discount: 27,
+    emi: '₹326/mo × 30 months',
     badge: 'kids',
-    badgeLabel: 'Kids',
-    tags: ['kids', 'coir', 'firm-support'],
-    rating: 4.6,
+    badgeLabel: 'Kids 10–17',
+    tags: ['kids', 'bounce', 'growth-support', 'pediatrician-approved'],
+    rating: 4.8,
     reviews: 890,
     doctorRecommended: true,
-    height: 10,
+    height: 15,
     thicknessInch: 6,
     sleepNeeds: ['Kids Spinal Support', 'Hypoallergenic'],
     trialDays: 100,
-    warranty: '5 years',
+    warranty: '7 years',
     has3D: false,
     image: '/src/assets/images/mattress_kids.jpg',
-    description: 'Pediatrician approved. Firm coir core supports growing spines. Hypoallergenic Tencel cover is gentle against sensitive skin.',
-    features: ['Pediatrician approved', 'Firm coir + foam', 'Hypoallergenic cover', 'Washable quilted top', 'Safe for 3+ years']
+    description: 'Pediatrician formulated with dynamic bounce pocket springs and breathable natural coir. Keeps posture upright during growth spurts while offering the fun, resilient bounce kids love.',
+    features: ['Pediatrician posture approval', 'Active growth bounce spring core', '100% waterproof spill-resistant cover', 'Hypoallergenic OEKO-TEX certified', 'Safe rounded edge construction']
   },
+
+  // ── 6. BESPOKE GRAND RESERVE (Ultra-Luxe Heritage) ────────
   {
     id: 'vh-m006',
     category: 'mattresses',
-    name: 'Bespoke Signature',
-    collection: 'Reserve+',
+    name: 'Bespoke Grand Reserve Royal',
+    mattressType: 'Hybrid',
+    collection: 'Reserve',
     tagline: 'Every body is different. Yours should sleep differently too.',
+    sleeperProfile: 'Fit for All',
+    sleeperProfileDesc: 'Tailor-crafted dual firmness zones with white-glove staging.',
+    targetAgeGroup: 'Adult (35–50 yrs)',
+    backPainLevel: 'Mild to Moderate Pain',
+    maxWeightKg: 240,
     sizes: ['Queen', 'XL Queen', 'King', 'Super King'],
     materials: ['Hybrid', 'Latex', 'Pocket Spring'],
-    firmness: 'Medium-Firm',
-    firmnessScore: 5,
-    ageGroup: 'Senior Citizen Mattress 60+',
+    firmness: 'Medium Firm',
+    firmnessScore: 6.5,
+    positions: ['Side', 'Back', 'Combination'],
     packaging: ['Flat-Packed'],
-    basePrice: 90000,
-    mrp: 120000,
+    basePrice: 89000,
+    mrp: 119000,
     discount: 25,
-    emi: '₹3000/mo × 30 months',
-    badge: 'bestseller',
-    badgeLabel: 'Custom',
-    tags: ['bespoke', 'custom', 'luxury', 'doctor-certified'],
+    emi: '₹2966/mo × 30 months',
+    badge: 'luxury',
+    badgeLabel: 'Masterpiece',
+    tags: ['bespoke', 'reserve', 'luxury', 'custom-crafted', 'doctor-certified'],
     rating: 5.0,
-    reviews: 84,
+    reviews: 96,
     doctorRecommended: true,
-    height: 24,
+    height: 30,
     thicknessInch: 12,
     sleepNeeds: ['Custom Body-Mapped', 'Back & Spine Pain', 'Doctor Certified Ortho'],
     trialDays: 120,
     warranty: '20 years',
     has3D: true,
     image: '/src/assets/images/mattress_bespoke.jpg',
-    description: 'Sleep scientist consultation. Body-mapped custom build. Personalized firmness zones. Delivered by white-glove team.',
-    features: ['Sleep scientist consultation', 'Custom dimensions', 'Body-mapped zones', 'White-glove install', '20-year warranty']
+    description: 'The pinnacle of Velvet Hug sleep engineering. 12-inch multi-layered hybrid with gold-quilted damask velvet, individually encased titanium coils, and dual-zone customizable firmness.',
+    features: ['Dedicated sleep scientist consultation', 'Dual-side personalized firmness', 'Titanium zoned pocket coils', 'White-glove doorstep bedroom assembly', '20-year royal warranty']
+  },
+
+  // ── 7. FOR BIG PEOPLE HEAVY DUTY (Supports up to 240kg) ───
+  {
+    id: 'vh-m007',
+    category: 'mattresses',
+    name: 'Titan Ortho-Robust Heavy Duty',
+    mattressType: 'Hybrid',
+    collection: 'Signature',
+    tagline: 'High-resilience heavy-duty support engineered for up to 240 kg.',
+    sleeperProfile: 'For Big People',
+    sleeperProfileDesc: 'Medium Firm. Supports an overall sleeper weight of up to 240 kg without sagging.',
+    targetAgeGroup: 'Adult (35–50 yrs)',
+    backPainLevel: 'Mild to Moderate Pain',
+    maxWeightKg: 240,
+    sizes: ['Double', 'Queen', 'XL Queen', 'King', 'Super King'],
+    materials: ['Hybrid', 'Orthopedic', 'Pocket Spring'],
+    firmness: 'Medium Firm',
+    firmnessScore: 7,
+    positions: ['Back', 'Side', 'Combination'],
+    packaging: ['Flat-Packed', 'Box-Packed'],
+    basePrice: 38000,
+    mrp: 52000,
+    discount: 27,
+    emi: '₹1266/mo × 30 months',
+    badge: 'bestseller',
+    badgeLabel: 'Up to 240 kg',
+    tags: ['for-big-people', 'heavy-duty', '240kg-support', 'reinforced-edge', 'hybrid'],
+    rating: 4.9,
+    reviews: 740,
+    doctorRecommended: true,
+    height: 25,
+    thicknessInch: 10,
+    sleepNeeds: ['For Big People (Up to 240kg)', 'Back & Spine Pain', 'Couples / Zero Motion'],
+    trialDays: 100,
+    warranty: '15 years',
+    has3D: true,
+    image: '/src/assets/images/mattress_titan_heavy_duty.jpg',
+    description: 'Engineered specifically for plus-size sleepers, couples, and individuals requiring structural reinforcement. High-gauge pocket springs, high-density transition foam, and quad-perimeter edge support.',
+    features: ['Guaranteed 240 kg total sleeper support', 'Reinforced perimeter Anti-Roll edge guards', 'High-tensile steel pocket springs', 'Breathable temperature-regulating core', '15-year non-sag structural warranty']
+  },
+
+  // ── 8. ADULT DUAL-COMFORT (35–50 yrs / Mild Pain) ─────────
+  {
+    id: 'vh-m008',
+    category: 'mattresses',
+    name: 'TheraSpine Clinical Dual-Firm',
+    mattressType: 'Orthopedic',
+    collection: 'Foundation',
+    tagline: 'Reversible firmness for evolving lumbar support and pain recovery.',
+    sleeperProfile: 'Adult',
+    sleeperProfileDesc: '35 to 50 years OR Mild to Moderate Pain. Medium to Medium Firm.',
+    targetAgeGroup: 'Adult (35–50 yrs)',
+    backPainLevel: 'Mild to Moderate Pain',
+    maxWeightKg: 190,
+    sizes: ['Single', 'Double', 'Queen', 'King'],
+    materials: ['Orthopedic', 'Rebonded Foam', 'Memory Foam'],
+    firmness: 'Medium Firm',
+    firmnessScore: 6.5,
+    positions: ['Back', 'Side'],
+    packaging: ['Flat-Packed'],
+    basePrice: 22000,
+    mrp: 29500,
+    discount: 25,
+    emi: '₹733/mo × 30 months',
+    badge: 'ortho',
+    badgeLabel: 'Reversible',
+    tags: ['adult', 'mild-pain', 'orthopedic', 'reversible', 'foundation'],
+    rating: 4.8,
+    reviews: 1540,
+    doctorRecommended: true,
+    height: 20,
+    thicknessInch: 8,
+    sleepNeeds: ['Back & Spine Pain', 'Doctor Certified Ortho'],
+    trialDays: 100,
+    warranty: '10 years',
+    has3D: true,
+    image: '/src/assets/images/mattress_orthopedic_spine.jpg',
+    description: 'Reversible orthopedic mattress offering Medium-Firm anatomical support on Side A and Orthopedic Firm alignment on Side B. Perfect for adults managing work-from-home back stiffness.',
+    features: ['Reversible dual-sided firmness', '70D high-density orthopedic core', 'Cooling bamboo knit fabric', 'Posture correction alignment', '10-year warranty']
+  },
+
+  // ── 9. ZERO-MOTION POCKET SPRING (Couples & Peaceful REM) ──
+  {
+    id: 'vh-m009',
+    category: 'mattresses',
+    name: 'Zenith Zero-Motion Pocket Spring',
+    mattressType: 'Pocket Spring',
+    collection: 'Signature',
+    tagline: 'Your partner tosses. You never feel a ripple.',
+    sleeperProfile: 'Fit for All',
+    sleeperProfileDesc: 'Isolated pocket coil technology for undisturbed deep sleep.',
+    targetAgeGroup: 'Youth (18–35 yrs)',
+    backPainLevel: 'No Pain / Fit',
+    maxWeightKg: 180,
+    sizes: ['Single', 'Double', 'Queen', 'King'],
+    materials: ['Pocket Spring', 'Memory Foam'],
+    firmness: 'Medium',
+    firmnessScore: 5,
+    positions: ['Side', 'Back', 'Combination'],
+    packaging: ['Box-Packed', 'Flat-Packed'],
+    basePrice: 26000,
+    mrp: 35000,
+    discount: 26,
+    emi: '₹866/mo × 30 months',
+    badge: 'bestseller',
+    badgeLabel: 'Couples Pick',
+    tags: ['pocket-spring', 'zero-motion', 'couples', 'medium-firmness', 'signature'],
+    rating: 4.8,
+    reviews: 1820,
+    doctorRecommended: false,
+    height: 20,
+    thicknessInch: 8,
+    sleepNeeds: ['Couples / Zero Motion', 'Side Sleeper'],
+    trialDays: 100,
+    warranty: '10 years',
+    has3D: true,
+    image: '/src/assets/images/mattress_pocket_spring.jpg',
+    description: 'Over 800 individually encapsulated pocket springs adapt independently to your body curves. Prevents partner disturbance while delivering gentle contouring plush comfort.',
+    features: ['800+ independent pocket springs', 'Zero motion transfer technology', 'Plush euro-top comfort cushioning', 'Reinforced side sitting perimeter', '100-night trial']
+  },
+
+  // ── 10. BUDGET VALUE COMFORT (High Value Essentials) ──────
+  {
+    id: 'vh-m010',
+    category: 'mattresses',
+    name: 'Velvet Essential Budget Ortho',
+    mattressType: 'Orthopedic',
+    collection: 'Budget',
+    tagline: 'Ergonomic spine protection at direct-from-lab value pricing.',
+    sleeperProfile: 'Budget',
+    sleeperProfileDesc: 'High-density orthopedic support at accessible direct-to-consumer value.',
+    targetAgeGroup: 'Adult (35–50 yrs)',
+    backPainLevel: 'Mild to Moderate Pain',
+    maxWeightKg: 140,
+    sizes: ['Single', 'Double', 'Queen', 'King'],
+    materials: ['Orthopedic', 'PU Foam', 'Coir (Coconut Fibre)'],
+    firmness: 'Medium Firm',
+    firmnessScore: 6,
+    positions: ['Back', 'Side', 'Combination'],
+    packaging: ['Flat-Packed', 'Box-Packed'],
+    basePrice: 11500,
+    mrp: 15500,
+    discount: 26,
+    emi: '₹383/mo × 30 months',
+    badge: 'budget',
+    badgeLabel: 'Best Value',
+    tags: ['budget', 'value', 'orthopedic', 'coir', 'accessible'],
+    rating: 4.7,
+    reviews: 2150,
+    doctorRecommended: true,
+    height: 15,
+    thicknessInch: 6,
+    sleepNeeds: ['Budget', 'Back & Spine Pain'],
+    trialDays: 100,
+    warranty: '5 years',
+    has3D: false,
+    image: '/src/assets/images/mattress_kids.jpg',
+    description: 'High-density bonded core layered with natural rubberized coir and soft quilted jacquard. Direct factory-to-doorstep pricing makes clinical back support accessible to everyone.',
+    features: ['Direct factory value pricing', 'High-density bonded posture core', 'Breathable natural coir layer', 'Hypoallergenic jacquard fabric', '5-year warranty']
   },
 
   // ── PILLOWS ─────────────────────────────────────────────────
   {
     id: 'vh-p001',
     category: 'pillows',
-    name: 'Cloud Cradle Memory',
-    collection: 'Serenity',
+    name: 'Cloud Cradle Memory Pillow',
+    collection: 'Signature',
     tagline: 'The pillow that remembers how you sleep.',
     sizes: ['Standard', 'Queen'],
     materials: ['Memory Foam'],
-    firmness: 'Medium-Soft',
+    firmness: 'Medium Soft',
     firmnessScore: 4,
     packaging: ['Standard Delivery', 'Gifting Box'],
     basePrice: 1800,
@@ -359,19 +613,19 @@ export const PRODUCTS = [
     reviews: 1890,
     doctorRecommended: false,
     image: '/src/assets/images/pillow_memory.jpg',
-    description: 'Contoured slow-recovery memory foam. Sleeping on your side? It knows. Back sleeper? It knows. The pillow adapts.',
+    description: 'Contoured slow-recovery memory foam. Side sleeper or back sleeper, it cradles your neck seamlessly.',
     features: ['Contoured shape', 'CoolSync gel layer', 'Washable cover', 'Height adjustable', 'Hypoallergenic']
   },
   {
     id: 'vh-p002',
     category: 'pillows',
-    name: 'Ortho Cervical Pro',
-    collection: 'Elara',
+    name: 'Ortho Cervical Pro Neck Support',
+    collection: 'Signature',
     tagline: 'For necks that have carried too much for too long.',
     sizes: ['Standard'],
     materials: ['Memory Foam', 'Orthopedic'],
     firmness: 'Firm',
-    firmnessScore: 6,
+    firmnessScore: 8,
     packaging: ['Standard Delivery'],
     basePrice: 2400,
     mrp: 3200,
@@ -384,43 +638,43 @@ export const PRODUCTS = [
     reviews: 2240,
     doctorRecommended: true,
     image: '/src/assets/images/pillow_cervical.jpg',
-    description: 'Cervical curve engineered by physiotherapists. Higher lobe for side sleepers. Lower lobe for back sleepers.',
+    description: 'Cervical curve engineered by physiotherapists. Dual lobes for neck traction and cervical spine relief.',
     features: ['Dual-height lobes', 'Memory foam', 'Physiotherapist designed', 'Non-slip base', 'Breathable bamboo cover']
   },
   {
     id: 'vh-p003',
     category: 'pillows',
-    name: 'Latex Bliss',
-    collection: 'Luminary',
+    name: 'Natural Organic Latex Bliss Pillow',
+    collection: 'Reserve',
     tagline: 'Natural. Springy. Timeless.',
     sizes: ['Standard', 'Queen'],
     materials: ['Latex'],
-    firmness: 'Medium-Firm',
-    firmnessScore: 5,
+    firmness: 'Medium Firm',
+    firmnessScore: 5.5,
     packaging: ['Standard Delivery', 'Gifting Box'],
     basePrice: 3200,
     mrp: 4400,
     discount: 27,
     emi: null,
-    badge: 'new',
-    badgeLabel: 'New',
+    badge: 'luxury',
+    badgeLabel: '100% Organic',
     tags: ['latex', 'natural', 'eco'],
-    rating: 4.6,
+    rating: 4.9,
     reviews: 540,
     doctorRecommended: true,
     image: '/src/assets/images/pillow_latex.jpg',
-    description: 'Shredded natural latex fill. Adjustable height. The responsive bounce of latex with the softness of clouds.',
-    features: ['Shredded natural latex', 'Adjustable height', 'Anti-dust-mite', 'GOLS certified', 'Zipper cover']
+    description: 'Micro-pin ventilated organic natural latex fill. Instant responsive bounce with hypoallergenic organic cover.',
+    features: ['Organic natural latex', 'Micro-pin ventilated', 'Anti-dust-mite', 'GOLS certified', 'Washable cotton casing']
   },
   {
     id: 'vh-p004',
     category: 'pillows',
-    name: 'Couple\'s Nest',
-    collection: 'Serenity',
+    name: "Couple's Dual-Zone Harmony Pillow",
+    collection: 'Signature',
     tagline: 'One pillow. Two sides. Zero compromise.',
     sizes: ['King'],
     materials: ['Memory Foam'],
-    firmness: 'Medium-Firm',
+    firmness: 'Medium',
     firmnessScore: 5,
     packaging: ['Gifting Box'],
     basePrice: 4200,
@@ -434,7 +688,7 @@ export const PRODUCTS = [
     reviews: 380,
     doctorRecommended: false,
     image: '/src/assets/images/pillow_couple.jpg',
-    description: 'Dual-zone king pillow. Firm on one side, soft on the other. Zoned down the middle for sleep partner harmony.',
+    description: 'Dual-zone king pillow. Firm on one side, soft on the other with central divider for harmonious sleep.',
     features: ['Dual-zone firmness', 'King size', 'Embroidered divider', 'Washable cover', 'Gift ready']
   },
 
@@ -442,12 +696,12 @@ export const PRODUCTS = [
   {
     id: 'vh-c001',
     category: 'cushions',
-    name: 'Throne Lumbar',
-    collection: 'Serenity',
+    name: 'Throne Ergonomic Lumbar Cushion',
+    collection: 'Foundation',
     tagline: 'For the 9 hours you sit before the 8 hours you sleep.',
     sizes: ['Small (35×35)', 'Standard (45×45)', 'Large (55×55)'],
     materials: ['Memory Foam'],
-    firmness: 'Medium Firm (6)',
+    firmness: 'Medium Firm',
     firmnessScore: 6,
     packaging: ['Standard Delivery'],
     basePrice: 1200,
@@ -461,18 +715,18 @@ export const PRODUCTS = [
     reviews: 2100,
     doctorRecommended: true,
     image: '/src/assets/images/cushion_lumbar.jpg',
-    description: 'Lumbar arch that follows the natural S-curve of your lower back. Memory foam molded from posture scans of 500+ office workers.',
-    features: ['Lumbar S-curve design', 'Memory foam', 'Non-slip base', 'Washable velvet cover', 'Strap attachment']
+    description: 'Lumbar S-curve arch engineered from 500+ posture scans. High-density memory foam prevents desk slouching.',
+    features: ['Lumbar S-curve design', 'Memory foam', 'Non-slip base', 'Washable velvet cover', 'Chair strap attachment']
   },
   {
     id: 'vh-c002',
     category: 'cushions',
-    name: 'Velvet Sofa Nest',
-    collection: 'Elara',
+    name: 'Velvet Living Room Sofa Nest',
+    collection: 'Signature',
     tagline: 'Because your sofa deserves to feel like a hug.',
     sizes: ['Standard (45×45)', 'Large (55×55)'],
-    materials: ['HR Foam'],
-    firmness: 'Medium Soft (4)',
+    materials: ['PU Foam'],
+    firmness: 'Medium Soft',
     firmnessScore: 4,
     packaging: ['Gifting Box', 'Standard Delivery'],
     basePrice: 1800,
@@ -482,11 +736,11 @@ export const PRODUCTS = [
     badge: 'new',
     badgeLabel: 'Gift Favourite',
     tags: ['sofa', 'decorative', 'velvet'],
-    rating: 4.5,
+    rating: 4.6,
     reviews: 670,
     doctorRecommended: false,
     image: '/src/assets/images/cushion_sofa.jpg',
-    description: 'Deep midnight blue velvet outer. HR foam fill that holds shape for 5+ years. Brings the brand into your living space.',
+    description: 'Deep midnight blue velvet outer with shape-retaining resilient core. Set of 2 matching cushions.',
     features: ['Midnight velvet cover', 'HR foam fill', 'Hidden zip', 'Shape-retaining', 'Set of 2']
   },
 
@@ -494,12 +748,12 @@ export const PRODUCTS = [
   {
     id: 'vh-b001',
     category: 'bolsters',
-    name: 'The Embrace Bolster',
-    collection: 'Serenity',
-    tagline: 'For the nights you need to be held.',
+    name: 'The Sacred Embrace Sleep Bolster',
+    collection: 'Signature',
+    tagline: 'The ancient art of full-body hugs reimagined.',
     sizes: ['Standard (72×15)', 'King (78×18)'],
     materials: ['Memory Foam'],
-    firmness: 'Medium Soft (4)',
+    firmness: 'Medium Soft',
     firmnessScore: 4,
     packaging: ['Standard Delivery', 'Gifting Box'],
     basePrice: 1600,
@@ -513,32 +767,32 @@ export const PRODUCTS = [
     reviews: 1450,
     doctorRecommended: false,
     image: '/src/assets/images/bolster_embrace.jpg',
-    description: 'Long cylindrical memory foam bolster. Cradles your arms, your knees, your thoughts. Sleep held, every night.',
-    features: ['Full-length body support', 'Memory foam', 'Removable cotton cover', 'Velvet variant available', 'Pregnancy safe']
+    description: 'Long cylindrical memory foam bolster. Aligns hips and knees for side sleepers in sacred comfort.',
+    features: ['Full-length body support', 'Memory foam core', 'Removable velvet cover', 'Side sleeper hip relief', 'Hypoallergenic']
   },
   {
     id: 'vh-b002',
     category: 'bolsters',
-    name: 'Mama Hold Pregnancy',
-    collection: 'Elara',
+    name: 'Mama Hold Full-Body Maternity Bolster',
+    collection: 'Signature',
     tagline: 'Every position supported. Every night of the journey.',
     sizes: ['Standard (140×25 U-shape)'],
     materials: ['Memory Foam'],
-    firmness: 'Soft (3)',
+    firmness: 'Soft',
     firmnessScore: 3,
     packaging: ['Gifting Box'],
     basePrice: 3200,
     mrp: 4200,
     discount: 24,
     emi: null,
-    badge: 'new',
-    badgeLabel: 'Pregnancy',
+    badge: 'ortho',
+    badgeLabel: 'Maternity Choice',
     tags: ['pregnancy', 'maternity', 'u-shape'],
     rating: 4.9,
     reviews: 290,
     doctorRecommended: true,
     image: '/src/assets/images/bolster_pregnancy.jpg',
-    description: 'U-shaped full-body support. Designed with gynaecologists. Supports belly, back, and knees simultaneously in 3rd trimester.',
+    description: 'U-shaped anatomical body support. Supports belly, back, and knees simultaneously throughout maternity.',
     features: ['U-shape full body', 'Gynaecologist approved', 'Washable cover', 'Temperature-neutral', 'Hypoallergenic']
   },
 
@@ -546,10 +800,10 @@ export const PRODUCTS = [
   {
     id: 'vh-a001',
     category: 'accessories',
-    name: 'ArmourShield Mattress Protector',
-    collection: 'Serenity',
+    name: 'ArmourShield Bamboo Mattress Protector',
+    collection: 'Foundation',
     tagline: 'What protects your mattress, protects your investment.',
-    sizes: ['Single (72×36)', 'Double (72×48)', 'Queen (72×60)', 'King (72×72)'],
+    sizes: ['Single', 'Double', 'Queen', 'King'],
     materials: ['Microfiber'],
     firmness: null,
     basePrice: 1100,
@@ -559,18 +813,18 @@ export const PRODUCTS = [
     badge: 'bestseller',
     badgeLabel: 'Best Seller',
     tags: ['protector', 'waterproof', 'essential'],
-    rating: 4.6,
+    rating: 4.7,
     reviews: 4200,
     doctorRecommended: false,
     image: '/src/assets/images/acc_protector.jpg',
-    description: '100% waterproof. Noiseless polyurethane membrane. Stretches to 50cm depth. Machine washable up to 60°C.',
+    description: '100% waterproof noiseless membrane. Deep skirt fit for up to 14" mattresses.',
     features: ['100% waterproof', 'Noiseless', 'Elastic all around', 'Machine washable', 'OEKO-TEX certified']
   },
   {
     id: 'vh-a002',
     category: 'accessories',
-    name: 'Midnight Velvet Pillowcase Set',
-    collection: 'Elara',
+    name: 'Midnight Velvet Pillowcase Pair',
+    collection: 'Signature',
     tagline: 'The first touch of the night.',
     sizes: ['Standard (43×73cm)', 'Queen (50×76cm)'],
     materials: ['Microfiber'],
@@ -586,14 +840,14 @@ export const PRODUCTS = [
     reviews: 1100,
     doctorRecommended: false,
     image: '/src/assets/images/acc_pillowcase.jpg',
-    description: 'Satin-finish microfiber. Reduces hair friction. Retains face moisture. Two per pack in Midnight Blue.',
+    description: 'Satin-finish microfiber in signature Midnight Blue. Reduces hair friction and preserves moisture.',
     features: ['Satin-smooth surface', 'Hair-friendly', 'Moisture retaining', 'Set of 2', 'Colour-fast']
   },
   {
     id: 'vh-a003',
     category: 'accessories',
-    name: 'Velvet Hug Sleep Mask',
-    collection: 'Embrace',
+    name: 'Velvet Hug 3D Contoured Sleep Mask',
+    collection: 'Foundation',
     tagline: 'Darkness, on your terms.',
     sizes: ['One Size'],
     materials: ['Microfiber'],
@@ -605,18 +859,18 @@ export const PRODUCTS = [
     badge: 'bestseller',
     badgeLabel: 'Gift Pick',
     tags: ['sleep-mask', 'travel', 'gift'],
-    rating: 4.5,
+    rating: 4.6,
     reviews: 2800,
     doctorRecommended: false,
     image: '/src/assets/images/acc_mask.jpg',
-    description: '3D ergonomic contour. Zero eye pressure. Adjustable velcro strap. Infused with Lavender essence.',
+    description: 'Zero eye pressure 3D eye cavities. 100% light blockout with adjustable strap.',
     features: ['3D contoured', 'Zero eye pressure', 'Lavender infused', 'Adjustable strap', 'Travel pouch included']
   },
   {
     id: 'vh-a004',
     category: 'accessories',
-    name: 'Dream Diffuser Aromatherapy Set',
-    collection: 'Elara',
+    name: 'Dream Diffuser & Lavender Mist Set',
+    collection: 'Signature',
     tagline: 'Scent the last waking breath.',
     sizes: ['One Size'],
     materials: ['Ceramic'],
@@ -628,82 +882,92 @@ export const PRODUCTS = [
     badge: 'new',
     badgeLabel: 'Aromatherapy',
     tags: ['aromatherapy', 'diffuser', 'wellness'],
-    rating: 4.7,
+    rating: 4.8,
     reviews: 560,
     doctorRecommended: false,
     image: '/src/assets/images/acc_diffuser.jpg',
-    description: 'Cold-mist ultrasonic ceramic diffuser. Timer modes: 1h, 2h, 4h, continuous. With Lavender + Chamomile blend.',
-    features: ['Cold mist', '4 timer modes', 'Ceramic housing', 'LED ambient light', 'Lavender+Chamomile oils']
+    description: 'Cold-mist ultrasonic ceramic diffuser with French lavender and chamomile botanical oils.',
+    features: ['Cold mist ultrasonic', '4 timer modes', 'Ceramic housing', 'LED ambient nightlight', 'Organic essential oil bottle']
   }
 ];
 
-// Quiz: sleep style finder
+// ────────────────────────────────────────────────────────────
+// FIND YOUR HUG: 5 CRITERIA DIAGNOSTIC QUIZ
+// 1. Age group
+// 2. Back pain, if any
+// 3. Overall weight of sleeper(s)
+// 4. Firmness preference
+// 5. Price range
+// ────────────────────────────────────────────────────────────
 export const SLEEP_QUIZ = [
   {
-    id: 'q1',
-    question: 'How do you usually sleep?',
-    sub: 'Your primary sleeping position shapes everything.',
+    id: 'q_age',
+    category: 'age',
+    question: '1. What is your age group?',
+    sub: 'Spinal density and bone alignment needs change across life stages.',
     options: [
-      { id: 'side', label: 'On my side', sub: 'Left or right — I curl or stretch', emoji: '🌙' },
-      { id: 'back', label: 'On my back', sub: 'Ceiling watcher, spine neutral', emoji: '⭐' },
-      { id: 'stomach', label: 'On my stomach', sub: 'Face into the pillow', emoji: '💫' },
-      { id: 'combo', label: 'I move around', sub: 'Start one way, end another', emoji: '🔄' }
+      { id: 'kids', label: 'Kids (10 to 17 years)', sub: 'Active growth spurts & playful bounce needed', emoji: '🎈', profile: 'Kids' },
+      { id: 'youth', label: 'Youth (18 to 35 years)', sub: 'Fit, agile, hostel or young professional', emoji: '⚡', profile: 'Youth' },
+      { id: 'adult', label: 'Adult (35 to 50 years)', sub: 'Workday posture stress & lumbar care', emoji: '🌿', profile: 'Adult' },
+      { id: 'senior', label: 'Senior (50+ years)', sub: 'Joint care & maximum orthopedic stability', emoji: '🩺', profile: 'Senior / Severe Back Pain' }
     ]
   },
   {
-    id: 'q2',
-    question: 'How do you feel in the morning?',
-    sub: 'Be honest — your mattress is the first suspect.',
+    id: 'q_pain',
+    category: 'backpain',
+    question: '2. Do you experience any back or neck pain?',
+    sub: 'Let our clinical spine algorithms match the right zoning.',
     options: [
-      { id: 'rested', label: 'Refreshed & rested', sub: 'Ready for anything', emoji: '✨' },
-      { id: 'backpain', label: 'Back or neck pain', sub: 'Stiff before the day starts', emoji: '😣' },
-      { id: 'hot', label: 'Hot & sweaty', sub: 'Woke up during the night', emoji: '🌡️' },
-      { id: 'tired', label: 'Still tired', sub: 'Could sleep another 3 hours', emoji: '😴' }
+      { id: 'no_pain', label: 'No Pain / Fit', sub: 'Wake up fresh, general comfort focus', emoji: '✨', painLevel: 'No Pain / Fit' },
+      { id: 'mild_pain', label: 'Mild to Moderate Pain', sub: 'Occasional morning stiffness or lower back fatigue', emoji: '😣', painLevel: 'Mild to Moderate Pain' },
+      { id: 'severe_pain', label: 'Severe Back Pain / Slip Disc', sub: 'Chronic ache, doctor-recommended firm support needed', emoji: '🩺', painLevel: 'Severe Back Pain' }
     ]
   },
   {
-    id: 'q3',
-    question: 'Who do you share the bed with?',
-    sub: 'Motion isolation and size depend on this.',
+    id: 'q_weight',
+    category: 'weight',
+    question: '3. What is the overall weight of the sleeper(s)?',
+    sub: 'Ensures zero sagging and appropriate coil compression.',
     options: [
-      { id: 'solo', label: 'Just me', sub: 'Full bed, full control', emoji: '🧘' },
-      { id: 'partner', label: 'Partner', sub: 'Two sleep styles, one mattress', emoji: '💑' },
-      { id: 'kids', label: 'Kids join us', sub: 'The whole family', emoji: '👨‍👩‍👧' },
-      { id: 'pet', label: 'Pets too', sub: 'Full house policy', emoji: '🐾' }
+      { id: 'standard', label: 'Under 80 kg (Standard)', sub: 'Single sleeper / light build', emoji: '🌱', weightCategory: 'Standard (Under 80 kg)' },
+      { id: 'medium', label: '80 to 140 kg (Medium / Couple)', sub: 'Average build or standard couple weight', emoji: '🌟', weightCategory: 'Medium (80–140 kg)' },
+      { id: 'heavy', label: '140 to 240 kg (For Big People)', sub: 'Reinforced heavy-duty core required', emoji: '🛡️', weightCategory: 'Heavy Duty (Up to 240 kg)' }
     ]
   },
   {
-    id: 'q4',
-    question: 'What\'s your budget range?',
-    sub: 'We\'ll show you the best within your range.',
+    id: 'q_firmness',
+    category: 'firmness',
+    question: '4. What is your firmness preference?',
+    sub: 'From plush cloud sink to clinical orthopedic pushback.',
     options: [
-      { id: 'essential', label: '₹8,000 – ₹18,000', sub: 'Essential comfort tier', emoji: '🌱' },
-      { id: 'comfort', label: '₹18,000 – ₹35,000', sub: 'Comfort & quality', emoji: '🌟' },
-      { id: 'premium', label: '₹35,000 – ₹65,000', sub: 'Premium experience', emoji: '✨' },
-      { id: 'luxury', label: '₹65,000+', sub: 'No compromise luxury', emoji: '👑' }
+      { id: 'soft', label: 'Soft (Plush Cloud)', sub: 'Deep sink & gentle hug', emoji: '☁️', firmness: 'Soft' },
+      { id: 'medium_soft', label: 'Medium Soft', sub: 'Contouring with gentle cushion', emoji: '🌙', firmness: 'Medium Soft' },
+      { id: 'medium', label: 'Medium (Balanced)', sub: 'Equal parts hug and responsive bounce', emoji: '⚖️', firmness: 'Medium' },
+      { id: 'medium_firm', label: 'Medium Firm (Recommended)', sub: 'Targeted lumbar pushback & spinal neutrality', emoji: '👍', firmness: 'Medium Firm' },
+      { id: 'firm', label: 'Firm (Orthopedic)', sub: 'Zero sag, high-density orthopedic alignment', emoji: '🧱', firmness: 'Firm' }
     ]
   },
   {
-    id: 'q5',
-    question: 'Any specific health concerns?',
-    sub: 'We can match the right support for your body.',
+    id: 'q_price',
+    category: 'price',
+    question: '5. What is your preferred price classification?',
+    sub: 'Every Velvet Hug mattress includes our 100-Night Risk-Free Trial.',
     options: [
-      { id: 'none', label: 'None — I\'m good', sub: 'Standard comfort focus', emoji: '💚' },
-      { id: 'backpain', label: 'Back or spine issues', sub: 'Need orthopaedic support', emoji: '🦴' },
-      { id: 'hot', label: 'Sleep hot / night sweats', sub: 'Need temperature control', emoji: '❄️' },
-      { id: 'allergies', label: 'Allergies', sub: 'Need hypoallergenic materials', emoji: '🌺' }
+      { id: 'budget', label: 'Budget (Under ₹15,000)', sub: 'Direct-from-lab essential value', emoji: '🏷️', tier: 'Budget' },
+      { id: 'foundation', label: 'Foundation (₹15,000 – ₹30,000)', sub: 'Essential luxury & everyday ergonomic care', emoji: '🌱', tier: 'Foundation' },
+      { id: 'signature', label: 'Signature (₹30,000 – ₹55,000)', sub: 'Flagship 5-layer anatomical engineering', emoji: '⭐', tier: 'Signature' },
+      { id: 'reserve', label: 'Reserve (₹55,000 and Above)', sub: '100% Organic Latex & Handcrafted Royal Heritage', emoji: '👑', tier: 'Reserve' }
     ]
   }
 ];
 
 // Doctor panel
 export const DOCTORS = [
-  { name: 'Dr. Priya Nair', specialty: 'Physiotherapist, AIIMS', rating: 4.9, says: 'The Serenity Ortho is the closest I\'ve seen a consumer mattress get to clinical spinal support.' },
-  { name: 'Dr. Arjun Mehta', specialty: 'Sleep Medicine, Fortis', rating: 4.8, says: 'For side sleepers with neck issues, the Elara Cloud\'s zoned latex is a game-changer.' },
-  { name: 'Dr. Sunita Rao', specialty: 'Paediatrician, Apollo', rating: 5.0, says: 'Little Dreamers is the only consumer kids mattress I recommend without hesitation.' }
+  { name: 'Dr. Priya Nair', specialty: 'Physiotherapist, AIIMS', rating: 4.9, says: 'The Serenity Ortho is the closest I have seen a consumer mattress get to clinical spinal alignment.' },
+  { name: 'Dr. Arjun Mehta', specialty: 'Sleep Medicine & Ortho, Fortis', rating: 4.8, says: 'For back pain sufferers and big sleepers, the Titan and Elara Cloud provide unmatched zoned pushback.' },
+  { name: 'Dr. Sunita Rao', specialty: 'Paediatrician, Apollo Hospitals', rating: 5.0, says: 'Little Dreamers is the only consumer kids mattress I recommend without hesitation for 10–17 year growth.' }
 ];
 
-// Founding Partner mock data — later replaced by live API
 export const MOCK_FOUNDING_PARTNERS = [
   { num: 1, name: 'Arjun S.', city: 'Bangalore', story: null },
   { num: 7, name: 'Meena R.', city: 'Chennai', story: 'Finally slept through the night.' },
@@ -717,16 +981,15 @@ export const MOCK_FOUNDING_PARTNERS = [
   { num: 347, name: 'Rohini V.', city: 'Mysore', story: null },
 ];
 
-export const INITIAL_PARTNER_COUNT = 347;
+export const INITIAL_PARTNER_COUNT = 348;
 
-// Active promos
 export const ACTIVE_PROMOS = [
   {
     id: 'founding',
     tag: 'FOUNDING EXCLUSIVE',
-    message: 'First 1,000 Sleep Partners — 347 claimed, get 15% lifetime price lock',
+    message: 'First 1,000 Sleep Partners — 348 claimed, get 15% lifetime price lock',
     coupon: 'FOUNDING15',
-    endsAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days countdown
+    endsAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
     image: null
   }
 ];
@@ -743,11 +1006,10 @@ export function getProductsByCategory(category, filters = {}) {
     return p.category === category;
   });
   if (filters.size?.length) products = products.filter(p => p.sizes?.some(s => filters.size.includes(s)));
-  if (filters.material?.length) products = products.filter(p => p.materials?.some(m => filters.material.includes(m)));
+  if (filters.type?.length) products = products.filter(p => filters.type.includes(p.mattressType));
+  if (filters.sleeperProfile?.length) products = products.filter(p => filters.sleeperProfile.includes(p.sleeperProfile));
   if (filters.firmness?.length) products = products.filter(p => filters.firmness.includes(p.firmness));
   if (filters.tier?.length) products = products.filter(p => filters.tier.includes(p.collection));
-  if (filters.ageGroup?.length) products = products.filter(p => filters.ageGroup.includes(p.ageGroup));
-  if (filters.packaging?.length) products = products.filter(p => p.packaging?.some(pk => filters.packaging.includes(pk)));
   return products;
 }
 
@@ -756,6 +1018,8 @@ export function searchProducts(query) {
   return PRODUCTS.filter(p =>
     p.name.toLowerCase().includes(q) ||
     p.tagline.toLowerCase().includes(q) ||
+    (p.mattressType && p.mattressType.toLowerCase().includes(q)) ||
+    (p.sleeperProfile && p.sleeperProfile.toLowerCase().includes(q)) ||
     p.description?.toLowerCase().includes(q) ||
     p.tags?.some(t => t.includes(q)) ||
     p.collection?.toLowerCase().includes(q) ||
@@ -764,12 +1028,9 @@ export function searchProducts(query) {
 }
 
 export function formatPrice(num) {
-  return '₹' + num.toLocaleString('en-IN');
+  return '₹' + Number(num || 0).toLocaleString('en-IN');
 }
 
-// ────────────────────────────────────────────────────────────
-// EMI & FINANCIAL SCHEMES DATA
-// ────────────────────────────────────────────────────────────
 export const EMI_BANKS = [
   {
     id: 'hdfc',
@@ -882,7 +1143,6 @@ export const EMI_FINTECH_PARTNERS = [
   }
 ];
 
-// Helper to calculate monthly EMI with standard reducing balance formula
 export function calculateEMI(principal, annualRatePercent, months) {
   if (annualRatePercent === 0 || !annualRatePercent) {
     return Math.round(principal / months);
@@ -892,9 +1152,6 @@ export function calculateEMI(principal, annualRatePercent, months) {
   return Math.round(emi);
 }
 
-// ────────────────────────────────────────────────────────────
-// RETURN & EXCHANGE POLICIES DATA
-// ────────────────────────────────────────────────────────────
 export const RETURN_POLICY_DETAILS = {
   trialDays: 100,
   breakInDays: 30,
@@ -927,26 +1184,23 @@ export const RETURN_POLICY_DETAILS = {
   faqs: [
     {
       q: 'Why do you recommend sleeping for 30 nights before returning?',
-      a: 'Musculoskeletal adaptation requires time. When transitioning from sagging or traditional cotton/coir mattresses to ergonomic zoned support, your back muscles actively recalibrate. 96% of our customers who felt slight stiffness in week 1 reported deep, pain-free sleep by night 30.'
+      a: 'Musculoskeletal adaptation requires time. When transitioning to ergonomic zoned support, your back muscles actively recalibrate. 96% of customers report deep, pain-free sleep by night 30.'
     },
     {
       q: 'Are there any hidden pickup or restocking fees?',
-      a: 'None whatsoever. Velvet Hug covers 100% of reverse logistics costs across 19,000+ Indian PIN codes. You get every single rupee back.'
+      a: 'None whatsoever. Velvet Hug covers 100% of reverse logistics costs across 19,000+ Indian PIN codes.'
     },
     {
       q: 'What happens to returned mattresses? Are they repackaged?',
-      a: 'Never. Repackaging used mattresses violates our strict clinical hygiene charter. Every returned mattress undergoes hospital-grade ozone sanitization and is donated to partner non-profit orphanages and eldercare homes.'
+      a: 'Never. Repackaging used mattresses violates our strict clinical hygiene charter. Every returned mattress is sanitized and donated to partner orphanages.'
     },
     {
       q: 'Can I exchange for a different firmness level instead of a refund?',
-      a: 'Yes! We offer a 1-time complimentary firmness exchange (e.g. from Elara Cloud to Serenity Ortho or vice-versa) during the 100-night window.'
+      a: 'Yes! We offer a 1-time complimentary firmness exchange during the 100-night window.'
     }
   ]
 };
 
-// ────────────────────────────────────────────────────────────
-// PINCODE-BASED DELIVERY TIMELINE ENGINE (Origin: Chennai Hub)
-// ────────────────────────────────────────────────────────────
 export const CHENNAI_ORIGIN_WAREHOUSE = {
   name: 'Velvet Hug Central Mother Warehouse & Sleep Lab',
   location: 'Sriperumbudur / Guindy Mega Fulfillment Center, Chennai, Tamil Nadu',
@@ -969,19 +1223,19 @@ export const PINCODE_ZONES = [
     freeUnboxing: true,
     codAvailable: true,
     trialEligible: true,
-    sameDayCutoff: '14:00', // 2 PM
-    specialNote: 'Direct local dispatch from Chennai Mother Warehouse. Order before 2:00 PM for Same-Day Evening Delivery (06:00 PM – 09:30 PM) or Tomorrow Morning Slot.'
+    sameDayCutoff: '14:00',
+    specialNote: 'Direct local dispatch from Chennai Mother Warehouse. Order before 2:00 PM for Same-Day Evening Delivery.'
   },
   {
     prefixRange: [
-      [601001, 643999], // All Tamil Nadu: Coimbatore, Madurai, Trichy, Salem, Tirunelveli, Vellore, Erode
-      [560001, 560110], // Bangalore Metro
-      [500001, 500099], // Hyderabad Metro
-      [682001, 682042], // Kochi
-      [695001, 695043], // Trivandrum
-      [570001, 570030], // Mysore
-      [520001, 520015], // Vijayawada
-      [530001, 530052]  // Visakhapatnam
+      [601001, 643999],
+      [560001, 560110],
+      [500001, 500099],
+      [682001, 682042],
+      [695001, 695043],
+      [570001, 570030],
+      [520001, 520015],
+      [530001, 530052]
     ],
     regionName: 'Tamil Nadu State & South Express Corridor (BLR, HYD, Kerala, AP)',
     state: 'South India',
@@ -1048,11 +1302,11 @@ export const PINCODE_ZONES = [
 ];
 
 export function checkPincodeDelivery(pincodeInput) {
-  const pinStr = String(pincodeInput || '').trim().replace(/\D/g, '');
+  const pinStr = String(pincodeInput || '').trim().replace(/D/g, '');
   if (!pinStr || pinStr.length !== 6) {
     return {
       valid: false,
-      message: 'Please enter a valid 6-digit Indian postal pincode (e.g. 600028, 600002, 560001, 400001, 110001).'
+      message: 'Please enter a valid 6-digit Indian postal pincode (e.g. 600028, 560001, 400001, 110001).'
     };
   }
 
@@ -1069,12 +1323,11 @@ export function checkPincodeDelivery(pincodeInput) {
     if (matchedZone) break;
   }
 
-  // Fallback for all other valid 6-digit Indian pincodes
   if (!matchedZone) {
     matchedZone = {
       regionName: `Pan-India Delivery (PIN ${pinStr})`,
       state: 'India',
-      hub: 'Velvet Hug Central Mother Hub, Chennai (National Surface & Air Network)',
+      hub: 'Velvet Hug Central Mother Hub, Chennai (National Network)',
       speedTag: '🚚 Delivery in 4–6 Business Days',
       deliveryDaysMin: 4,
       deliveryDaysMax: 6,
@@ -1124,85 +1377,78 @@ export function checkPincodeDelivery(pincodeInput) {
 }
 
 // ────────────────────────────────────────────────────────────
-// ENHANCED MATTRESS MULTI-AXIS FILTERING ENGINE
+// MATTRESS MULTI-AXIS FILTER SCHEMA (Finalized Taxonomy)
 // ────────────────────────────────────────────────────────────
 export const MATTRESS_FILTER_SCHEMA = {
-  presets: [
+  sleeperProfiles: [
     { id: 'all', label: 'All Mattresses', icon: 'all' },
-    { id: 'bestseller', label: 'Best Sellers', icon: 'bestseller' },
-    { id: 'ortho', label: 'Ortho & Back Pain', icon: 'ortho' },
-    { id: 'latex', label: '100% Natural Latex', icon: 'latex' },
-    { id: 'cooling', label: 'Cooling Gel Tech', icon: 'cooling' },
-    { id: 'budget', label: 'Under ₹25,000', icon: 'budget' },
-    { id: 'luxury', label: 'Luxury Reserve', icon: 'luxury' }
+    { id: 'kids', label: 'Kids (10–17 yrs)', icon: 'kids' },
+    { id: 'youth', label: 'Youth (18–35 yrs)', icon: 'youth' },
+    { id: 'adult', label: 'Adult (35–50 yrs)', icon: 'adult' },
+    { id: 'senior', label: 'Senior / Back Pain', icon: 'senior' },
+    { id: 'fit-all', label: 'Fit for All', icon: 'fit' },
+    { id: 'big-people', label: 'For Big People (Up to 240kg)', icon: 'heavy' },
+    { id: 'budget', label: 'Budget', icon: 'budget' }
   ],
-  sizes: ['Single', 'Twin', 'Double', 'Queen', 'XL Queen', 'Super Queen', 'King', 'Super King', 'Kids', 'Bunk', 'Guest room'],
+  types: [
+    { key: 'Latex', label: '1. Natural Latex' },
+    { key: 'Orthopedic', label: '2. Orthopedic Spine-Align' },
+    { key: 'Memory Foam', label: '3. NASA Memory Foam' },
+    { key: 'Pocket Spring', label: '4. Zero-Motion Pocket Spring' },
+    { key: 'Hybrid', label: '5. Adaptive Hybrid' }
+  ],
+  priceTiers: [
+    { id: 'Foundation', label: 'Foundation (₹15,000 – ₹30,000)' },
+    { id: 'Signature', label: 'Signature (₹30,000 – ₹55,000)' },
+    { id: 'Reserve', label: 'Reserve (₹55,000+)' },
+    { id: 'Budget', label: 'Budget (Under ₹15,000)' }
+  ],
   firmnessLevels: [
-    { key: 'Medium-Soft', label: 'Plush & Medium-Soft (3-4/10)', score: '4/10' },
-    { key: 'Medium-Firm', label: 'Medium-Firm Balanced (5-6/10)', score: '5.5/10' },
-    { key: 'Firm', label: 'Orthopedic Firm (7-8/10)', score: '7/10' },
-    { key: 'Extra Firm', label: 'Extra Firm Spinal Alignment (9/10)', score: '9/10' }
+    { key: 'Soft', label: '1. Soft (Plush Cloud)' },
+    { key: 'Medium Soft', label: '2. Medium Soft (Gentle Hug)' },
+    { key: 'Medium', label: '3. Medium (Balanced Bounce)' },
+    { key: 'Medium Firm', label: '4. Medium Firm (Lumbar Pushback)' },
+    { key: 'Firm', label: '5. Firm (Orthopedic)' }
   ],
-  materials: [
-    { key: 'Latex', label: 'Natural Organic Latex (Sri Lanka GOLS)' },
-    { key: 'Memory Foam', label: 'NASA-Grade Memory Foam' },
-    { key: 'Pocket Spring', label: 'Zero-Motion Pocket Springs' },
-    { key: 'Orthopedic', label: '7-Zone Orthopedic HR Core' },
-    { key: 'Hybrid', label: 'Adaptive Hybrid (Spring + Latex/Foam)' },
-    { key: 'Coir (Coconut Fibre)', label: 'Natural Breathable Coir' }
-  ],
-  sleepNeeds: [
-    'Back & Spine Pain',
-    'Side Sleeper',
-    'Hot Sleeper',
-    'Couples / Zero Motion',
-    'Doctor Certified Ortho',
-    'Senior Citizen Spine Support',
-    'Kids Spinal Support'
-  ],
-  thicknessInches: [6, 8, 10, 12],
-  priceRanges: [
-    { id: 'tier-1', label: 'Under ₹15,000', min: 0, max: 15000 },
-    { id: 'tier-2', label: '₹15,000 – ₹30,000', min: 15000, max: 30000 },
-    { id: 'tier-3', label: '₹30,000 – ₹60,000', min: 30000, max: 60000 },
-    { id: 'tier-4', label: '₹60,000 and Above', min: 60000, max: 200000 }
-  ]
+  sizes: ['Single', 'Twin', 'Double', 'Queen', 'XL Queen', 'Super Queen', 'King', 'Super King', 'Kids'],
+  thicknessInches: [6, 8, 10, 12]
 };
 
 export function filterAndSortMattresses(products, filters = {}, sortOption = 'recommended') {
   let list = products.filter(p => p.category === 'mattresses');
 
-  // 1. Preset pill filter
+  // 1. Sleeper Profile Preset Filter
   if (filters.preset && filters.preset !== 'all') {
-    if (filters.preset === 'bestseller') list = list.filter(p => p.badge === 'bestseller' || p.reviews > 1000);
-    else if (filters.preset === 'ortho') list = list.filter(p => p.doctorRecommended || p.tags?.includes('ortho') || p.sleepNeeds?.includes('Back & Spine Pain'));
-    else if (filters.preset === 'latex') list = list.filter(p => p.materials?.includes('Latex'));
-    else if (filters.preset === 'cooling') list = list.filter(p => p.tags?.includes('cooling') || p.sleepNeeds?.includes('Hot Sleeper'));
-    else if (filters.preset === 'budget') list = list.filter(p => p.basePrice <= 25000);
-    else if (filters.preset === 'luxury') list = list.filter(p => p.basePrice >= 50000 || p.collection?.includes('Reserve'));
+    if (filters.preset === 'kids') list = list.filter(p => p.sleeperProfile === 'Kids' || p.targetAgeGroup?.includes('Kids'));
+    else if (filters.preset === 'youth') list = list.filter(p => p.sleeperProfile === 'Youth' || p.targetAgeGroup?.includes('Youth'));
+    else if (filters.preset === 'adult') list = list.filter(p => p.sleeperProfile === 'Adult' || p.targetAgeGroup?.includes('Adult'));
+    else if (filters.preset === 'senior') list = list.filter(p => p.sleeperProfile?.includes('Senior') || p.backPainLevel === 'Severe Back Pain' || p.firmness === 'Firm');
+    else if (filters.preset === 'fit-all') list = list.filter(p => p.sleeperProfile === 'Fit for All');
+    else if (filters.preset === 'big-people') list = list.filter(p => p.sleeperProfile === 'For Big People' || p.maxWeightKg >= 240);
+    else if (filters.preset === 'budget') list = list.filter(p => p.sleeperProfile === 'Budget' || p.collection === 'Budget' || p.basePrice <= 15000);
   }
 
-  // 2. Sizes
-  if (filters.sizes?.length) {
-    list = list.filter(p => p.sizes?.some(s => filters.sizes.includes(s)));
+  // 2. Mattress Type Filter
+  if (filters.types?.length) {
+    list = list.filter(p => filters.types.includes(p.mattressType) || p.materials?.some(m => filters.types.includes(m)));
   }
 
-  // 3. Firmness
+  // 3. Price Tier Filter
+  if (filters.tiers?.length) {
+    list = list.filter(p => filters.tiers.includes(p.collection));
+  }
+
+  // 4. Firmness Filter
   if (filters.firmness?.length) {
     list = list.filter(p => filters.firmness.includes(p.firmness));
   }
 
-  // 4. Materials
-  if (filters.materials?.length) {
-    list = list.filter(p => p.materials?.some(m => filters.materials.includes(m)));
+  // 5. Sizes Filter
+  if (filters.sizes?.length) {
+    list = list.filter(p => p.sizes?.some(s => filters.sizes.includes(s)));
   }
 
-  // 5. Sleep Needs
-  if (filters.sleepNeeds?.length) {
-    list = list.filter(p => p.sleepNeeds?.some(sn => filters.sleepNeeds.includes(sn)) || p.tags?.some(t => filters.sleepNeeds.some(sn => sn.toLowerCase().includes(t))));
-  }
-
-  // 6. Thickness
+  // 6. Thickness Filter
   if (filters.thickness?.length) {
     list = list.filter(p => filters.thickness.includes(p.thicknessInch));
   }
@@ -1224,9 +1470,116 @@ export function filterAndSortMattresses(products, filters = {}, sortOption = 're
   } else if (sortOption === 'firmness-firm') {
     list.sort((a, b) => (b.firmnessScore || 5) - (a.firmnessScore || 5));
   } else {
-    // Default 'recommended'
     list.sort((a, b) => (b.badge === 'bestseller' ? 1 : 0) - (a.badge === 'bestseller' ? 1 : 0) || b.rating - a.rating);
   }
 
   return list;
+}
+
+export function diagnoseSleepQuiz(answers = {}) {
+  const mattresses = PRODUCTS.filter(p => p.category === 'mattresses');
+  
+  const age = answers.q_age || answers.age || answers.q1;
+  const pain = answers.q_pain || answers.backpain || answers.q2;
+  const weight = answers.q_weight || answers.weight || answers.q3;
+  const firmness = answers.q_firmness || answers.firmness || answers.q4;
+  const price = answers.q_price || answers.price || answers.q5;
+
+  const scored = mattresses.map(p => {
+    let score = 50;
+    let matchReasons = [];
+
+    // 1. Weight Evaluation (Heavy sleeper up to 240kg takes top priority)
+    if (weight === 'heavy') {
+      if (p.id === 'vh-m007' || p.sleeperProfile === 'For Big People' || p.maxWeightKg >= 240) {
+        score += 45;
+        matchReasons.push('Heavy-duty reinforced titanium coil core supporting up to 240 kg.');
+      } else if (p.firmness === 'Firm' || p.firmness === 'Medium Firm') {
+        score += 15;
+      } else {
+        score -= 25;
+      }
+    } else if (weight === 'medium') {
+      if (p.mattressType === 'Hybrid' || p.mattressType === 'Pocket Spring' || p.sleeperProfile === 'Fit for All') {
+        score += 20;
+        matchReasons.push('Zero partner motion transfer & balanced weight distribution.');
+      }
+    }
+
+    // 2. Age Group Evaluation
+    if (age === 'kids') {
+      if (p.id === 'vh-m005' || p.sleeperProfile === 'Kids') {
+        score += 40;
+        matchReasons.push('Dynamic active bounce & spinal growth support for ages 10–17.');
+      } else if (p.firmness === 'Medium' || p.firmness === 'Medium Soft') {
+        score += 10;
+      }
+    } else if (age === 'youth') {
+      if (p.sleeperProfile === 'Youth' || p.id === 'vh-m003' || p.id === 'vh-m009') {
+        score += 30;
+        matchReasons.push('Plush contouring & high-energy pressure relief for active youth.');
+      }
+    } else if (age === 'adult') {
+      if (p.sleeperProfile === 'Adult' || p.id === 'vh-m001' || p.id === 'vh-m002') {
+        score += 25;
+        matchReasons.push('Ergonomic 5-zone spine neutrality for workday posture relief.');
+      }
+    } else if (age === 'senior') {
+      if (p.sleeperProfile?.includes('Senior') || p.firmness === 'Firm' || p.id === 'vh-m002' || p.id === 'vh-m008') {
+        score += 35;
+        matchReasons.push('Clinical firm orthopedic pushback with zero sink for easy movement.');
+      }
+    }
+
+    // 3. Back Pain Evaluation
+    if (pain === 'severe_pain' || pain === 'severe') {
+      if (p.doctorRecommended || p.backPainLevel === 'Severe Back Pain' || p.firmness === 'Firm') {
+        score += 35;
+        matchReasons.push('Doctor-certified orthopedic spinal alignment prevents nerve compression.');
+      } else if (p.firmness === 'Soft') {
+        score -= 30;
+      }
+    } else if (pain === 'mild_pain' || pain === 'mild') {
+      if (p.firmness === 'Medium Firm' || p.doctorRecommended) {
+        score += 25;
+        matchReasons.push('Medium-Firm lumbar contouring alleviates morning stiffness.');
+      }
+    }
+
+    // 4. Firmness Preference Alignment
+    const firmKeyMap = {
+      'soft': 'Soft',
+      'medium_soft': 'Medium Soft',
+      'medium': 'Medium',
+      'medium_firm': 'Medium Firm',
+      'firm': 'Firm'
+    };
+    const targetFirm = firmKeyMap[firmness] || firmness;
+    if (targetFirm && p.firmness === targetFirm) {
+      score += 25;
+      matchReasons.push(`Exact firmness match: ${p.firmness}.`);
+    }
+
+    // 5. Price Tier Alignment
+    const priceMap = {
+      'budget': 'Budget',
+      'foundation': 'Foundation',
+      'signature': 'Signature',
+      'reserve': 'Reserve'
+    };
+    const targetTier = priceMap[price] || price;
+    if (targetTier && (p.collection === targetTier || (targetTier === 'Budget' && p.basePrice <= 15000))) {
+      score += 20;
+      matchReasons.push(`Matches your ${targetTier} budget tier.`);
+    }
+
+    return {
+      product: p,
+      score: Math.min(99, Math.max(60, score)),
+      reason: matchReasons.slice(0, 2).join(' ') || 'Clinically engineered for restorative posture.'
+    };
+  });
+
+  scored.sort((a, b) => b.score - a.score || b.product.rating - a.product.rating);
+  return scored.slice(0, 3);
 }

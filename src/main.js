@@ -8,7 +8,8 @@ import {
   getProductsByCategory, searchProducts, formatPrice, getProductById,
   EMI_BANKS, EMI_FINTECH_PARTNERS, calculateEMI,
   RETURN_POLICY_DETAILS,
-  checkPincodeDelivery, PINCODE_ZONES, MATTRESS_FILTER_SCHEMA, filterAndSortMattresses
+  checkPincodeDelivery, PINCODE_ZONES, MATTRESS_FILTER_SCHEMA, filterAndSortMattresses,
+  diagnoseSleepQuiz
 } from './data/products.js';
 
 import {
@@ -367,9 +368,12 @@ function navigateTo(page, pushHistory = true) {
     renderReturnsPage();
   }
 
-  // Update nav active state
+  // Update nav active state (Desktop & Mobile)
   qsa('.nav-link').forEach(l => {
     l.classList.toggle('active', l.dataset.page === page);
+  });
+  qsa('.mobile-nav-item').forEach(m => {
+    m.classList.toggle('active', m.dataset.mobilePage === page);
   });
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -773,10 +777,15 @@ window.isWishlisted = function(productId) {
 function updateCartBadge() {
   const totalItems = state.cart.reduce((sum, i) => sum + i.qty, 0);
   const badge = qs('#cartBadge');
+  const mobileBadge = qs('#mobileCartBadge');
   if (badge) {
     badge.textContent = totalItems;
     badge.style.transform = 'scale(1.3)';
     setTimeout(() => { badge.style.transform = 'scale(1)'; }, 200);
+  }
+  if (mobileBadge) {
+    mobileBadge.textContent = totalItems;
+    mobileBadge.style.display = totalItems > 0 ? 'inline-flex' : 'none';
   }
 }
 
@@ -1208,26 +1217,40 @@ function getPresetIconSvg(id) {
   return map[id] || '';
 }
 
+function getPresetIconSvg(id) {
+  const icons = {
+    'all': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M3 12h18"/></svg>',
+    'kids': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 0-5 5c0 3.5 5 9 5 9s5-5.5 5-9a5 5 0 0 0-5-5Z"/><path d="m12 16-1 6 3-2 3 2-1-6"/></svg>',
+    'youth': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+    'adult': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/></svg>',
+    'senior': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>',
+    'fit-all': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-5"/></svg>',
+    'big-people': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/></svg>',
+    'budget': '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>'
+  };
+  return icons[id] || icons['all'];
+}
+
 function renderMattressFilters() {
   const container = qs('#mattressFiltersContainer');
   if (!container) return;
 
   const schema = MATTRESS_FILTER_SCHEMA;
-  const activeFilters = state.mattressFilters || { preset: 'all', sizes: [], firmness: [], materials: [], sleepNeeds: [], thickness: [], maxPrice: null };
+  const activeFilters = state.mattressFilters || { preset: 'all', types: [], tiers: [], firmness: [], sizes: [], thickness: [], maxPrice: null };
 
   container.innerHTML = `
-    <!-- Top Row: Quick Preset Pills & Sorting Dropdown -->
+    <!-- Top Row: Sleeper Profile Quick Views & Sorting Dropdown -->
     <div class="filter-presets-row">
-      <div class="preset-pills-list">
-        <span style="font-size:0.78rem;font-weight:700;color:var(--midnight-blue);text-transform:uppercase;letter-spacing:0.06em;">Quick Views:</span>
-        ${schema.presets.map(p => `
-          <button class="filter-preset-pill ${activeFilters.preset === p.id ? 'active' : ''}" onclick="window.setMattressPreset('${p.id}')">
+      <div class="preset-pills-list" role="tablist" aria-label="Sleeper Profile Views">
+        <span style="font-size:0.76rem;font-weight:700;color:var(--midnight-blue);text-transform:uppercase;letter-spacing:0.06em;align-self:center;">Sleeper Profile:</span>
+        ${schema.sleeperProfiles.map(p => `
+          <button type="button" class="filter-preset-pill ${activeFilters.preset === p.id ? 'active' : ''}" onclick="window.setMattressPreset('${p.id}')" title="${p.label}">
             ${getPresetIconSvg(p.id)} <span>${p.label}</span>
           </button>
         `).join('')}
       </div>
       <div class="filter-sort-controls">
-        <label style="font-size:0.78rem;font-weight:600;color:var(--text-secondary);">Sort By:</label>
+        <label style="font-size:0.78rem;font-weight:600;color:var(--text-secondary);white-space:nowrap;">Sort By:</label>
         <select class="filter-sort-select" id="mattressSortSelect" onchange="window.setMattressSort(this.value)">
           <option value="recommended" ${state.mattressSort === 'recommended' ? 'selected' : ''}>Recommended &amp; Best Sellers</option>
           <option value="price-low" ${state.mattressSort === 'price-low' ? 'selected' : ''}>Price: Low to High</option>
@@ -1236,71 +1259,71 @@ function renderMattressFilters() {
           <option value="firmness-soft" ${state.mattressSort === 'firmness-soft' ? 'selected' : ''}>Firmness: Softest First</option>
           <option value="firmness-firm" ${state.mattressSort === 'firmness-firm' ? 'selected' : ''}>Firmness: Firmest First</option>
         </select>
-        <button class="clear-filters-btn" onclick="window.resetMattressFilters()">Clear All</button>
+        <button type="button" class="clear-filters-btn" onclick="window.resetMattressFilters()">Clear All</button>
       </div>
     </div>
 
     <!-- Multi-Axis Filter Grid -->
     <div class="mattress-filter-axes-grid">
-      <!-- Axis 1: Size -->
+      <!-- Axis 1: Mattress Type -->
       <div class="filter-axis-card">
         <div class="filter-axis-title">
-          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 3 9 15"/><path d="M12 3H3v18h18v-9"/><path d="M16 3h5v5"/><path d="M14 15l-4 4"/></svg> Size Dimensions</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.sizes.length ? `${activeFilters.sizes.length} selected` : ''}</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M2 20h20"/><path d="M5 20v-4"/><path d="M19 20v-4"/><path d="M2 12a10 10 0 0 1 20 0v4H2v-4z"/></svg> Mattress Type</span>
+          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.types?.length ? `${activeFilters.types.length} selected` : ''}</span>
         </div>
         <div class="filter-axis-options">
-          ${schema.sizes.map(s => `
+          ${schema.types.map(t => `
             <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.sizes.includes(s) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('sizes', '${s}')">
-              <span>${s}</span>
+              <input type="checkbox" ${activeFilters.types?.includes(t.key) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('types', '${t.key}')">
+              <span>${t.label}</span>
             </label>
           `).join('')}
         </div>
       </div>
 
-      <!-- Axis 2: Firmness -->
+      <!-- Axis 2: Price Classification Tier -->
+      <div class="filter-axis-card">
+        <div class="filter-axis-title">
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Price Tier</span>
+          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.tiers?.length ? `${activeFilters.tiers.length} selected` : ''}</span>
+        </div>
+        <div class="filter-axis-options">
+          ${schema.priceTiers.map(pt => `
+            <label class="filter-check-item">
+              <input type="checkbox" ${activeFilters.tiers?.includes(pt.id) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('tiers', '${pt.id}')">
+              <span>${pt.label}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Axis 3: Firmness Level -->
       <div class="filter-axis-card">
         <div class="filter-axis-title">
           <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg> Firmness Level</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.firmness.length ? `${activeFilters.firmness.length} selected` : ''}</span>
+          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.firmness?.length ? `${activeFilters.firmness.length} selected` : ''}</span>
         </div>
         <div class="filter-axis-options">
           ${schema.firmnessLevels.map(f => `
             <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.firmness.includes(f.key) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('firmness', '${f.key}')">
+              <input type="checkbox" ${activeFilters.firmness?.includes(f.key) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('firmness', '${f.key}')">
               <span>${f.label}</span>
             </label>
           `).join('')}
         </div>
       </div>
 
-      <!-- Axis 3: Materials & Core -->
+      <!-- Axis 4: Dimensions / Sizes -->
       <div class="filter-axis-card">
         <div class="filter-axis-title">
-          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/></svg> Core Material</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.materials.length ? `${activeFilters.materials.length} selected` : ''}</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 3 9 15"/><path d="M12 3H3v18h18v-9"/><path d="M16 3h5v5"/><path d="M14 15l-4 4"/></svg> Size</span>
+          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.sizes?.length ? `${activeFilters.sizes.length} selected` : ''}</span>
         </div>
         <div class="filter-axis-options">
-          ${schema.materials.map(m => `
+          ${schema.sizes.map(s => `
             <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.materials.includes(m.key) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('materials', '${m.key}')">
-              <span>${m.label}</span>
-            </label>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- Axis 4: Sleep Needs & Health -->
-      <div class="filter-axis-card">
-        <div class="filter-axis-title">
-          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg> Sleep Need / Ergonomics</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.sleepNeeds.length ? `${activeFilters.sleepNeeds.length} selected` : ''}</span>
-        </div>
-        <div class="filter-axis-options">
-          ${schema.sleepNeeds.map(sn => `
-            <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.sleepNeeds.includes(sn) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('sleepNeeds', '${sn}')">
-              <span>${sn}</span>
+              <input type="checkbox" ${activeFilters.sizes?.includes(s) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('sizes', '${s}')">
+              <span>${s}</span>
             </label>
           `).join('')}
         </div>
@@ -1310,19 +1333,19 @@ function renderMattressFilters() {
       <div class="filter-axis-card">
         <div class="filter-axis-title">
           <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Height (Thickness)</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.thickness.length ? `${activeFilters.thickness.length} selected` : ''}</span>
+          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.thickness?.length ? `${activeFilters.thickness.length} selected` : ''}</span>
         </div>
         <div class="filter-axis-options">
           ${schema.thicknessInches.map(t => `
             <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.thickness.includes(t) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('thickness', ${t})">
+              <input type="checkbox" ${activeFilters.thickness?.includes(t) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('thickness', ${t})">
               <span>${t}-Inch (${Math.round(t * 2.54)} cm)</span>
             </label>
           `).join('')}
         </div>
       </div>
 
-      <!-- Axis 6: Price Budget Slider -->
+      <!-- Axis 6: Max Budget Slider -->
       <div class="filter-axis-card">
         <div class="filter-axis-title">
           <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg> Max Budget</span>
@@ -1350,8 +1373,8 @@ function applyMattressFilters() {
   // Render Active Chips Bar
   const chipsRow = qs('#mattressActiveChipsRow');
   if (chipsRow) {
-    const f = state.mattressFilters;
-    const hasActiveFilters = f.preset !== 'all' || f.sizes.length || f.firmness.length || f.materials.length || f.sleepNeeds.length || f.thickness.length || f.maxPrice;
+    const f = state.mattressFilters || {};
+    const hasActiveFilters = (f.preset && f.preset !== 'all') || f.types?.length || f.tiers?.length || f.firmness?.length || f.sizes?.length || f.thickness?.length || f.maxPrice;
 
     if (hasActiveFilters) {
       chipsRow.style.display = 'block';
@@ -1359,29 +1382,30 @@ function applyMattressFilters() {
         <span class="filter-results-counter">Showing <strong>${filteredProducts.length}</strong> of ${totalMattresses} Mattresses</span>
         <div style="display:flex;flex-wrap:wrap;gap:6px;margin-left:auto;">`;
 
-      if (f.preset !== 'all') {
-        chipsHtml += `<button class="active-chip-tag" onclick="window.setMattressPreset('all')">View: ${f.preset} ✕</button>`;
+      if (f.preset && f.preset !== 'all') {
+        const pObj = MATTRESS_FILTER_SCHEMA.sleeperProfiles.find(p => p.id === f.preset);
+        chipsHtml += `<button type="button" class="active-chip-tag" onclick="window.setMattressPreset('all')">Profile: ${pObj?.label || f.preset} ✕</button>`;
       }
-      f.sizes.forEach(s => {
-        chipsHtml += `<button class="active-chip-tag" onclick="window.toggleMattressFilterOption('sizes', '${s}')">Size: ${s} ✕</button>`;
+      f.types?.forEach(t => {
+        chipsHtml += `<button type="button" class="active-chip-tag" onclick="window.toggleMattressFilterOption('types', '${t}')">Type: ${t} ✕</button>`;
       });
-      f.firmness.forEach(frm => {
-        chipsHtml += `<button class="active-chip-tag" onclick="window.toggleMattressFilterOption('firmness', '${frm}')">Firmness: ${frm} ✕</button>`;
+      f.tiers?.forEach(tr => {
+        chipsHtml += `<button type="button" class="active-chip-tag" onclick="window.toggleMattressFilterOption('tiers', '${tr}')">Tier: ${tr} ✕</button>`;
       });
-      f.materials.forEach(m => {
-        chipsHtml += `<button class="active-chip-tag" onclick="window.toggleMattressFilterOption('materials', '${m}')">Material: ${m} ✕</button>`;
+      f.firmness?.forEach(frm => {
+        chipsHtml += `<button type="button" class="active-chip-tag" onclick="window.toggleMattressFilterOption('firmness', '${frm}')">Firmness: ${frm} ✕</button>`;
       });
-      f.sleepNeeds.forEach(sn => {
-        chipsHtml += `<button class="active-chip-tag" onclick="window.toggleMattressFilterOption('sleepNeeds', '${sn}')">Need: ${sn} ✕</button>`;
+      f.sizes?.forEach(s => {
+        chipsHtml += `<button type="button" class="active-chip-tag" onclick="window.toggleMattressFilterOption('sizes', '${s}')">Size: ${s} ✕</button>`;
       });
-      f.thickness.forEach(th => {
-        chipsHtml += `<button class="active-chip-tag" onclick="window.toggleMattressFilterOption('thickness', ${th})">Thickness: ${th}" ✕</button>`;
+      f.thickness?.forEach(th => {
+        chipsHtml += `<button type="button" class="active-chip-tag" onclick="window.toggleMattressFilterOption('thickness', ${th})">Thickness: ${th}" ✕</button>`;
       });
       if (f.maxPrice) {
-        chipsHtml += `<button class="active-chip-tag" onclick="window.setMattressMaxPrice(null)">Under ${formatPrice(f.maxPrice)} ✕</button>`;
+        chipsHtml += `<button type="button" class="active-chip-tag" onclick="window.setMattressMaxPrice(null)">Under ${formatPrice(f.maxPrice)} ✕</button>`;
       }
 
-      chipsHtml += `<button class="clear-filters-btn" style="margin-left:6px;" onclick="window.resetMattressFilters()">Clear All</button></div></div>`;
+      chipsHtml += `<button type="button" class="clear-filters-btn" style="margin-left:6px;" onclick="window.resetMattressFilters()">Clear All</button></div></div>`;
       chipsRow.innerHTML = chipsHtml;
     } else {
       chipsRow.style.display = 'none';
@@ -1396,6 +1420,7 @@ function applyMattressFilters() {
 }
 
 window.setMattressPreset = function(presetId) {
+  state.mattressFilters = state.mattressFilters || {};
   state.mattressFilters.preset = presetId;
   renderMattressFilters();
 };
@@ -1406,6 +1431,7 @@ window.setMattressSort = function(sortValue) {
 };
 
 window.toggleMattressFilterOption = function(axisKey, value) {
+  state.mattressFilters = state.mattressFilters || {};
   state.mattressFilters[axisKey] = state.mattressFilters[axisKey] || [];
   const idx = state.mattressFilters[axisKey].indexOf(value);
   if (idx > -1) {
@@ -1417,6 +1443,7 @@ window.toggleMattressFilterOption = function(axisKey, value) {
 };
 
 window.setMattressMaxPrice = function(val) {
+  state.mattressFilters = state.mattressFilters || {};
   const num = parseInt(val, 10);
   state.mattressFilters.maxPrice = (num && num < 120000) ? num : null;
   const disp = qs('#filterPriceDisplay');
@@ -1425,7 +1452,7 @@ window.setMattressMaxPrice = function(val) {
 };
 
 window.resetMattressFilters = function() {
-  state.mattressFilters = { preset: 'all', sizes: [], firmness: [], materials: [], sleepNeeds: [], thickness: [], maxPrice: null };
+  state.mattressFilters = { preset: 'all', types: [], tiers: [], firmness: [], sizes: [], thickness: [], maxPrice: null };
   state.mattressSort = 'recommended';
   renderMattressFilters();
 };
@@ -3920,50 +3947,73 @@ function renderQuizResults() {
   if (!el) return;
   const ans = state.quizAnswers;
 
-  let budget = ans.q4;
-  let health = ans.q5;
+  const diagnosisResults = diagnoseSleepQuiz(ans);
+  const primaryMatch = diagnosisResults[0]?.product;
 
-  let recommended = PRODUCTS.filter(p => p.category === 'mattresses');
-  if (budget === 'essential') recommended = recommended.filter(p => p.basePrice <= 18000);
-  else if (budget === 'comfort') recommended = recommended.filter(p => p.basePrice <= 35000);
-  else if (budget === 'premium') recommended = recommended.filter(p => p.basePrice <= 65000);
-
-  if (health === 'backpain') recommended = recommended.filter(p => p.doctorRecommended || p.tags?.includes('ortho'));
-  if (health === 'hot') recommended = recommended.filter(p => p.tags?.includes('cooling') || p.materials?.includes('Natural Latex'));
-
-  if (!recommended.length) recommended = PRODUCTS.filter(p => p.category === 'mattresses').slice(0, 3);
-  recommended = recommended.slice(0, 3);
   api.submitQuizDiagnosis({
     sessionOrCustomerId: state.user?.id || getBackendSessionId(),
     answers: ans,
-    recommendedProductId: recommended[0]?.id,
-    recommendedFirmness: recommended[0]?.firmness || 'Medium-Firm'
+    recommendedProductId: primaryMatch?.id,
+    recommendedFirmness: primaryMatch?.firmness || 'Medium Firm'
   }).catch(error => console.warn('[Quiz] Backend persistence failed:', error.message));
 
   el.innerHTML = `
-    <div style="text-align:center;margin-bottom:20px;">
-      <div style="font-size:2.5rem;margin-bottom:8px;">✨</div>
-      <h3 style="font-family:var(--font-serif);font-size:1.35rem;color:var(--midnight-blue);margin-bottom:4px;">Your Tailored Sleep Recommendations</h3>
-      <p style="font-size:0.86rem;color:var(--text-secondary);">Scientifically matched to your posture and comfort requirements.</p>
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="font-size:2.2rem;margin-bottom:6px;">✨</div>
+      <h3 style="font-family:var(--font-serif);font-size:1.35rem;font-weight:700;color:var(--midnight-blue);margin-bottom:4px;">Your Posture Diagnosis &amp; Sleep Match</h3>
+      <p style="font-size:0.84rem;color:var(--text-secondary);max-width:440px;margin:0 auto;">Scientifically calibrated across your age, spine condition, sleeper weight, and firmness preference.</p>
     </div>
-    <div style="display:flex;flex-direction:column;gap:12px;max-height:360px;overflow-y:auto;">
-      ${recommended.map(p => `
-        <div style="display:flex;align-items:center;gap:14px;background:var(--bg-secondary);border:1px solid rgba(76,63,94,0.1);border-radius:var(--radius-sm);padding:14px;cursor:pointer;" 
-             onclick="closeQuiz();openPDP(getProductById('${p.id}'))">
-          <img src="${p.image}" alt="${p.name}" style="width:70px;height:60px;object-fit:cover;border-radius:var(--radius-xs);"
-               onerror="this.style.display='none'">
-          <div style="flex:1;">
-            <div style="font-family:var(--font-serif);font-weight:600;color:var(--midnight-blue);">${p.name}</div>
-            <div style="font-size:0.78rem;color:var(--text-muted);">${p.collection}</div>
-            <div style="font-size:0.88rem;font-weight:700;color:var(--midnight-blue);margin-top:3px;">${formatPrice(p.basePrice)}</div>
+
+    <div class="quiz-results-container" style="display:flex;flex-direction:column;gap:14px;max-height:420px;overflow-y:auto;padding-right:4px;">
+      ${diagnosisResults.map((item, idx) => {
+        const p = item.product;
+        return `
+          <div class="quiz-result-card" style="background:var(--bg-secondary);border:1.5px solid ${idx === 0 ? 'var(--champagne-gold)' : 'rgba(76,63,94,0.12)'};border-radius:var(--radius-sm);padding:14px;position:relative;transition:all 0.2s ease;">
+            ${idx === 0 ? `<div style="position:absolute;top:-10px;right:14px;background:var(--champagne-gold);color:var(--midnight-blue);font-size:0.7rem;font-weight:800;padding:2px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:0.04em;box-shadow:0 2px 6px rgba(0,0,0,0.15);">Top Match • ${item.score}% Calibrated</div>` : ''}
+            
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <img src="${p.image}" alt="${p.name}" style="width:84px;height:72px;object-fit:cover;border-radius:6px;flex-shrink:0;border:1px solid rgba(76,63,94,0.1);"
+                   onerror="this.src='./src/assets/images/mattress_hybrid_luxury.jpg'">
+              
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
+                  <span style="font-family:var(--font-serif);font-weight:700;font-size:1.02rem;color:var(--midnight-blue);">${p.name}</span>
+                  <span class="badge ${getBadgeClass(p.badge)}" style="font-size:0.65rem;">${p.badgeLabel || p.collection}</span>
+                </div>
+                
+                <div style="font-size:0.76rem;color:var(--text-muted);margin-bottom:6px;">
+                  ${p.mattressType || 'Mattress'} • <strong>${p.firmness}</strong> • ${p.collection} Tier
+                </div>
+
+                <div style="background:rgba(212,175,55,0.1);border-left:3px solid var(--champagne-gold);padding:4px 8px;border-radius:0 4px 4px 0;font-size:0.76rem;color:var(--midnight-blue);margin-bottom:8px;line-height:1.4;">
+                  🩺 <strong>Clinical Match:</strong> ${item.reason}
+                </div>
+
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <div style="display:flex;align-items:baseline;gap:6px;">
+                    <span style="font-size:1.05rem;font-weight:800;color:var(--midnight-blue);">${formatPrice(p.basePrice)}</span>
+                    ${p.mrp ? `<span style="font-size:0.78rem;color:var(--text-muted);text-decoration:line-through;">${formatPrice(p.mrp)}</span>` : ''}
+                  </div>
+
+                  <div style="display:flex;gap:6px;">
+                    <button type="button" class="btn btn-gold btn-xs" style="padding:6px 12px;font-size:0.76rem;" onclick="closeQuiz();openPDP(getProductById('${p.id}'))">
+                      View Details →
+                    </button>
+                    <button type="button" class="btn btn-outline-dark btn-xs" style="padding:6px 10px;font-size:0.76rem;" onclick="closeQuiz();addToCart('${p.id}');openCart();">
+                      + Cart
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <span class="badge ${getBadgeClass(p.badge)}">${p.badgeLabel}</span>
-        </div>
-      `).join('')}
+        `;
+      }).join('')}
     </div>
-    <div style="display:flex;gap:8px;margin-top:18px;">
-      <button class="btn btn-outline btn-sm" onclick="state.quizStep=0;state.quizAnswers={};renderQuizStep()">Retake Quiz</button>
-      <button class="btn btn-primary btn-sm btn-block" onclick="closeQuiz();goToPage('mattresses')">Browse All Mattresses</button>
+
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button type="button" class="btn btn-outline btn-sm" style="flex:1;" onclick="state.quizStep=0;state.quizAnswers={};renderQuizStep()">Retake Diagnostic</button>
+      <button type="button" class="btn btn-primary btn-sm" style="flex:1;" onclick="closeQuiz();goToPage('mattresses')">Explore All Mattresses</button>
     </div>`;
 }
 
