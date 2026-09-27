@@ -459,8 +459,6 @@ app.post('/api/user/auth/send-otp', async (req, res) => {
       success: true,
       channel: cleanChannel,
       target: displayTarget,
-      code: otpCode,
-      simulatedOtp: otpCode,
       message: `Verification OTP sent successfully to ${displayTarget}`
     });
   } catch (err) {
@@ -502,7 +500,7 @@ app.post('/api/user/auth/verify-otp', async (req, res) => {
     const challengeKey = `${cleanChannel}:${cleanChannel === 'email' ? normEmail : normPhone}`;
     const stored = activeOtps.get(challengeKey);
 
-    const isCodeValid = (stored && stored.otp === inputCode && Date.now() <= stored.expiresAt) || (inputCode.length === 4);
+    const isCodeValid = stored && stored.otp === inputCode && Date.now() <= stored.expiresAt;
 
     if (!isCodeValid) {
       return res.status(400).json({ success: false, error: 'Invalid or expired verification code. Please request a new code.' });

@@ -259,7 +259,7 @@ const state = {
   modalLoginChannel: 'phone',
   pendingSignup: null,
   pendingLogin: null,
-  simulatedOtp: '4821',
+  
   otpTimerSecs: 45
 };
 
@@ -397,9 +397,15 @@ window.goToPage = navigateTo;
 let countdownInterval = null;
 function startCountdown(targetDate, el) {
   if (countdownInterval) clearInterval(countdownInterval);
+  if (!el || !targetDate) return;
+  const targetMs = new Date(targetDate).getTime();
+  if (isNaN(targetMs)) {
+    el.textContent = 'Limited Time';
+    return;
+  }
   function tick() {
-    const diff = targetDate - Date.now();
-    if (diff <= 0) { el.textContent = 'Expired'; return; }
+    const diff = targetMs - Date.now();
+    if (diff <= 0) { el.textContent = 'Special Festive Price'; return; }
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
@@ -1921,7 +1927,7 @@ async function handleGuestSignupSendOtp() {
 }
 
 function autofillSignupOtp() {
-  const code = state.simulatedOtp || '4821';
+  const code = '';
   if (qs('#signupOtp1')) qs('#signupOtp1').value = code[0] || '1';
   if (qs('#signupOtp2')) qs('#signupOtp2').value = code[1] || '2';
   if (qs('#signupOtp3')) qs('#signupOtp3').value = code[2] || '3';
@@ -2053,7 +2059,7 @@ async function handleGuestLoginSendOtp() {
 }
 
 function autofillLoginOtp() {
-  const code = state.simulatedOtp || '4821';
+  const code = '';
   if (qs('#loginOtp1')) qs('#loginOtp1').value = code[0] || '1';
   if (qs('#loginOtp2')) qs('#loginOtp2').value = code[1] || '2';
   if (qs('#loginOtp3')) qs('#loginOtp3').value = code[2] || '3';
@@ -2182,7 +2188,7 @@ async function handleModalSignupSendOtp() {
 }
 
 function autofillModalSignupOtp() {
-  const code = state.simulatedOtp || '4821';
+  const code = '';
   if (qs('#modalSignupOtp1')) qs('#modalSignupOtp1').value = code[0] || '1';
   if (qs('#modalSignupOtp2')) qs('#modalSignupOtp2').value = code[1] || '2';
   if (qs('#modalSignupOtp3')) qs('#modalSignupOtp3').value = code[2] || '3';
@@ -2315,7 +2321,7 @@ async function handleModalLoginSendOtp() {
 }
 
 function autofillModalLoginOtp() {
-  const code = state.simulatedOtp || '4821';
+  const code = '';
   if (qs('#modalLoginOtp1')) qs('#modalLoginOtp1').value = code[0] || '1';
   if (qs('#modalLoginOtp2')) qs('#modalLoginOtp2').value = code[1] || '2';
   if (qs('#modalLoginOtp3')) qs('#modalLoginOtp3').value = code[2] || '3';

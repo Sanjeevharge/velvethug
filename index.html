@@ -1550,9 +1550,7 @@
             </div>
 
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-              <button type="button" class="btn btn-outline btn-sm" id="signupAutoFillBtn" onclick="window.autofillSignupOtp()" style="font-size:0.75rem;">
-                ⚡ Auto-fill Code (<span id="signupSimulatedCode">4821</span>)
-              </button>
+              <span style="font-size:0.8rem;color:var(--text-muted);"><button type="button" class="btn btn-outline-light btn-sm" onclick="window.handleGuestSignupSendOtp()" style="padding:4px 8px;font-size:0.75rem;">Resend OTP</button></span>
               <span style="font-size:0.78rem;color:var(--text-muted,#718096);" id="signupOtpTimer">00:45</span>
             </div>
 
@@ -1616,9 +1614,7 @@
             </div>
 
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-              <button type="button" class="btn btn-outline btn-sm" id="loginAutoFillBtn" onclick="window.autofillLoginOtp()" style="font-size:0.75rem;">
-                ⚡ Auto-fill Code (<span id="loginSimulatedCode">4821</span>)
-              </button>
+              <span style="font-size:0.8rem;color:var(--text-muted);"><button type="button" class="btn btn-outline-light btn-sm" onclick="window.handleGuestLoginSendOtp()" style="padding:4px 8px;font-size:0.75rem;">Resend OTP</button></span>
               <span style="font-size:0.78rem;color:var(--text-muted,#718096);" id="loginOtpTimer">00:45</span>
             </div>
 
@@ -2217,9 +2213,7 @@
         </div>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <button type="button" class="btn btn-outline btn-sm" onclick="window.autofillModalSignupOtp()" style="font-size:0.72rem;">
-            ⚡ Auto-fill (<span id="modalSignupSimulatedCode">4821</span>)
-          </button>
+          <span style="font-size:0.78rem;color:var(--text-muted);"><button type="button" class="btn btn-outline-light btn-sm" onclick="window.handleModalSignupSendOtp()" style="padding:3px 8px;font-size:0.72rem;">Resend OTP</button></span>
           <span style="font-size:0.75rem;color:var(--text-muted);" id="modalSignupOtpTimer">00:45</span>
         </div>
 
@@ -2280,9 +2274,7 @@
         </div>
 
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <button type="button" class="btn btn-outline btn-sm" onclick="window.autofillModalLoginOtp()" style="font-size:0.72rem;">
-            ⚡ Auto-fill (<span id="modalLoginSimulatedCode">4821</span>)
-          </button>
+          <span style="font-size:0.78rem;color:var(--text-muted);"><button type="button" class="btn btn-outline-light btn-sm" onclick="window.handleModalLoginSendOtp()" style="padding:3px 8px;font-size:0.72rem;">Resend OTP</button></span>
           <span style="font-size:0.75rem;color:var(--text-muted);" id="modalLoginOtpTimer">00:45</span>
         </div>
 
