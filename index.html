@@ -64,17 +64,25 @@
       }
     };
     window.openCart = function() {
-      var drawer = document.getElementById('cartDrawerBackdrop');
-      if (drawer) {
-        drawer.classList.add('active', 'open');
-        drawer.style.display = 'block';
+      if (window._openCartReal) {
+        window._openCartReal();
+      } else {
+        var drawer = document.getElementById('cartDrawerBackdrop');
+        if (drawer) {
+          drawer.classList.add('active', 'open');
+          drawer.style.display = 'flex';
+        }
       }
     };
     window.closeCart = function() {
-      var drawer = document.getElementById('cartDrawerBackdrop');
-      if (drawer) {
-        drawer.classList.remove('active', 'open');
-        drawer.style.display = 'none';
+      if (window._closeCartReal) {
+        window._closeCartReal();
+      } else {
+        var drawer = document.getElementById('cartDrawerBackdrop');
+        if (drawer) {
+          drawer.classList.remove('active', 'open');
+          drawer.style.display = 'none';
+        }
       }
     };
     window.openQuiz = function() {

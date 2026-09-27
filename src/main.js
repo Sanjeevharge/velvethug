@@ -842,6 +842,8 @@ window.removeFromCart = removeFromCart;
 window.updateCartQty = updateCartQty;
 window.closeCart = closeCart;
 window.openCart = openCart;
+window._openCartReal = openCart;
+window._closeCartReal = closeCart;
 
 // Update displayed price on card when size dropdown changes
 window.updateCardPrice = function(selectEl, basePrice, mrp) {
@@ -4614,16 +4616,6 @@ function initPromoAd() {
       closePromoAd();
     }
   });
-
-  // Auto trigger after 2 seconds on home page if not seen in session
-  const seen = sessionStorage.getItem('vh_promo_ad_seen');
-  if (!seen) {
-    setTimeout(() => {
-      if (state.currentPage === 'home') {
-        openPromoAd();
-      }
-    }, 2000);
-  }
 }
 
 function openPromoAd() {
