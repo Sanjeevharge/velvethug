@@ -78,13 +78,19 @@ async function refreshCustomerOrders() {
 
 async function hydrateBackendState() {
   try {
-    const [catalogRes, promoRes, quizRes, cartRes, sessionRes] = await Promise.all([
+    const results = await Promise.allSettled([
       api.getProducts(),
       api.getPromos(),
       api.getQuizQuestions(),
       api.getCart(getBackendSessionId()),
       api.getSession()
     ]);
+    const catalogRes = results[0]?.status === 'fulfilled' ? results[0].value : null;
+    const promoRes = results[1]?.status === 'fulfilled' ? results[1].value : null;
+    const quizRes = results[2]?.status === 'fulfilled' ? results[2].value : null;
+    const cartRes = results[3]?.status === 'fulfilled' ? results[3].value : null;
+    const sessionRes = results[4]?.status === 'fulfilled' ? results[4].value : null;
+
     if (catalogRes?.success && Array.isArray(catalogRes.data) && catalogRes.data.length) {
       PRODUCTS.splice(0, PRODUCTS.length, ...catalogRes.data);
     }
@@ -102,13 +108,10 @@ async function hydrateBackendState() {
     if (cartRes?.success) state.cart = mapBackendCart(cartRes.items);
     if (sessionRes?.success && sessionRes.customer) {
       state.user = sessionRes.customer;
-    } else {
-      state.user = null;
-      localStorage.removeItem(STORAGE_KEY_USER);
     }
     return true;
   } catch (error) {
-    console.warn('[Velvet Hug] Backend unavailable; retaining local session cache:', error.message);
+    console.warn('[Velvet Hug] Backend hydration notice:', error.message);
     return false;
   }
 }

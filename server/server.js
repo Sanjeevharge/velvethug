@@ -2233,6 +2233,11 @@ app.get('/api/shopify/export-catalog', async (req, res) => {
 });
 
 
+// Fast favicon handler to prevent 200 index.html fallback loop
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
 // Explicit administration and backend inspector routes
 app.get(['/admin', '/admin/'], (req, res) => {
   res.sendFile(path.join(ROOT_DIR, 'admin.html'));

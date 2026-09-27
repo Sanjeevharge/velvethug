@@ -42,14 +42,19 @@ class VelvetHugAPI {
       headers['Authorization'] = `Bearer ${this.adminToken}`;
     }
 
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), options.timeout || 5000) : null;
+
     const config = {
       ...options,
-      headers
+      headers,
+      signal: options.signal || (controller ? controller.signal : undefined)
     };
 
     const start = performance.now();
     try {
       const response = await fetch(url, config);
+      if (timeoutId) clearTimeout(timeoutId);
       const latency = (performance.now() - start).toFixed(2);
       const raw = await response.text();
       let data;
@@ -62,6 +67,9 @@ class VelvetHugAPI {
       }
 
       if (!response.ok) {
+        if (response.status === 401 && endpoint === '/api/user/session') {
+          return { success: false, error: 'Session expired or not logged in' };
+        }
         throw new Error(data.error || `HTTP ${response.status}: Failed to fetch from backend`);
       }
 
