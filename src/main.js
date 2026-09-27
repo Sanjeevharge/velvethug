@@ -668,6 +668,7 @@ function openCart() {
   renderCart();
   const el = qs('#cartDrawerBackdrop');
   if (el) {
+    el.style.display = 'flex';
     el.classList.add('active', 'open');
   }
 }
@@ -676,6 +677,7 @@ function closeCart() {
   const el = qs('#cartDrawerBackdrop');
   if (el) {
     el.classList.remove('active', 'open');
+    el.style.display = 'none';
   }
 }
 
@@ -957,6 +959,7 @@ function openPDP(product) {
   renderPDP(product);
   const modal = qs('#pdpModal');
   if (modal) {
+    modal.style.display = 'flex';
     modal.classList.add('active');
     modal.scrollTo(0, 0);
   }
@@ -964,7 +967,11 @@ function openPDP(product) {
 }
 
 function closePDP() {
-  qs('#pdpModal')?.classList.remove('active');
+  const modal = qs('#pdpModal');
+  if (modal) {
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+  }
   state.pdpProduct = null;
   document.body.style.overflow = '';
 }
@@ -1605,17 +1612,21 @@ function renderProductCards(products, container) {
     const pId = card.dataset.productId;
     const prod = getProductById(pId);
     card.querySelector('.card-product-title')?.addEventListener('click', () => { if (prod) openPDP(prod); });
-    card.querySelector('.add-to-cart-btn')?.addEventListener('click', () => {
+    card.querySelector('.product-card-media')?.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('card-floating-3d-btn') && prod) openPDP(prod);
+    });
+    card.querySelector('.add-to-cart-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
       const selectEl = card.querySelector('.size-quick-select');
       const size = selectEl?.value || prod?.sizes?.[0] || 'Standard';
       const overridePrice = Math.round((prod?.basePrice || 0) * getSizeMultiplier(size));
       addToCart(pId, size, 1, overridePrice);
     });
     const compareChk = card.querySelector('.compare-checkbox');
-    compareChk?.addEventListener('change', () => { toggleCompare(pId); });
-    card.querySelector('.card-floating-3d-btn')?.addEventListener('click', () => { if (prod) openPDP(prod); });
-    card.querySelector('.card-view-btn')?.addEventListener('click', () => { if (prod) openPDP(prod); });
-    card.querySelector('.card-doctor-pill')?.addEventListener('click', () => openDoctorModal(pId));
+    compareChk?.addEventListener('change', (e) => { e.stopPropagation(); toggleCompare(pId); });
+    card.querySelector('.card-floating-3d-btn')?.addEventListener('click', (e) => { e.stopPropagation(); if (prod) openPDP(prod); });
+    card.querySelector('.card-view-btn')?.addEventListener('click', (e) => { e.stopPropagation(); if (prod) openPDP(prod); });
+    card.querySelector('.card-doctor-pill')?.addEventListener('click', (e) => { e.stopPropagation(); openDoctorModal(pId); });
   });
 }
 
