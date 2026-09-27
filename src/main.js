@@ -1471,38 +1471,43 @@ window.resetFilters = resetFilters;
 // ENHANCED SCROLL EFFECTS & INTERACTIVE MICRO-ANIMATIONS
 // ────────────────────────────────────────────────────────────
 function initScrollEffects() {
-  // 1. Scroll Progress Bar at top of viewport
   const progressBar = qs('#scrollProgressBar');
   const backToTopBtn = qs('#floatingBackToTop');
   const header = qs('.site-header');
 
+  let scrollTicking = false;
   function handleScroll() {
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
-    // A. Progress Bar
-    if (progressBar && docHeight > 0) {
-      const pct = (scrollTop / docHeight) * 100;
-      progressBar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
-    }
-
-    // B. Floating Back to Top Button
-    if (backToTopBtn) {
-      if (scrollTop > 260) {
-        backToTopBtn.classList.add('visible');
-      } else {
-        backToTopBtn.classList.remove('visible');
+      // A. Progress Bar
+      if (progressBar && docHeight > 0) {
+        const pct = (scrollTop / docHeight) * 100;
+        progressBar.style.width = `${Math.min(100, Math.max(0, pct))}%`;
       }
-    }
 
-    // C. Header Dynamic Elevation Blur
-    if (header) {
-      if (scrollTop > 30) {
-        header.classList.add('scrolled-elevated');
-      } else {
-        header.classList.remove('scrolled-elevated');
+      // B. Floating Back to Top Button
+      if (backToTopBtn) {
+        if (scrollTop > 260) {
+          backToTopBtn.classList.add('visible');
+        } else {
+          backToTopBtn.classList.remove('visible');
+        }
       }
-    }
+
+      // C. Header Dynamic Elevation Blur
+      if (header) {
+        if (scrollTop > 30) {
+          header.classList.add('scrolled-elevated');
+        } else {
+          header.classList.remove('scrolled-elevated');
+        }
+      }
+      scrollTicking = false;
+    });
   }
 
   window.addEventListener('scroll', handleScroll, { passive: true });
@@ -1514,46 +1519,49 @@ function initScrollEffects() {
     });
   }
 
-  // 2. High-Performance IntersectionObserver for Scroll Reveals
-  const revealObserver = new IntersectionObserver((entries) => {
+  // 2. High-Performance IntersectionObserver for Number Counters only
+  const counterObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        entry.target.classList.add('is-revealed');
-        // If element contains counters, animate them
         entry.target.querySelectorAll('.counter-animate').forEach(animateNumberCounter);
         if (entry.target.classList.contains('counter-animate')) {
           animateNumberCounter(entry.target);
         }
+        counterObserver.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  }, { threshold: 0.1 });
 
-  // Observe all reveal elements
-  qsa('.reveal-on-scroll, .reveal-fade, .reveal-scale, .stagger-parent, .product-card, .eco-card, .review-card').forEach(el => {
-    el.classList.add('reveal-on-scroll');
-    revealObserver.observe(el);
-  });
+  qsa('.counter-animate').forEach(el => counterObserver.observe(el));
 
-  // 3. Interactive 3D Card Hover Tilt Micro-Motion
-  document.addEventListener('mousemove', (e) => {
-    const card = e.target.closest('.card-interactive-tilt, .partner-honor-chip, .soundscape-floating-pill');
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    const rotateX = ((y - centerY) / centerY) * -5;
-    const rotateY = ((x - centerX) / centerX) * 5;
-    card.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-2px)`;
-  });
+  // 3. 3D Card Hover Tilt Micro-Motion (Desktop only with pointer: fine)
+  if (window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
+    let mouseTicking = false;
+    document.addEventListener('mousemove', (e) => {
+      const card = e.target.closest('.card-interactive-tilt, .partner-honor-chip, .soundscape-floating-pill');
+      if (!card) return;
+      if (mouseTicking) return;
+      mouseTicking = true;
+      requestAnimationFrame(() => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -4;
+        const rotateY = ((x - centerX) / centerX) * 4;
+        card.style.transform = `perspective(800px) rotateX(${rotateX.toFixed(1)}deg) rotateY(${rotateY.toFixed(1)}deg) translateY(-2px)`;
+        mouseTicking = false;
+      });
+    }, { passive: true });
 
-  document.addEventListener('mouseleave', (e) => {
-    const card = e.target.closest('.card-interactive-tilt, .partner-honor-chip, .soundscape-floating-pill');
-    if (card) {
-      card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0)';
-    }
-  }, true);
+    document.addEventListener('mouseleave', (e) => {
+      const card = e.target.closest('.card-interactive-tilt, .partner-honor-chip, .soundscape-floating-pill');
+      if (card) {
+        card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) translateY(0)';
+      }
+    }, true);
+  }
 }
 
 function animateNumberCounter(el) {
@@ -4615,6 +4623,26 @@ function initPromoAd() {
     if (e.key === 'Escape' && modal.classList.contains('show')) {
       closePromoAd();
     }
+  });
+
+  // Auto trigger on laptops and desktop screens (>= 992px) if not seen in session
+  const seen = sessionStorage.getItem('vh_promo_ad_seen');
+  if (!seen && typeof window !== 'undefined' && window.innerWidth >= 992) {
+    setTimeout(() => {
+      if (state.currentPage === 'home') {
+        openPromoAd();
+      }
+    }, 2200);
+  }
+
+  // Click triggers on promo banner & coupon pills
+  qsa('#promoBanner, #promoTag, #promoCoupon, #promoAdOpenBtn, .hero-pill-badge, [data-open-promo]').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', (ev) => {
+      if (ev.target.id !== 'promoCloseBt') {
+        openPromoAd();
+      }
+    });
   });
 }
 

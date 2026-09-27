@@ -2247,6 +2247,12 @@ app.get(['/backend-inspector', '/backend-inspector/', '/inspector'], (req, res) 
   res.sendFile(path.join(ROOT_DIR, 'backend-inspector.html'));
 });
 
+// Explicit static mappings
+app.use('/images', express.static(path.join(ROOT_DIR, 'images')));
+app.use('/images', express.static(path.join(ROOT_DIR, 'public', 'images')));
+app.use('/public', express.static(path.join(ROOT_DIR, 'public')));
+app.use('/src/assets', express.static(path.join(ROOT_DIR, 'src', 'assets')));
+
 // Serve static assets from project root
 app.use(express.static(ROOT_DIR, {
   extensions: ['html', 'htm']
