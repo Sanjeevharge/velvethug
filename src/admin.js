@@ -1687,6 +1687,7 @@ function renderCatalogModule(el) {
     <div class="admin-panel">
       <div class="admin-panel-header">
         <div class="admin-panel-title">Master Product Catalog (${PRODUCTS.length} SKUs)</div>
+        <span class="admin-badge badge-info">100% Client-Admin Taxonomy Sync</span>
       </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
@@ -1695,9 +1696,12 @@ function renderCatalogModule(el) {
               <th>SKU</th>
               <th>Product Name</th>
               <th>Category</th>
+              <th>Mattress Type</th>
+              <th>Sleeper Profile</th>
+              <th>Firmness &amp; Tier</th>
               <th>Base Price</th>
               <th>MRP</th>
-              <th>Doctor Approved</th>
+              <th>Doctor Validated</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -1707,11 +1711,17 @@ function renderCatalogModule(el) {
                 <td><code style="color:var(--admin-midnight);">${p.id}</code></td>
                 <td><strong>${p.name}</strong></td>
                 <td><span class="admin-badge badge-info">${p.category}</span></td>
+                <td><span class="admin-badge" style="background:rgba(76,63,94,0.1);color:var(--admin-midnight);">${p.mattressType || (p.materials?.[0] || 'Standard')}</span></td>
+                <td><span style="font-size:0.78rem;font-weight:600;color:var(--admin-text-main);">${p.sleeperProfile || 'General'}</span></td>
+                <td>
+                  <div style="font-size:0.78rem;"><strong>${p.firmness || 'Medium'}</strong></div>
+                  <div style="font-size:0.7rem;color:var(--admin-text-muted);">${p.collection || 'Signature'} Tier</div>
+                </td>
                 <td><strong>₹${p.basePrice.toLocaleString('en-IN')}</strong></td>
                 <td style="text-decoration:line-through;color:var(--admin-text-muted);">₹${p.mrp.toLocaleString('en-IN')}</td>
-                <td>${p.doctorRecommended ? '<span class="admin-badge badge-success">Doctor Validated</span>' : 'Standard'}</td>
+                <td>${p.doctorRecommended ? '<span class="admin-badge badge-success">Doctor Validated</span>' : '<span style="color:var(--admin-text-muted);font-size:0.75rem;">—</span>'}</td>
                 <td>
-                  <button class="btn-sm-admin btn-outline-sm" onclick="window.editProductPrice('${p.id}')">Edit Base Price</button>
+                  <button class="btn-sm-admin btn-outline-sm" onclick="window.editProductPrice('${p.id}')">Edit Price</button>
                 </td>
               </tr>
             `).join('')}
