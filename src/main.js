@@ -249,6 +249,12 @@ const state = {
   paymentMethod: 'upi', // upi | card | netbanking | cod
   activeAccountTab: 'overview', // overview | orders | referrals | addresses | wishlist
   appliedCoupon: null,
+  signupChannel: 'phone',
+  loginChannel: 'phone',
+  modalSignupChannel: 'phone',
+  modalLoginChannel: 'phone',
+  pendingSignup: null,
+  pendingLogin: null,
   simulatedOtp: '4821',
   otpTimerSecs: 45
 };
@@ -1713,208 +1719,26 @@ function initAccSubTabs() {
 }
 
 // ────────────────────────────────────────────────────────────
-// CUSTOMER AUTH & LOGIN (OTP + GOOGLE)
+// CUSTOMER AUTH & LOGIN (PHONE & EMAIL OTP FLOW)
 // ────────────────────────────────────────────────────────────
-function initAuth() {
-  qs('#accountBtn')?.addEventListener('click', () => {
-    if (!state.user) {
-      // Show login first, then go to account page after login
-      openLoginModal();
-    } else {
-      navigateTo('account');
-    }
-  });
+let otpCountdownInterval = null;
 
-  // Google Login step toggle
-  qs('#googleLoginBtn')?.addEventListener('click', () => {
-    const currentName = qs('#loginNameInput')?.value?.trim();
-    const currentEmail = qs('#loginEmailInput')?.value?.trim();
-    const currentPhone = qs('#loginPhoneInput')?.value?.trim();
-
-    if (qs('#googleNameInput')) qs('#googleNameInput').value = currentName || '';
-    if (qs('#googleEmailInput')) qs('#googleEmailInput').value = currentEmail || '';
-    if (qs('#googlePhoneInput')) qs('#googlePhoneInput').value = currentPhone || '';
-
-    if (qs('#otpPhoneStep')) qs('#otpPhoneStep').style.display = 'none';
-    if (qs('#otpVerifyStep')) qs('#otpVerifyStep').style.display = 'none';
-    if (qs('#googleAccountStep')) qs('#googleAccountStep').style.display = 'block';
-  });
-
-  qs('#backFromGoogleBtn')?.addEventListener('click', () => {
-    if (qs('#googleAccountStep')) qs('#googleAccountStep').style.display = 'none';
-    if (qs('#otpPhoneStep')) qs('#otpPhoneStep').style.display = 'block';
-  });
-
-  qs('#confirmGoogleLoginBtn')?.addEventListener('click', async () => {
-    const name = qs('#googleNameInput')?.value?.trim();
-    const email = qs('#googleEmailInput')?.value?.trim();
-    const phone = qs('#googlePhoneInput')?.value?.trim();
-
-    if (!name) {
-      toast('Please enter your full name');
-      return;
-    }
-    if (!email || !email.includes('@')) {
-      toast('Please enter a valid Google email address');
-      return;
-    }
-
-    let authResult;
-    try {
-      authResult = await api.loginOrRegister({
-        name,
-        email,
-        phone: phone || undefined,
-        isFounding: state.foundingCount <= FOUNDING_PARTNER_LIMIT
-      });
-      state.user = { ...authResult.customer, orders: [], addresses: [], wishlist: [] };
-      try {
-        const ordersResult = await api.getUserOrders({ customerId: state.user.id });
-        state.user.orders = ordersResult?.success ? (ordersResult.data || []).map(mapBackendOrder) : [];
-      } catch (orderError) {
-        console.warn('[Auth] Customer signed in; order refresh deferred:', orderError.message);
-      }
-    } catch (error) {
-      toast(`Sign-in failed: ${error.message}`);
-      return;
-    }
-
-    saveStoredUser(state.user);
-    try {
-      const allUsersRaw = localStorage.getItem('vh_registered_users');
-      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : {};
-      allUsers[email] = state.user;
-      if (phone) allUsers[phone] = state.user;
-      localStorage.setItem('vh_registered_users', JSON.stringify(allUsers));
-    } catch (e) {}
-
-    updateHeaderUserUI();
-    qs('#loginModal')?.classList.remove('active');
-    
-    if (qs('#googleAccountStep')) qs('#googleAccountStep').style.display = 'none';
-    if (qs('#otpPhoneStep')) qs('#otpPhoneStep').style.display = 'block';
-
-    if (qs('#googleNameInput')) qs('#googleNameInput').value = '';
-    if (qs('#googleEmailInput')) qs('#googleEmailInput').value = '';
-    if (qs('#googlePhoneInput')) qs('#googlePhoneInput').value = '';
-
-    renderAccountPage();
-    navigateTo('account');
-    toast(`✓ Signed in as ${state.user.name}`);
-  });
-
-  // Phone OTP Flow
-  qs('#sendOtpBtn')?.addEventListener('click', () => {
-    const phone = qs('#loginPhoneInput')?.value?.trim();
-    const name  = qs('#loginNameInput')?.value?.trim();
-    const email = qs('#loginEmailInput')?.value?.trim();
-
-    if (!phone || phone.length < 10) {
-      toast('Please enter a valid 10-digit mobile number');
-      return;
-    }
-
-    state.pendingLogin = {
-      name: name || 'Sleep Partner',
-      email: email || '',
-      phone: phone
-    };
-
-    state.simulatedOtp = (Math.floor(1000 + Math.random() * 9000)).toString();
-    if (qs('#otpTargetPhone')) qs('#otpTargetPhone').textContent = `+91 ${phone.slice(0,5)} •••••`;
-    if (qs('#simulatedCode')) qs('#simulatedCode').textContent = state.simulatedOtp;
-    if (qs('#otpPhoneStep')) qs('#otpPhoneStep').style.display = 'none';
-    if (qs('#otpVerifyStep')) qs('#otpVerifyStep').style.display = 'block';
-    startOtpCountdown();
-    toast(`📲 Verification code sent to +91 ${phone}`);
-  });
-
-  qs('#autoFillOtpBtn')?.addEventListener('click', () => {
-    const code = state.simulatedOtp;
-    if (qs('#otp1')) qs('#otp1').value = code[0] || '1';
-    if (qs('#otp2')) qs('#otp2').value = code[1] || '2';
-    if (qs('#otp3')) qs('#otp3').value = code[2] || '3';
-    if (qs('#otp4')) qs('#otp4').value = code[3] || '4';
-  });
-
-  qs('#changePhoneBtn')?.addEventListener('click', () => {
-    if (qs('#otpVerifyStep')) qs('#otpVerifyStep').style.display = 'none';
-    if (qs('#otpPhoneStep')) qs('#otpPhoneStep').style.display = 'block';
-  });
-
-  qs('#verifyOtpBtn')?.addEventListener('click', async () => {
-    const p = state.pendingLogin || {};
-    const phone = qs('#loginPhoneInput')?.value?.trim() || p.phone;
-    const name  = qs('#loginNameInput')?.value?.trim() || p.name || 'Sleep Partner';
-    const email = qs('#loginEmailInput')?.value?.trim() || p.email || '';
-
-    if (!phone || phone.length < 10) {
-      toast('Please enter your 10-digit mobile number');
-      return;
-    }
-
-    let authResult;
-    try {
-      authResult = await api.loginOrRegister({
-        name,
-        email: email || undefined,
-        phone,
-        isFounding: state.foundingCount <= FOUNDING_PARTNER_LIMIT
-      });
-      state.user = { ...authResult.customer, orders: [], addresses: [], wishlist: [] };
-      try {
-        const ordersResult = await api.getUserOrders({ customerId: state.user.id });
-        state.user.orders = ordersResult?.success ? (ordersResult.data || []).map(mapBackendOrder) : [];
-      } catch (orderError) {
-        console.warn('[Auth] Customer signed in; order refresh deferred:', orderError.message);
-      }
-    } catch (error) {
-      toast(`Sign-in failed: ${error.message}`);
-      return;
-    }
-
-    saveStoredUser(state.user);
-    try {
-      const allUsersRaw = localStorage.getItem('vh_registered_users');
-      const allUsers = allUsersRaw ? JSON.parse(allUsersRaw) : {};
-      allUsers[phone] = state.user;
-      if (email) allUsers[email] = state.user;
-      localStorage.setItem('vh_registered_users', JSON.stringify(allUsers));
-    } catch (e) {}
-
-    updateHeaderUserUI();
-    qs('#loginModal')?.classList.remove('active');
-
-    if (qs('#otpVerifyStep')) qs('#otpVerifyStep').style.display = 'none';
-    if (qs('#otpPhoneStep')) qs('#otpPhoneStep').style.display = 'block';
-    if (qs('#loginPhoneInput')) qs('#loginPhoneInput').value = '';
-    if (qs('#loginNameInput')) qs('#loginNameInput').value = '';
-    if (qs('#loginEmailInput')) qs('#loginEmailInput').value = '';
-
-    renderAccountPage();
-    navigateTo('account');
-    toast(`✓ Welcome, ${state.user.name}!`);
-  });
-
-  // Auto-focus progression for OTP inputs
-  ['otp1','otp2','otp3','otp4'].forEach((id, idx, arr) => {
-    qs(`#${id}`)?.addEventListener('input', e => {
-      if (e.target.value.length === 1 && idx < arr.length - 1) {
-        qs(`#${arr[idx+1]}`)?.focus();
-      }
-    });
-  });
-
-  updateHeaderUserUI();
-}
-
-function startOtpCountdown() {
+function startOtpCountdown(targetTimerId = 'signupOtpTimer') {
+  if (otpCountdownInterval) clearInterval(otpCountdownInterval);
   state.otpTimerSecs = 45;
-  const timerEl = qs('#otpTimer');
-  const iv = setInterval(() => {
+  const timerEl = qs(`#${targetTimerId}`);
+  if (timerEl) timerEl.textContent = `00:${state.otpTimerSecs.toString().padStart(2, '0')}`;
+  
+  otpCountdownInterval = setInterval(() => {
     state.otpTimerSecs--;
-    if (timerEl) timerEl.textContent = `00:${state.otpTimerSecs.toString().padStart(2, '0')}`;
-    if (state.otpTimerSecs <= 0) clearInterval(iv);
+    const currentTimerEl = qs(`#${targetTimerId}`);
+    if (currentTimerEl) {
+      currentTimerEl.textContent = `00:${Math.max(0, state.otpTimerSecs).toString().padStart(2, '0')}`;
+    }
+    if (state.otpTimerSecs <= 0) {
+      clearInterval(otpCountdownInterval);
+      otpCountdownInterval = null;
+    }
   }, 1000);
 }
 
@@ -1933,26 +1757,666 @@ function updateHeaderUserUI() {
   }
 }
 
+// ── Auth Tab Switchers ──
+function switchGuestAuthTab(tab) {
+  const isSignup = tab === 'signup';
+  qs('#guestTabSignUp')?.classList.toggle('active', isSignup);
+  qs('#guestTabLogin')?.classList.toggle('active', !isSignup);
+  if (qs('#guestSignUpContainer')) qs('#guestSignUpContainer').style.display = isSignup ? 'block' : 'none';
+  if (qs('#guestLoginContainer')) qs('#guestLoginContainer').style.display = isSignup ? 'none' : 'block';
+}
+
+function switchModalAuthTab(tab) {
+  const isSignup = tab === 'signup';
+  qs('#modalTabSignUp')?.classList.toggle('active', isSignup);
+  qs('#modalTabLogin')?.classList.toggle('active', !isSignup);
+  if (qs('#modalSignUpContainer')) qs('#modalSignUpContainer').style.display = isSignup ? 'block' : 'none';
+  if (qs('#modalLoginContainer')) qs('#modalLoginContainer').style.display = isSignup ? 'none' : 'block';
+}
+
+// ── Channel Selectors ──
+function selectSignupOtpChannel(ch) {
+  state.signupChannel = ch;
+  qs('#signupChanPhoneCard')?.classList.toggle('active', ch === 'phone');
+  qs('#signupChanEmailCard')?.classList.toggle('active', ch === 'email');
+  const rPhone = qs('#signupChanPhone');
+  const rEmail = qs('#signupChanEmail');
+  if (rPhone) rPhone.checked = ch === 'phone';
+  if (rEmail) rEmail.checked = ch === 'email';
+}
+
+function selectLoginOtpChannel(ch) {
+  state.loginChannel = ch;
+  qs('#loginChanPhoneCard')?.classList.toggle('active', ch === 'phone');
+  qs('#loginChanEmailCard')?.classList.toggle('active', ch === 'email');
+  const rPhone = qs('#loginChanPhone');
+  const rEmail = qs('#loginChanEmail');
+  if (rPhone) rPhone.checked = ch === 'phone';
+  if (rEmail) rEmail.checked = ch === 'email';
+}
+
+function selectModalSignupOtpChannel(ch) {
+  state.modalSignupChannel = ch;
+  qs('#modalSignupChanPhoneCard')?.classList.toggle('active', ch === 'phone');
+  qs('#modalSignupChanEmailCard')?.classList.toggle('active', ch === 'email');
+  const rPhone = qs('#modalSignupChanPhone');
+  const rEmail = qs('#modalSignupChanEmail');
+  if (rPhone) rPhone.checked = ch === 'phone';
+  if (rEmail) rEmail.checked = ch === 'email';
+}
+
+function selectModalLoginOtpChannel(ch) {
+  state.modalLoginChannel = ch;
+  qs('#modalLoginChanPhoneCard')?.classList.toggle('active', ch === 'phone');
+  qs('#modalLoginChanEmailCard')?.classList.toggle('active', ch === 'email');
+  const rPhone = qs('#modalLoginChanPhone');
+  const rEmail = qs('#modalLoginChanEmail');
+  if (rPhone) rPhone.checked = ch === 'phone';
+  if (rEmail) rEmail.checked = ch === 'email';
+}
+
+// ── Sign Up (New User) Handlers (Inline Account Page) ──
+async function handleGuestSignupSendOtp() {
+  const name = qs('#guestSignupName')?.value?.trim();
+  const phone = qs('#guestSignupPhone')?.value?.trim();
+  const email = qs('#guestSignupEmail')?.value?.trim();
+  const line = qs('#guestSignupAddrLine')?.value?.trim();
+  const city = qs('#guestSignupAddrCity')?.value?.trim();
+  const st = qs('#guestSignupAddrState')?.value?.trim();
+  const pin = qs('#guestSignupAddrPin')?.value?.trim();
+  const channel = state.signupChannel || 'phone';
+
+  if (!name) { toast('Please enter your full name'); return; }
+  if (!phone || phone.length < 10) { toast('Please enter a valid 10-digit mobile number'); return; }
+  if (!email || !email.includes('@')) { toast('Please enter a valid email address'); return; }
+  if (!line || !city || !pin) { toast('Please fill in your complete delivery address'); return; }
+
+  const identifier = channel === 'phone' ? phone : email;
+
+  try {
+    const btn = qs('#guestSignupSubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending OTP...'; }
+
+    const res = await api.sendOtp({
+      channel,
+      identifier,
+      name,
+      email,
+      phone,
+      purpose: 'signup'
+    });
+
+    state.simulatedOtp = res.code || (Math.floor(1000 + Math.random() * 9000)).toString();
+    state.pendingSignup = {
+      name,
+      phone,
+      email,
+      address: { line, city, state: st, pincode: pin, isDefault: true, tag: 'Home' },
+      channel,
+      identifier
+    };
+
+    if (qs('#guestSignupForm')) qs('#guestSignupForm').style.display = 'none';
+    if (qs('#guestSignupOtpStep')) qs('#guestSignupOtpStep').style.display = 'block';
+
+    const targetTextEl = qs('#guestSignupOtpTargetText');
+    if (targetTextEl) {
+      targetTextEl.textContent = channel === 'phone' ? `+91 ${phone.slice(0, 5)} •••••` : email;
+    }
+    if (qs('#signupSimulatedCode')) qs('#signupSimulatedCode').textContent = state.simulatedOtp;
+    ['signupOtp1', 'signupOtp2', 'signupOtp3', 'signupOtp4'].forEach(id => {
+      if (qs(`#${id}`)) qs(`#${id}`).value = '';
+    });
+    qs('#signupOtp1')?.focus();
+
+    startOtpCountdown('signupOtpTimer');
+    toast(res.message || `Verification code sent via ${channel === 'phone' ? 'SMS' : 'Email'}`);
+  } catch (err) {
+    toast(`Error: ${err.message}`);
+  } finally {
+    const btn = qs('#guestSignupSubmitBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Get Verification OTP & Create Account →'; }
+  }
+}
+
+function autofillSignupOtp() {
+  const code = state.simulatedOtp || '4821';
+  if (qs('#signupOtp1')) qs('#signupOtp1').value = code[0] || '1';
+  if (qs('#signupOtp2')) qs('#signupOtp2').value = code[1] || '2';
+  if (qs('#signupOtp3')) qs('#signupOtp3').value = code[2] || '3';
+  if (qs('#signupOtp4')) qs('#signupOtp4').value = code[3] || '4';
+}
+
+function backToSignupForm() {
+  if (qs('#guestSignupOtpStep')) qs('#guestSignupOtpStep').style.display = 'none';
+  if (qs('#guestSignupForm')) qs('#guestSignupForm').style.display = 'flex';
+}
+
+async function handleGuestSignupVerifyOtp() {
+  const code = [
+    qs('#signupOtp1')?.value?.trim() || '',
+    qs('#signupOtp2')?.value?.trim() || '',
+    qs('#signupOtp3')?.value?.trim() || '',
+    qs('#signupOtp4')?.value?.trim() || ''
+  ].join('');
+
+  if (code.length < 4) {
+    toast('Please enter the complete 4-digit OTP');
+    return;
+  }
+
+  const p = state.pendingSignup;
+  if (!p) {
+    toast('Signup session expired. Please enter details again.');
+    backToSignupForm();
+    return;
+  }
+
+  try {
+    const btn = qs('#guestSignupVerifyBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
+
+    const res = await api.verifyOtp({
+      channel: p.channel,
+      identifier: p.identifier,
+      code,
+      name: p.name,
+      email: p.email,
+      phone: p.phone,
+      address: p.address,
+      purpose: 'signup',
+      sessionId: getBackendSessionId()
+    });
+
+    state.user = res.customer;
+    if (res.cart && Array.isArray(res.cart.items)) {
+      state.cart = mapBackendCart(res.cart.items);
+      saveStoredCart(state.cart);
+      renderCart();
+      updateCartBadge();
+    }
+
+    saveStoredUser(state.user);
+    updateHeaderUserUI();
+    renderAccountPage();
+    toast(`✓ Welcome to Velvet Hug, ${state.user.name}!`);
+  } catch (err) {
+    toast(`Verification failed: ${err.message}`);
+  } finally {
+    const btn = qs('#guestSignupVerifyBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify OTP & Enter Sleep Partner Hub →'; }
+  }
+}
+
+// ── Log In (Registered User) Handlers (Inline Account Page) ──
+async function handleGuestLoginSendOtp() {
+  const identifier = qs('#guestLoginIdentifier')?.value?.trim();
+  const channel = state.loginChannel || (identifier && identifier.includes('@') ? 'email' : 'phone');
+
+  if (!identifier) {
+    toast('Please enter your registered mobile number or email');
+    return;
+  }
+
+  if (channel === 'phone' && identifier.replace(/\D/g, '').length < 10) {
+    toast('Please enter a valid 10-digit mobile number');
+    return;
+  }
+  if (channel === 'email' && !identifier.includes('@')) {
+    toast('Please enter a valid email address');
+    return;
+  }
+
+  try {
+    const btn = qs('#guestLoginSubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending OTP...'; }
+
+    const res = await api.sendOtp({
+      channel,
+      identifier,
+      purpose: 'login'
+    });
+
+    if (res.exists === false) {
+      toast('No registered account found with this ' + channel + '. Switching to Sign Up!');
+      switchGuestAuthTab('signup');
+      if (channel === 'phone' && qs('#guestSignupPhone')) qs('#guestSignupPhone').value = identifier.replace(/\D/g, '').slice(-10);
+      if (channel === 'email' && qs('#guestSignupEmail')) qs('#guestSignupEmail').value = identifier;
+      return;
+    }
+
+    state.simulatedOtp = res.code || (Math.floor(1000 + Math.random() * 9000)).toString();
+    state.pendingLogin = { channel, identifier };
+
+    if (qs('#guestLoginForm')) qs('#guestLoginForm').style.display = 'none';
+    if (qs('#guestLoginOtpStep')) qs('#guestLoginOtpStep').style.display = 'block';
+
+    const targetTextEl = qs('#guestLoginOtpTargetText');
+    if (targetTextEl) {
+      targetTextEl.textContent = channel === 'phone' ? `+91 ${identifier.slice(0, 5)} •••••` : identifier;
+    }
+    if (qs('#loginSimulatedCode')) qs('#loginSimulatedCode').textContent = state.simulatedOtp;
+    ['loginOtp1', 'loginOtp2', 'loginOtp3', 'loginOtp4'].forEach(id => {
+      if (qs(`#${id}`)) qs(`#${id}`).value = '';
+    });
+    qs('#loginOtp1')?.focus();
+
+    startOtpCountdown('loginOtpTimer');
+    toast(res.message || `Verification code sent via ${channel === 'phone' ? 'SMS' : 'Email'}`);
+  } catch (err) {
+    toast(`Error: ${err.message}`);
+  } finally {
+    const btn = qs('#guestLoginSubmitBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Send Verification Code →'; }
+  }
+}
+
+function autofillLoginOtp() {
+  const code = state.simulatedOtp || '4821';
+  if (qs('#loginOtp1')) qs('#loginOtp1').value = code[0] || '1';
+  if (qs('#loginOtp2')) qs('#loginOtp2').value = code[1] || '2';
+  if (qs('#loginOtp3')) qs('#loginOtp3').value = code[2] || '3';
+  if (qs('#loginOtp4')) qs('#loginOtp4').value = code[3] || '4';
+}
+
+function backToLoginForm() {
+  if (qs('#guestLoginOtpStep')) qs('#guestLoginOtpStep').style.display = 'none';
+  if (qs('#guestLoginForm')) qs('#guestLoginForm').style.display = 'flex';
+}
+
+async function handleGuestLoginVerifyOtp() {
+  const code = [
+    qs('#loginOtp1')?.value?.trim() || '',
+    qs('#loginOtp2')?.value?.trim() || '',
+    qs('#loginOtp3')?.value?.trim() || '',
+    qs('#loginOtp4')?.value?.trim() || ''
+  ].join('');
+
+  if (code.length < 4) {
+    toast('Please enter the complete 4-digit OTP');
+    return;
+  }
+
+  const p = state.pendingLogin;
+  if (!p) {
+    toast('Login session expired. Please try again.');
+    backToLoginForm();
+    return;
+  }
+
+  try {
+    const btn = qs('#guestLoginVerifyBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
+
+    const res = await api.verifyOtp({
+      channel: p.channel,
+      identifier: p.identifier,
+      code,
+      purpose: 'login',
+      sessionId: getBackendSessionId()
+    });
+
+    state.user = res.customer;
+    if (res.cart && Array.isArray(res.cart.items)) {
+      state.cart = mapBackendCart(res.cart.items);
+      saveStoredCart(state.cart);
+      renderCart();
+      updateCartBadge();
+    }
+
+    saveStoredUser(state.user);
+    updateHeaderUserUI();
+    renderAccountPage();
+    toast(`✓ Welcome back, ${state.user.name}!`);
+  } catch (err) {
+    toast(`Verification failed: ${err.message}`);
+  } finally {
+    const btn = qs('#guestLoginVerifyBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify & Access My Account →'; }
+  }
+}
+
+// ── Modal Auth Handlers (Sign Up & Log In) ──
+async function handleModalSignupSendOtp() {
+  const name = qs('#modalSignupName')?.value?.trim();
+  const phone = qs('#modalSignupPhone')?.value?.trim();
+  const email = qs('#modalSignupEmail')?.value?.trim();
+  const line = qs('#modalSignupAddrLine')?.value?.trim();
+  const city = qs('#modalSignupAddrCity')?.value?.trim();
+  const st = qs('#modalSignupAddrState')?.value?.trim();
+  const pin = qs('#modalSignupAddrPin')?.value?.trim();
+  const channel = state.modalSignupChannel || 'phone';
+
+  if (!name) { toast('Please enter your full name'); return; }
+  if (!phone || phone.length < 10) { toast('Please enter a valid 10-digit mobile number'); return; }
+  if (!email || !email.includes('@')) { toast('Please enter a valid email address'); return; }
+  if (!line || !city || !pin) { toast('Please fill in your delivery address'); return; }
+
+  const identifier = channel === 'phone' ? phone : email;
+
+  try {
+    const btn = qs('#modalSignupSubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending OTP...'; }
+
+    const res = await api.sendOtp({
+      channel,
+      identifier,
+      name,
+      email,
+      phone,
+      purpose: 'signup'
+    });
+
+    state.simulatedOtp = res.code || (Math.floor(1000 + Math.random() * 9000)).toString();
+    state.pendingSignup = {
+      name,
+      phone,
+      email,
+      address: { line, city, state: st, pincode: pin, isDefault: true, tag: 'Home' },
+      channel,
+      identifier
+    };
+
+    if (qs('#modalSignupForm')) qs('#modalSignupForm').style.display = 'none';
+    if (qs('#modalSignupOtpStep')) qs('#modalSignupOtpStep').style.display = 'block';
+
+    const targetTextEl = qs('#modalSignupOtpTargetText');
+    if (targetTextEl) {
+      targetTextEl.textContent = channel === 'phone' ? `+91 ${phone.slice(0, 5)} •••••` : email;
+    }
+    if (qs('#modalSignupSimulatedCode')) qs('#modalSignupSimulatedCode').textContent = state.simulatedOtp;
+    ['modalSignupOtp1', 'modalSignupOtp2', 'modalSignupOtp3', 'modalSignupOtp4'].forEach(id => {
+      if (qs(`#${id}`)) qs(`#${id}`).value = '';
+    });
+    qs('#modalSignupOtp1')?.focus();
+
+    startOtpCountdown('modalSignupOtpTimer');
+    toast(res.message || `Verification code sent via ${channel === 'phone' ? 'SMS' : 'Email'}`);
+  } catch (err) {
+    toast(`Error: ${err.message}`);
+  } finally {
+    const btn = qs('#modalSignupSubmitBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Get Verification OTP & Create Account →'; }
+  }
+}
+
+function autofillModalSignupOtp() {
+  const code = state.simulatedOtp || '4821';
+  if (qs('#modalSignupOtp1')) qs('#modalSignupOtp1').value = code[0] || '1';
+  if (qs('#modalSignupOtp2')) qs('#modalSignupOtp2').value = code[1] || '2';
+  if (qs('#modalSignupOtp3')) qs('#modalSignupOtp3').value = code[2] || '3';
+  if (qs('#modalSignupOtp4')) qs('#modalSignupOtp4').value = code[3] || '4';
+}
+
+function backToModalSignupForm() {
+  if (qs('#modalSignupOtpStep')) qs('#modalSignupOtpStep').style.display = 'none';
+  if (qs('#modalSignupForm')) qs('#modalSignupForm').style.display = 'flex';
+}
+
+async function handleModalSignupVerifyOtp() {
+  const code = [
+    qs('#modalSignupOtp1')?.value?.trim() || '',
+    qs('#modalSignupOtp2')?.value?.trim() || '',
+    qs('#modalSignupOtp3')?.value?.trim() || '',
+    qs('#modalSignupOtp4')?.value?.trim() || ''
+  ].join('');
+
+  if (code.length < 4) {
+    toast('Please enter the complete 4-digit OTP');
+    return;
+  }
+
+  const p = state.pendingSignup;
+  if (!p) {
+    toast('Signup session expired. Please try again.');
+    backToModalSignupForm();
+    return;
+  }
+
+  try {
+    const btn = qs('#modalSignupVerifyBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
+
+    const res = await api.verifyOtp({
+      channel: p.channel,
+      identifier: p.identifier,
+      code,
+      name: p.name,
+      email: p.email,
+      phone: p.phone,
+      address: p.address,
+      purpose: 'signup',
+      sessionId: getBackendSessionId()
+    });
+
+    state.user = res.customer;
+    if (res.cart && Array.isArray(res.cart.items)) {
+      state.cart = mapBackendCart(res.cart.items);
+      saveStoredCart(state.cart);
+      renderCart();
+      updateCartBadge();
+    }
+
+    saveStoredUser(state.user);
+    updateHeaderUserUI();
+    qs('#loginModal')?.classList.remove('active');
+    renderAccountPage();
+    navigateTo('account');
+    toast(`✓ Welcome to Velvet Hug, ${state.user.name}!`);
+  } catch (err) {
+    toast(`Verification failed: ${err.message}`);
+  } finally {
+    const btn = qs('#modalSignupVerifyBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify OTP & Enter Sleep Partner Hub →'; }
+  }
+}
+
+async function handleModalLoginSendOtp() {
+  const identifier = qs('#modalLoginIdentifier')?.value?.trim();
+  const channel = state.modalLoginChannel || (identifier && identifier.includes('@') ? 'email' : 'phone');
+
+  if (!identifier) {
+    toast('Please enter your registered mobile number or email');
+    return;
+  }
+
+  if (channel === 'phone' && identifier.replace(/\D/g, '').length < 10) {
+    toast('Please enter a valid 10-digit mobile number');
+    return;
+  }
+  if (channel === 'email' && !identifier.includes('@')) {
+    toast('Please enter a valid email address');
+    return;
+  }
+
+  try {
+    const btn = qs('#modalLoginSubmitBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending OTP...'; }
+
+    const res = await api.sendOtp({
+      channel,
+      identifier,
+      purpose: 'login'
+    });
+
+    if (res.exists === false) {
+      toast('No registered account found with this ' + channel + '. Switching to Sign Up!');
+      switchModalAuthTab('signup');
+      if (channel === 'phone' && qs('#modalSignupPhone')) qs('#modalSignupPhone').value = identifier.replace(/\D/g, '').slice(-10);
+      if (channel === 'email' && qs('#modalSignupEmail')) qs('#modalSignupEmail').value = identifier;
+      return;
+    }
+
+    state.simulatedOtp = res.code || (Math.floor(1000 + Math.random() * 9000)).toString();
+    state.pendingLogin = { channel, identifier };
+
+    if (qs('#modalLoginForm')) qs('#modalLoginForm').style.display = 'none';
+    if (qs('#modalLoginOtpStep')) qs('#modalLoginOtpStep').style.display = 'block';
+
+    const targetTextEl = qs('#modalLoginOtpTargetText');
+    if (targetTextEl) {
+      targetTextEl.textContent = channel === 'phone' ? `+91 ${identifier.slice(0, 5)} •••••` : identifier;
+    }
+    if (qs('#modalLoginSimulatedCode')) qs('#modalLoginSimulatedCode').textContent = state.simulatedOtp;
+    ['modalLoginOtp1', 'modalLoginOtp2', 'modalLoginOtp3', 'modalLoginOtp4'].forEach(id => {
+      if (qs(`#${id}`)) qs(`#${id}`).value = '';
+    });
+    qs('#modalLoginOtp1')?.focus();
+
+    startOtpCountdown('modalLoginOtpTimer');
+    toast(res.message || `Verification code sent via ${channel === 'phone' ? 'SMS' : 'Email'}`);
+  } catch (err) {
+    toast(`Error: ${err.message}`);
+  } finally {
+    const btn = qs('#modalLoginSubmitBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Send Verification Code →'; }
+  }
+}
+
+function autofillModalLoginOtp() {
+  const code = state.simulatedOtp || '4821';
+  if (qs('#modalLoginOtp1')) qs('#modalLoginOtp1').value = code[0] || '1';
+  if (qs('#modalLoginOtp2')) qs('#modalLoginOtp2').value = code[1] || '2';
+  if (qs('#modalLoginOtp3')) qs('#modalLoginOtp3').value = code[2] || '3';
+  if (qs('#modalLoginOtp4')) qs('#modalLoginOtp4').value = code[3] || '4';
+}
+
+function backToModalLoginForm() {
+  if (qs('#modalLoginOtpStep')) qs('#modalLoginOtpStep').style.display = 'none';
+  if (qs('#modalLoginForm')) qs('#modalLoginForm').style.display = 'flex';
+}
+
+async function handleModalLoginVerifyOtp() {
+  const code = [
+    qs('#modalLoginOtp1')?.value?.trim() || '',
+    qs('#modalLoginOtp2')?.value?.trim() || '',
+    qs('#modalLoginOtp3')?.value?.trim() || '',
+    qs('#modalLoginOtp4')?.value?.trim() || ''
+  ].join('');
+
+  if (code.length < 4) {
+    toast('Please enter the complete 4-digit OTP');
+    return;
+  }
+
+  const p = state.pendingLogin;
+  if (!p) {
+    toast('Login session expired. Please try again.');
+    backToModalLoginForm();
+    return;
+  }
+
+  try {
+    const btn = qs('#modalLoginVerifyBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
+
+    const res = await api.verifyOtp({
+      channel: p.channel,
+      identifier: p.identifier,
+      code,
+      purpose: 'login',
+      sessionId: getBackendSessionId()
+    });
+
+    state.user = res.customer;
+    if (res.cart && Array.isArray(res.cart.items)) {
+      state.cart = mapBackendCart(res.cart.items);
+      saveStoredCart(state.cart);
+      renderCart();
+      updateCartBadge();
+    }
+
+    saveStoredUser(state.user);
+    updateHeaderUserUI();
+    qs('#loginModal')?.classList.remove('active');
+    renderAccountPage();
+    navigateTo('account');
+    toast(`✓ Welcome back, ${state.user.name}!`);
+  } catch (err) {
+    toast(`Verification failed: ${err.message}`);
+  } finally {
+    const btn = qs('#modalLoginVerifyBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify & Access My Account →'; }
+  }
+}
+
+function initAuth() {
+  qs('#accountBtn')?.addEventListener('click', () => {
+    navigateTo('account');
+  });
+  qs('#loginModalClose')?.addEventListener('click', () => {
+    qs('#loginModal')?.classList.remove('active');
+  });
+
+  // Auto-focus progression for OTP inputs
+  ['signupOtp', 'loginOtp', 'modalSignupOtp', 'modalLoginOtp'].forEach(prefix => {
+    [1, 2, 3, 4].forEach(idx => {
+      qs(`#${prefix}${idx}`)?.addEventListener('input', e => {
+        if (e.target.value.length === 1 && idx < 4) {
+          qs(`#${prefix}${idx + 1}`)?.focus();
+        }
+      });
+      qs(`#${prefix}${idx}`)?.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !e.target.value && idx > 1) {
+          qs(`#${prefix}${idx - 1}`)?.focus();
+        }
+      });
+    });
+  });
+
+  updateHeaderUserUI();
+}
+
 function openLoginModal() {
-  const otpVerify  = qs('#otpVerifyStep');
-  const otpPhone   = qs('#otpPhoneStep');
-  const googleStep = qs('#googleAccountStep');
-  if (otpVerify)  otpVerify.style.display  = 'none';
-  if (googleStep) googleStep.style.display = 'none';
-  if (otpPhone)   otpPhone.style.display   = 'block';
-
-  if (qs('#loginPhoneInput')) qs('#loginPhoneInput').value = '';
-  if (qs('#loginNameInput'))  qs('#loginNameInput').value = '';
-  if (qs('#loginEmailInput')) qs('#loginEmailInput').value = '';
-  if (qs('#googleNameInput'))  qs('#googleNameInput').value = '';
-  if (qs('#googleEmailInput')) qs('#googleEmailInput').value = '';
-  if (qs('#googlePhoneInput')) qs('#googlePhoneInput').value = '';
-  ['otp1','otp2','otp3','otp4'].forEach(id => { if (qs(`#${id}`)) qs(`#${id}`).value = ''; });
-  state.pendingLogin = null;
-
+  switchModalAuthTab('signup');
+  backToModalSignupForm();
+  backToModalLoginForm();
   qs('#loginModal')?.classList.add('active');
 }
+
+function closeLoginModal() {
+  qs('#loginModal')?.classList.remove('active');
+}
+
+function logoutUser() {
+  api.logout();
+  state.user = null;
+  state.pendingLogin = null;
+  state.pendingSignup = null;
+  saveStoredUser(null);
+  updateHeaderUserUI();
+  closeAccountModal();
+  renderAccountPage();
+  toast('Signed out successfully');
+}
+
 window.openLoginModal = openLoginModal;
+window.closeLoginModal = closeLoginModal;
+window.logoutUser = logoutUser;
+window.switchGuestAuthTab = switchGuestAuthTab;
+window.switchModalAuthTab = switchModalAuthTab;
+window.selectSignupOtpChannel = selectSignupOtpChannel;
+window.selectLoginOtpChannel = selectLoginOtpChannel;
+window.selectModalSignupOtpChannel = selectModalSignupOtpChannel;
+window.selectModalLoginOtpChannel = selectModalLoginOtpChannel;
+window.handleGuestSignupSendOtp = handleGuestSignupSendOtp;
+window.autofillSignupOtp = autofillSignupOtp;
+window.backToSignupForm = backToSignupForm;
+window.handleGuestSignupVerifyOtp = handleGuestSignupVerifyOtp;
+window.handleGuestLoginSendOtp = handleGuestLoginSendOtp;
+window.autofillLoginOtp = autofillLoginOtp;
+window.backToLoginForm = backToLoginForm;
+window.handleGuestLoginVerifyOtp = handleGuestLoginVerifyOtp;
+window.handleModalSignupSendOtp = handleModalSignupSendOtp;
+window.autofillModalSignupOtp = autofillModalSignupOtp;
+window.backToModalSignupForm = backToModalSignupForm;
+window.handleModalSignupVerifyOtp = handleModalSignupVerifyOtp;
+window.handleModalLoginSendOtp = handleModalLoginSendOtp;
+window.autofillModalLoginOtp = autofillModalLoginOtp;
+window.backToModalLoginForm = backToModalLoginForm;
+window.handleModalLoginVerifyOtp = handleModalLoginVerifyOtp;
+window.updateHeaderUserUI = updateHeaderUserUI;
+window.state = state;
 
 // ────────────────────────────────────────────────────────────
 // CUSTOMER ACCOUNT DASHBOARD (Modal Hub)
@@ -2009,7 +2473,7 @@ function renderAccountModal() {
     <!-- Nav Tabs -->
     <div class="account-nav-tabs">
       <button class="account-nav-tab ${state.activeAccountTab === 'overview' ? 'active' : ''}" onclick="switchAccountTab('overview')">Overview</button>
-      <button class="account-nav-tab ${state.activeAccountTab === 'orders' ? 'active' : ''}" onclick="switchAccountTab('orders')">Orders & Live Tracking (${u.orders?.length || 0})</button>
+      <button class="account-nav-tab ${state.activeAccountTab === 'orders' ? 'active' : ''}" onclick="switchAccountTab('orders')">Orders &amp; Live Tracking (${u.orders?.length || 0})</button>
       <button class="account-nav-tab ${state.activeAccountTab === 'referrals' ? 'active' : ''}" onclick="switchAccountTab('referrals')">Rest Ambassador Referrals</button>
       <button class="account-nav-tab ${state.activeAccountTab === 'addresses' ? 'active' : ''}" onclick="switchAccountTab('addresses')">Saved Addresses</button>
       <button class="account-nav-tab ${state.activeAccountTab === 'wishlist' ? 'active' : ''}" onclick="switchAccountTab('wishlist')">Wishlist</button>
@@ -2041,7 +2505,7 @@ function renderAccountTabContent() {
           </p>
           <div style="display:flex;gap:10px;">
             <button class="btn btn-gold btn-sm" onclick="openCertificateModal()">🏅 View Official Certificate</button>
-            <button class="btn btn-outline btn-sm" onclick="switchAccountTab('referrals')">Refer & Earn</button>
+            <button class="btn btn-outline btn-sm" onclick="switchAccountTab('referrals')">Refer &amp; Earn</button>
           </div>
         </div>
         
@@ -2116,7 +2580,6 @@ function renderAccountTabContent() {
           <strong>Live Tracking:</strong> <span style="font-family:monospace;color:var(--midnight-blue);font-weight:700;">${o.trackingId}</span>
         </div>
 
-        <!-- Post-Delivery Review & Rating Action -->
         <div style="margin-top:12px;padding-top:10px;border-top:1px dashed rgba(76,63,94,0.15);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
           <div>
             ${o.hasReviewed ? `
@@ -2127,11 +2590,6 @@ function renderAccountTabContent() {
               </button>
             `}
           </div>
-          ${o.step < 4 ? `
-            <button class="btn btn-outline btn-sm" onclick="window.simulateDelivery('${o.id}')" title="Test Delivery Transition" style="font-size:0.75rem;">
-              🚚 Mark as Delivered (Test Flow)
-            </button>
-          ` : ''}
         </div>
       </div>
     `;
@@ -2174,9 +2632,6 @@ function renderAccountTabContent() {
         <a href="https://wa.me/?text=Hey!%20I%20got%20the%20Velvet%20Hug%20mattress%20and%20it%20has%20transformed%20my%20sleep.%20Get%2010%25%20off%20with%20my%20link:%20https://velvethug.in/ref/${u.referralCode}" target="_blank" class="btn btn-primary btn-sm">
           Share to WhatsApp 💬
         </a>
-        <button class="btn btn-gold btn-sm" onclick="window.simulateReferralTest()">
-          Simulate Friend Referral (+₹1,000) 🌿
-        </button>
       </div>
     `;
   }
@@ -2187,15 +2642,14 @@ function renderAccountTabContent() {
         ${(u.addresses || []).map(a => `
           <div style="background:var(--bg-secondary);border:1px solid rgba(76,63,94,0.12);border-radius:var(--radius-sm);padding:18px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-              <span class="badge badge-founding" style="font-size:0.68rem;">${a.tag}</span>
+              <span class="badge badge-founding" style="font-size:0.68rem;">${a.tag || 'Address'}</span>
               ${a.isDefault ? '<span style="font-size:0.72rem;color:var(--accent-emerald);font-weight:700;">Default</span>' : ''}
             </div>
             <div style="font-weight:700;color:var(--midnight-blue);margin-bottom:4px;">${a.name}</div>
-            <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">${a.line}<br>${a.city}, ${a.state} - ${a.pincode}<br>Phone: ${a.phone}</div>
+            <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.5;">${a.line}<br>${a.city}, ${a.state || ''} - ${a.pincode}<br>Phone: ${a.phone}</div>
           </div>
         `).join('')}
       </div>
-      <button class="btn btn-outline btn-sm" onclick="toast('Address saved as default!')">+ Add New Address</button>
     `;
   }
 
@@ -2219,34 +2673,9 @@ function renderAccountTabContent() {
   return '';
 }
 
-function logoutUser() {
-  api.logout();
-  state.user = null;
-  state.pendingLogin = null;
-  saveStoredUser(null);
-  updateHeaderUserUI();
-  closeAccountModal();
-
-  if (qs('#loginPhoneInput')) qs('#loginPhoneInput').value = '';
-  if (qs('#loginNameInput')) qs('#loginNameInput').value = '';
-  if (qs('#loginEmailInput')) qs('#loginEmailInput').value = '';
-  if (qs('#googleNameInput')) qs('#googleNameInput').value = '';
-  if (qs('#googleEmailInput')) qs('#googleEmailInput').value = '';
-  if (qs('#googlePhoneInput')) qs('#googlePhoneInput').value = '';
-  ['otp1','otp2','otp3','otp4'].forEach(id => { if (qs(`#${id}`)) qs(`#${id}`).value = ''; });
-
-  renderAccountPage();
-  toast('Signed out successfully');
-}
-
 window.openAccountModal = openAccountModal;
 window.closeAccountModal = closeAccountModal;
 window.switchAccountTab = switchAccountTab;
-window.logoutUser = logoutUser;
-window.renderAccountPage = renderAccountPage;
-window.switchAccountPageTab = switchAccountPageTab;
-window.state = state;
-
 // ────────────────────────────────────────────────────────────
 // DEDICATED ACCOUNT PAGE (view-account)
 // ────────────────────────────────────────────────────────────
@@ -2536,23 +2965,33 @@ function renderAccountPageTab() {
   }
 }
 
-function saveProfileDetails() {
+async function saveProfileDetails() {
   if (!state.user) return;
   const name  = qs('#profileName')?.value?.trim();
   const email = qs('#profileEmail')?.value?.trim();
   const phone = qs('#profilePhone')?.value?.trim();
   if (!name) { toast('Name cannot be empty'); return; }
-  state.user.name  = name;
-  state.user.email = email;
-  state.user.phone = phone;
-  state.user.avatar = name[0].toUpperCase();
-  saveStoredUser(state.user);
-  updateHeaderUserUI();
-  renderAccountPage();
-  toast('✓ Profile updated!');
+  
+  try {
+    const res = await api.updateProfile({ name, email, phone });
+    if (res?.success && res.customer) {
+      state.user = { ...state.user, ...res.customer };
+    } else {
+      state.user.name = name;
+      state.user.email = email;
+      state.user.phone = phone;
+      state.user.avatar = name[0].toUpperCase();
+    }
+    saveStoredUser(state.user);
+    updateHeaderUserUI();
+    renderAccountPage();
+    toast('✓ Profile updated successfully in database!');
+  } catch (err) {
+    toast(`Update failed: ${err.message}`);
+  }
 }
 
-function addNewAddress() {
+async function addNewAddress() {
   if (!state.user) return;
   const tag  = qs('#newAddrTag')?.value?.trim() || 'Home';
   const line = qs('#newAddrLine')?.value?.trim();
@@ -2560,35 +2999,82 @@ function addNewAddress() {
   const st   = qs('#newAddrState')?.value?.trim();
   const pin  = qs('#newAddrPin')?.value?.trim();
   if (!line || !city || !pin) { toast('Please fill address, city and pincode'); return; }
-  state.user.addresses = state.user.addresses || [];
-  state.user.addresses.push({
-    id: `a${Date.now()}`, tag, name: state.user.name,
-    phone: `+91 ${state.user.phone}`,
-    line, city, state: st, pincode: pin,
-    isDefault: state.user.addresses.length === 0
-  });
-  saveStoredUser(state.user);
-  renderAccountPageTab();
-  toast('✓ Address saved!');
-}
 
-function deleteAddress(idx) {
-  if (!state.user?.addresses) return;
-  state.user.addresses.splice(idx, 1);
-  if (state.user.addresses.length && !state.user.addresses.some(a => a.isDefault)) {
-    state.user.addresses[0].isDefault = true;
+  try {
+    const res = await api.addAddress({
+      tag,
+      name: state.user.name,
+      phone: state.user.phone,
+      line,
+      city,
+      state: st,
+      pincode: pin,
+      isDefault: !state.user.addresses?.length
+    });
+    if (res?.success && Array.isArray(res.addresses)) {
+      state.user.addresses = res.addresses;
+    } else {
+      state.user.addresses = state.user.addresses || [];
+      state.user.addresses.push({
+        id: `a${Date.now()}`, tag, name: state.user.name,
+        phone: `+91 ${state.user.phone}`,
+        line, city, state: st, pincode: pin,
+        isDefault: state.user.addresses.length === 0
+      });
+    }
+    saveStoredUser(state.user);
+    renderAccountPageTab();
+    toast('✓ Address saved in database!');
+  } catch (err) {
+    toast(`Error saving address: ${err.message}`);
   }
-  saveStoredUser(state.user);
-  renderAccountPageTab();
-  toast('Address removed');
 }
 
-function setDefaultAddress(idx) {
+async function deleteAddress(idx) {
   if (!state.user?.addresses) return;
-  state.user.addresses.forEach((a, i) => a.isDefault = (i === idx));
-  saveStoredUser(state.user);
-  renderAccountPageTab();
-  toast('✓ Default address updated');
+  const target = state.user.addresses[idx];
+  try {
+    if (target?.id) {
+      const res = await api.deleteAddress(target.id);
+      if (res?.success && Array.isArray(res.addresses)) {
+        state.user.addresses = res.addresses;
+      } else {
+        state.user.addresses.splice(idx, 1);
+      }
+    } else {
+      state.user.addresses.splice(idx, 1);
+    }
+    if (state.user.addresses.length && !state.user.addresses.some(a => a.isDefault)) {
+      state.user.addresses[0].isDefault = true;
+    }
+    saveStoredUser(state.user);
+    renderAccountPageTab();
+    toast('Address removed');
+  } catch (err) {
+    toast(`Error deleting address: ${err.message}`);
+  }
+}
+
+async function setDefaultAddress(idx) {
+  if (!state.user?.addresses) return;
+  const target = state.user.addresses[idx];
+  try {
+    if (target?.id) {
+      const res = await api.setDefaultAddress(target.id);
+      if (res?.success && Array.isArray(res.addresses)) {
+        state.user.addresses = res.addresses;
+      } else {
+        state.user.addresses.forEach((a, i) => a.isDefault = (i === idx));
+      }
+    } else {
+      state.user.addresses.forEach((a, i) => a.isDefault = (i === idx));
+    }
+    saveStoredUser(state.user);
+    renderAccountPageTab();
+    toast('✓ Default address updated');
+  } catch (err) {
+    toast(`Error updating default address: ${err.message}`);
+  }
 }
 
 window.switchAccountPageTab = switchAccountPageTab;

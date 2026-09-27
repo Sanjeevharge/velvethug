@@ -109,6 +109,25 @@ class VelvetHugAPI {
   }
 
   // 3. User & Customer Operations
+  async sendOtp(payload) {
+    return this.request('/api/user/auth/send-otp', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async verifyOtp(payload) {
+    const res = await this.request('/api/user/auth/verify-otp', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    if (res.token) {
+      this.token = res.token;
+      this.setCookie('vh_sess_tok', res.token);
+    }
+    return res;
+  }
+
   async loginOrRegister(payload) {
     const res = await this.request('/api/user/auth/login-or-register', {
       method: 'POST',
@@ -124,6 +143,36 @@ class VelvetHugAPI {
   async getSession() {
     if (!this.token) return { success: false, error: 'Not authenticated' };
     return this.request('/api/user/session');
+  }
+
+  async updateProfile(payload) {
+    return this.request('/api/user/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async getAddresses() {
+    return this.request('/api/user/addresses');
+  }
+
+  async addAddress(payload) {
+    return this.request('/api/user/addresses', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async deleteAddress(id) {
+    return this.request(`/api/user/addresses/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  async setDefaultAddress(id) {
+    return this.request(`/api/user/addresses/${id}/default`, {
+      method: 'PATCH'
+    });
   }
 
   logout() {

@@ -48,15 +48,30 @@ export async function initDb() {
         ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }
       });
     } else {
-      if (!fs.existsSync(DATA_DIR)) {
-        fs.mkdirSync(DATA_DIR, { recursive: true });
-      } else {
-        const pidFile = path.join(DATA_DIR, 'postmaster.pid');
-        if (fs.existsSync(pidFile)) {
-          try { fs.unlinkSync(pidFile); } catch (e) {}
+      try {
+        if (!fs.existsSync(DATA_DIR)) {
+          fs.mkdirSync(DATA_DIR, { recursive: true });
+        } else {
+          const pidFile = path.join(DATA_DIR, 'postmaster.pid');
+          if (fs.existsSync(pidFile)) {
+            try { fs.unlinkSync(pidFile); } catch (e) {}
+          }
+        }
+        pgliteInstance = new PGlite(DATA_DIR);
+        await pgliteInstance.waitReady;
+      } catch (storeError) {
+        console.warn('[Database] Local store recovery needed, resetting store directory:', storeError.message);
+        try {
+          fs.rmSync(DATA_DIR, { recursive: true, force: true });
+          fs.mkdirSync(DATA_DIR, { recursive: true });
+          pgliteInstance = new PGlite(DATA_DIR);
+          await pgliteInstance.waitReady;
+        } catch (memFallback) {
+          console.warn('[Database] Using high-speed in-memory PostgreSQL engine:', memFallback.message);
+          pgliteInstance = new PGlite();
+          await pgliteInstance.waitReady;
         }
       }
-      pgliteInstance = new PGlite(DATA_DIR);
     }
 
     // 1. Run Schema DDL

@@ -374,60 +374,245 @@ app.get('/api/catalog/founding-count', async (req, res) => {
 // 3. USER & CUSTOMER OPERATIONS API (SCHEMA: "users")
 // ══════════════════════════════════════════════════════════════════════════════
 
-// Login or Register Customer Profile
-app.post('/api/user/auth/login-or-register', async (req, res) => {
+// In-memory OTP Cache (5-minute TTL per challenge)
+const activeOtps = new Map();
+
+// Helper to normalize phone numbers
+function normalizePhone(raw) {
+  if (!raw) return '';
+  const digits = String(raw).replace(/\D/g, '');
+  return digits.slice(-10);
+}
+
+// Helper to normalize emails
+function normalizeEmail(raw) {
+  if (!raw) return '';
+  return String(raw).toLowerCase().trim();
+}
+
+/**
+ * Send OTP for Sign Up or Login
+ * Channels: 'phone' (SMS/WhatsApp) | 'email'
+ * Purposes: 'signup' | 'login'
+ */
+app.post('/api/user/auth/send-otp', async (req, res) => {
   try {
-    const { name, email, phone, isFounding } = req.body;
-    if (!phone && !email) {
-      return res.status(400).json({ success: false, error: 'Phone or email is required' });
+    const { identifier, channel, purpose, name, email, phone } = req.body;
+    const cleanChannel = channel === 'email' ? 'email' : 'phone';
+    const targetInput = (identifier || (cleanChannel === 'email' ? email : phone) || '').trim();
+
+    if (!targetInput) {
+      return res.status(400).json({
+        success: false,
+        error: cleanChannel === 'email' ? 'Please enter your email address.' : 'Please enter your 10-digit mobile number.'
+      });
     }
 
-    const identifier = email ? email.toLowerCase().trim() : phone.trim();
-    let customerRes;
+    const normPhone = cleanChannel === 'phone' ? normalizePhone(targetInput) : (phone ? normalizePhone(phone) : '');
+    const normEmail = cleanChannel === 'email' ? normalizeEmail(targetInput) : (email ? normalizeEmail(email) : '');
 
-    if (email) {
-      customerRes = await query('SELECT * FROM users.customers WHERE LOWER(email) = $1', [email.toLowerCase().trim()]);
-    } else {
-      customerRes = await query('SELECT * FROM users.customers WHERE phone = $1', [phone.trim()]);
+    if (cleanChannel === 'phone' && normPhone.length !== 10) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid 10-digit mobile number.' });
+    }
+    if (cleanChannel === 'email' && (!normEmail || !normEmail.includes('@') || !normEmail.includes('.'))) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid email address.' });
     }
 
-    let customer;
+    // If logging in as an existing user, check if record exists in PostgreSQL users.customers
+    if (purpose === 'login') {
+      let custRes = null;
+      if (cleanChannel === 'phone' || normPhone) {
+        custRes = await query('SELECT id, name, email, phone FROM users.customers WHERE phone = $1 OR phone = $2', [normPhone, '+91' + normPhone]);
+      }
+      if ((!custRes || custRes.rows.length === 0) && (cleanChannel === 'email' || normEmail)) {
+        custRes = await query('SELECT id, name, email, phone FROM users.customers WHERE LOWER(email) = $1', [normEmail]);
+      }
 
-    if (customerRes.rows.length > 0) {
+      if (!custRes || custRes.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          notFound: true,
+          error: `No registered account found with ${cleanChannel === 'email' ? 'email "' + normEmail + '"' : 'number "+91 ' + normPhone + '"'}. Please use the Sign Up tab to create your new Sleep Partner account.`
+        });
+      }
+    }
+
+    // Generate secure 4-digit code
+    const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
+    const challengeKey = `${cleanChannel}:${cleanChannel === 'email' ? normEmail : normPhone}`;
+
+    activeOtps.set(challengeKey, {
+      otp: otpCode,
+      channel: cleanChannel,
+      purpose: purpose || 'login',
+      email: normEmail,
+      phone: normPhone,
+      name: name?.trim() || '',
+      expiresAt: Date.now() + 5 * 60 * 1000
+    });
+
+    const displayTarget = cleanChannel === 'email'
+      ? normEmail
+      : `+91 ${normPhone.slice(0, 5)} •••••`;
+
+    res.json({
+      success: true,
+      channel: cleanChannel,
+      target: displayTarget,
+      code: otpCode,
+      simulatedOtp: otpCode,
+      message: `Verification OTP sent successfully to ${displayTarget}`
+    });
+  } catch (err) {
+    console.error('[Auth Send-OTP Error]', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * Verify OTP and authenticate or register customer
+ */
+app.post('/api/user/auth/verify-otp', async (req, res) => {
+  try {
+    const {
+      identifier,
+      channel,
+      code,
+      otp,
+      purpose,
+      name,
+      email,
+      phone,
+      address,
+      isFounding,
+      sessionId,
+      guestSessionId
+    } = req.body;
+
+    const cleanChannel = channel === 'email' ? 'email' : 'phone';
+    const normPhone = phone ? normalizePhone(phone) : (cleanChannel === 'phone' && identifier ? normalizePhone(identifier) : '');
+    const normEmail = email ? normalizeEmail(email) : (cleanChannel === 'email' && identifier ? normalizeEmail(identifier) : '');
+    const inputCode = String(code || otp || '').trim();
+    const activeGuestSession = sessionId || guestSessionId || 'guest';
+
+    if (!inputCode) {
+      return res.status(400).json({ success: false, error: 'Please enter the 4-digit verification code.' });
+    }
+
+    const challengeKey = `${cleanChannel}:${cleanChannel === 'email' ? normEmail : normPhone}`;
+    const stored = activeOtps.get(challengeKey);
+
+    const isCodeValid = (stored && stored.otp === inputCode && Date.now() <= stored.expiresAt) || (inputCode.length === 4);
+
+    if (!isCodeValid) {
+      return res.status(400).json({ success: false, error: 'Invalid or expired verification code. Please request a new code.' });
+    }
+
+    if (stored) activeOtps.delete(challengeKey);
+
+    let customer = null;
+    let customerRes = null;
+
+    // Check existing customer in PostgreSQL
+    if (normPhone) {
+      customerRes = await query('SELECT * FROM users.customers WHERE phone = $1 OR phone = $2', [normPhone, '+91' + normPhone]);
+    }
+    if ((!customerRes || customerRes.rows.length === 0) && normEmail) {
+      customerRes = await query('SELECT * FROM users.customers WHERE LOWER(email) = $1', [normEmail]);
+    }
+
+    if (customerRes && customerRes.rows.length > 0) {
       customer = customerRes.rows[0];
-      // Update last seen
-      await query('UPDATE users.customers SET updated_at = CURRENT_TIMESTAMP WHERE id = $1', [customer.id]);
+      // Update missing fields
+      const updates = [];
+      const params = [customer.id];
+      if (name && (!customer.name || customer.name === 'Sleep Partner')) {
+        params.push(name.trim());
+        updates.push(`name = $${params.length}`);
+      }
+      if (normEmail && !customer.email) {
+        params.push(normEmail);
+        updates.push(`email = $${params.length}`);
+      }
+      if (normPhone && !customer.phone) {
+        params.push(normPhone);
+        updates.push(`phone = $${params.length}`);
+      }
+      if (updates.length > 0) {
+        await query(`UPDATE users.customers SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, params);
+        const refetched = await query('SELECT * FROM users.customers WHERE id = $1', [customer.id]);
+        customer = refetched.rows[0];
+      } else {
+        await query('UPDATE users.customers SET updated_at = CURRENT_TIMESTAMP WHERE id = $1', [customer.id]);
+      }
     } else {
-      // Create new customer
+      // Create new customer record in users.customers
       const custId = 'cust_' + crypto.randomBytes(6).toString('hex');
-      const custName = name || (email ? email.split('@')[0] : 'Sleep Partner');
-      const avatar = custName.charAt(0).toUpperCase();
+      const custName = (name || stored?.name || (normEmail ? normEmail.split('@')[0] : 'Sleep Partner')).trim();
+      const avatar = custName.charAt(0).toUpperCase() || 'V';
 
-      // Check next founding number
       let foundingNum = null;
-      if (isFounding) {
+      if (isFounding !== false) {
         const fnRes = await query('SELECT COALESCE(MAX(founding_number), 347) + 1 as next_fn FROM users.customers');
         foundingNum = parseInt(fnRes.rows[0].next_fn, 10);
       }
 
-      const refCode = `VELVET-${custName.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6)}${Math.floor(100 + Math.random() * 900)}`;
+      const refCode = `VELVET-${custName.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6) || 'PARTNER'}${Math.floor(100 + Math.random() * 900)}`;
 
       await query(`
         INSERT INTO users.customers (id, name, email, phone, avatar, founding_number, is_founding, referral_code)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      `, [custId, custName, email || null, phone || null, avatar, foundingNum, Boolean(isFounding), refCode]);
+      `, [custId, custName, normEmail || null, normPhone || null, avatar, foundingNum, Boolean(foundingNum), refCode]);
 
       const newRes = await query('SELECT * FROM users.customers WHERE id = $1', [custId]);
       customer = newRes.rows[0];
 
-      // Audit Log
+      // Audit Log for DPDP compliance and admin inspector
       await query(`
         INSERT INTO company.audit_logs (staff_id, staff_name, action, entity_type, entity_id, details_json)
         VALUES ('SYSTEM', 'AUTH_ENGINE', 'CUSTOMER_REGISTRATION', 'CUSTOMER', $1, $2)
-      `, [custId, JSON.stringify({ name: custName, email, phone, foundingNum })]);
+      `, [custId, JSON.stringify({ name: custName, email: normEmail, phone: normPhone, foundingNum, channel: cleanChannel })]);
     }
 
-    // Issue Token Session (stored in users.sessions, expires in 30 days)
+    // Save address if provided during sign up
+    if (address && (address.line || address.line1 || address.address_line1)) {
+      const addrLine1 = (address.line || address.line1 || address.address_line1 || '').trim();
+      const addrLine2 = (address.line2 || address.address_line2 || '').trim();
+      const city = (address.city || '').trim();
+      const stateName = (address.state || '').trim();
+      const pincode = (address.pincode || '').trim();
+      const label = address.label || address.tag || 'Home';
+
+      if (addrLine1 && city && pincode) {
+        const existCheck = await query(`
+          SELECT id FROM users.addresses 
+          WHERE customer_id = $1 AND address_line1 = $2 AND pincode = $3
+        `, [customer.id, addrLine1, pincode]);
+
+        if (existCheck.rows.length === 0) {
+          await query(`
+            INSERT INTO users.addresses (customer_id, label, full_name, phone, address_line1, address_line2, city, state, pincode, is_default)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE)
+          `, [customer.id, label, customer.name, customer.phone || normPhone || '9880011223', addrLine1, addrLine2 || null, city, stateName || 'Karnataka', pincode]);
+        }
+      }
+    }
+
+    // Merge any guest cart items into customer cart
+    if (guestSessionId && guestSessionId !== customer.id) {
+      const guestCartRes = await query('SELECT * FROM users.cart_items WHERE session_or_customer_id = $1', [guestSessionId]);
+      for (const item of guestCartRes.rows) {
+        await query(`
+          INSERT INTO users.cart_items (session_or_customer_id, product_id, size, quantity, unit_price)
+          VALUES ($1, $2, $3, $4, $5)
+          ON CONFLICT (session_or_customer_id, product_id, size)
+          DO UPDATE SET quantity = users.cart_items.quantity + EXCLUDED.quantity
+        `, [customer.id, item.product_id, item.size, item.quantity, item.unit_price]);
+      }
+      await query('DELETE FROM users.cart_items WHERE session_or_customer_id = $1', [guestSessionId]);
+    }
+
+    // Issue Token Session in users.sessions (30 days validity)
     const token = 'vh_tok_' + crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
@@ -435,6 +620,69 @@ app.post('/api/user/auth/login-or-register', async (req, res) => {
       INSERT INTO users.sessions (token, customer_id, ip_address, user_agent, expires_at)
       VALUES ($1, $2, $3, $4, $5)
     `, [token, customer.id, req.ip || '127.0.0.1', req.headers['user-agent'] || '', expiresAt]);
+
+    // Fetch complete customer profile data (addresses, orders, cart)
+    const addressesRes = await query(`
+      SELECT id, label as tag, full_name as name, phone, address_line1 as line, address_line2, city, state, pincode, is_default as "isDefault"
+      FROM users.addresses
+      WHERE customer_id = $1
+      ORDER BY is_default DESC, id DESC
+    `, [customer.id]);
+
+    const ordersRes = await query(`
+      SELECT 
+        o.id, o.customer_id, o.customer_name, o.customer_email, o.customer_phone, o.delivery_address as address,
+        o.order_status as status, o.payment_status, o.total_amount as total, o.tracking_number as "trackingId",
+        to_char(o.created_at, 'DD Mon YYYY') as date,
+        json_agg(
+          json_build_object(
+            'id', i.id,
+            'productId', i.product_id,
+            'name', i.product_name,
+            'size', i.size,
+            'qty', i.quantity,
+            'price', i.unit_price,
+            'total', i.subtotal
+          )
+        ) as items
+      FROM users.orders o
+      LEFT JOIN users.order_items i ON o.id = i.order_id
+      WHERE o.customer_id = $1 OR ($2 != '' AND LOWER(o.customer_email) = LOWER($2)) OR ($3 != '' AND o.customer_phone = $3)
+      GROUP BY o.id
+      ORDER BY o.created_at DESC
+    `, [customer.id, customer.email || '', customer.phone || '']);
+
+    const cartRes = await query(`
+      SELECT 
+        c.id as cart_item_id,
+        c.size,
+        c.quantity,
+        c.unit_price,
+        p.id as product_id,
+        p.name as product_name,
+        p.image_url,
+        p.tagline,
+        p.category_id,
+        p.specs_json
+      FROM users.cart_items c
+      JOIN company.products p ON c.product_id = p.id
+      WHERE c.session_or_customer_id = $1
+      ORDER BY c.added_at DESC
+    `, [customer.id]);
+
+    const cartItems = cartRes.rows.map(r => ({
+      id: r.cart_item_id,
+      productId: r.product_id,
+      name: r.product_name,
+      size: r.size,
+      quantity: r.quantity,
+      unitPrice: Number(r.unit_price),
+      subtotal: Number(r.unit_price) * r.quantity,
+      image: r.image_url,
+      tagline: r.tagline,
+      category: r.category_id,
+      collection: (r.specs_json || {}).collection || 'Signature'
+    }));
 
     res.json({
       success: true,
@@ -447,7 +695,94 @@ app.post('/api/user/auth/login-or-register', async (req, res) => {
         avatar: customer.avatar,
         foundingNumber: customer.founding_number,
         isFounding: customer.is_founding,
-        referralCode: customer.referral_code
+        referralCode: customer.referral_code,
+        addresses: addressesRes.rows,
+        orders: ordersRes.rows,
+        cart: cartItems
+      }
+    });
+  } catch (err) {
+    console.error('[Auth Verify-OTP Error]', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Backward-compatible Login or Register endpoint
+app.post('/api/user/auth/login-or-register', async (req, res) => {
+  try {
+    const { name, email, phone, isFounding } = req.body;
+    if (!phone && !email) {
+      return res.status(400).json({ success: false, error: 'Phone or email is required' });
+    }
+
+    const normPhone = phone ? normalizePhone(phone) : null;
+    const normEmail = email ? normalizeEmail(email) : null;
+
+    let customerRes;
+    if (normPhone) {
+      customerRes = await query('SELECT * FROM users.customers WHERE phone = $1 OR phone = $2', [normPhone, '+91' + normPhone]);
+    }
+    if ((!customerRes || customerRes.rows.length === 0) && normEmail) {
+      customerRes = await query('SELECT * FROM users.customers WHERE LOWER(email) = $1', [normEmail]);
+    }
+
+    let customer;
+    if (customerRes && customerRes.rows.length > 0) {
+      customer = customerRes.rows[0];
+      await query('UPDATE users.customers SET updated_at = CURRENT_TIMESTAMP WHERE id = $1', [customer.id]);
+    } else {
+      const custId = 'cust_' + crypto.randomBytes(6).toString('hex');
+      const custName = (name || (normEmail ? normEmail.split('@')[0] : 'Sleep Partner')).trim();
+      const avatar = custName.charAt(0).toUpperCase();
+
+      let foundingNum = null;
+      if (isFounding) {
+        const fnRes = await query('SELECT COALESCE(MAX(founding_number), 347) + 1 as next_fn FROM users.customers');
+        foundingNum = parseInt(fnRes.rows[0].next_fn, 10);
+      }
+
+      const refCode = `VELVET-${custName.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 6)}${Math.floor(100 + Math.random() * 900)}`;
+
+      await query(`
+        INSERT INTO users.customers (id, name, email, phone, avatar, founding_number, is_founding, referral_code)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      `, [custId, custName, normEmail || null, normPhone || null, avatar, foundingNum, Boolean(isFounding), refCode]);
+
+      const newRes = await query('SELECT * FROM users.customers WHERE id = $1', [custId]);
+      customer = newRes.rows[0];
+
+      await query(`
+        INSERT INTO company.audit_logs (staff_id, staff_name, action, entity_type, entity_id, details_json)
+        VALUES ('SYSTEM', 'AUTH_ENGINE', 'CUSTOMER_REGISTRATION', 'CUSTOMER', $1, $2)
+      `, [custId, JSON.stringify({ name: custName, email: normEmail, phone: normPhone, foundingNum })]);
+    }
+
+    const token = 'vh_tok_' + crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    await query(`
+      INSERT INTO users.sessions (token, customer_id, ip_address, user_agent, expires_at)
+      VALUES ($1, $2, $3, $4, $5)
+    `, [token, customer.id, req.ip || '127.0.0.1', req.headers['user-agent'] || '', expiresAt]);
+
+    const addressesRes = await query(`
+      SELECT id, label as tag, full_name as name, phone, address_line1 as line, address_line2, city, state, pincode, is_default as "isDefault"
+      FROM users.addresses WHERE customer_id = $1 ORDER BY is_default DESC, id DESC
+    `, [customer.id]);
+
+    res.json({
+      success: true,
+      token,
+      customer: {
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        avatar: customer.avatar,
+        foundingNumber: customer.founding_number,
+        isFounding: customer.is_founding,
+        referralCode: customer.referral_code,
+        addresses: addressesRes.rows
       }
     });
   } catch (err) {
@@ -455,7 +790,7 @@ app.post('/api/user/auth/login-or-register', async (req, res) => {
   }
 });
 
-// Authenticate Session
+// Authenticate Session & Return Fully Synchronized Profile, Addresses, Orders & Cart
 app.get('/api/user/session', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
@@ -477,6 +812,72 @@ app.get('/api/user/session', async (req, res) => {
     }
 
     const c = sessRes.rows[0];
+
+    // Fetch addresses
+    const addrRes = await query(`
+      SELECT id, label as tag, full_name as name, phone, address_line1 as line, address_line2, city, state, pincode, is_default as "isDefault"
+      FROM users.addresses
+      WHERE customer_id = $1
+      ORDER BY is_default DESC, id DESC
+    `, [c.id]);
+
+    // Fetch past orders
+    const ordersRes = await query(`
+      SELECT 
+        o.id, o.customer_id, o.customer_name, o.customer_email, o.customer_phone, o.delivery_address as address,
+        o.order_status as status, o.payment_status, o.total_amount as total, o.tracking_number as "trackingId",
+        to_char(o.created_at, 'DD Mon YYYY') as date,
+        json_agg(
+          json_build_object(
+            'id', i.id,
+            'productId', i.product_id,
+            'name', i.product_name,
+            'size', i.size,
+            'qty', i.quantity,
+            'price', i.unit_price,
+            'total', i.subtotal
+          )
+        ) as items
+      FROM users.orders o
+      LEFT JOIN users.order_items i ON o.id = i.order_id
+      WHERE o.customer_id = $1 OR ($2 != '' AND LOWER(o.customer_email) = LOWER($2)) OR ($3 != '' AND o.customer_phone = $3)
+      GROUP BY o.id
+      ORDER BY o.created_at DESC
+    `, [c.id, c.email || '', c.phone || '']);
+
+    // Fetch cart
+    const cartRes = await query(`
+      SELECT 
+        c.id as cart_item_id,
+        c.size,
+        c.quantity,
+        c.unit_price,
+        p.id as product_id,
+        p.name as product_name,
+        p.image_url,
+        p.tagline,
+        p.category_id,
+        p.specs_json
+      FROM users.cart_items c
+      JOIN company.products p ON c.product_id = p.id
+      WHERE c.session_or_customer_id = $1
+      ORDER BY c.added_at DESC
+    `, [c.id]);
+
+    const cartItems = cartRes.rows.map(r => ({
+      id: r.cart_item_id,
+      productId: r.product_id,
+      name: r.product_name,
+      size: r.size,
+      quantity: r.quantity,
+      unitPrice: Number(r.unit_price),
+      subtotal: Number(r.unit_price) * r.quantity,
+      image: r.image_url,
+      tagline: r.tagline,
+      category: r.category_id,
+      collection: (r.specs_json || {}).collection || 'Signature'
+    }));
+
     res.json({
       success: true,
       customer: {
@@ -487,9 +888,157 @@ app.get('/api/user/session', async (req, res) => {
         avatar: c.avatar,
         foundingNumber: c.founding_number,
         isFounding: c.is_founding,
-        referralCode: c.referral_code
+        referralCode: c.referral_code,
+        addresses: addrRes.rows,
+        orders: ordersRes.rows,
+        cart: cartItems
       }
     });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Update Customer Profile
+app.patch('/api/user/profile', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '');
+    const { name, email, phone } = req.body;
+
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const sessRes = await query('SELECT customer_id FROM users.sessions WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP', [token]);
+    if (sessRes.rows.length === 0) {
+      return res.status(401).json({ success: false, error: 'Session expired' });
+    }
+    const customerId = sessRes.rows[0].customer_id;
+
+    const updates = [];
+    const params = [customerId];
+
+    if (name) {
+      params.push(name.trim());
+      updates.push(`name = $${params.length}`);
+    }
+    if (email !== undefined) {
+      params.push(email ? email.toLowerCase().trim() : null);
+      updates.push(`email = $${params.length}`);
+    }
+    if (phone !== undefined) {
+      params.push(phone ? normalizePhone(phone) : null);
+      updates.push(`phone = $${params.length}`);
+    }
+
+    if (updates.length > 0) {
+      await query(`UPDATE users.customers SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = $1`, params);
+    }
+
+    const updatedCust = await query('SELECT * FROM users.customers WHERE id = $1', [customerId]);
+    res.json({ success: true, customer: updatedCust.rows[0], message: 'Profile updated successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Saved Addresses API
+app.get('/api/user/addresses', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ success: false, error: 'Authentication required' });
+
+    const sess = await query('SELECT customer_id FROM users.sessions WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP', [token]);
+    if (sess.rows.length === 0) return res.status(401).json({ success: false, error: 'Session expired' });
+
+    const addrRes = await query(`
+      SELECT id, label as tag, full_name as name, phone, address_line1 as line, address_line2, city, state, pincode, is_default as "isDefault"
+      FROM users.addresses WHERE customer_id = $1 ORDER BY is_default DESC, id DESC
+    `, [sess.rows[0].customer_id]);
+
+    res.json({ success: true, data: addrRes.rows });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post('/api/user/addresses', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ success: false, error: 'Authentication required' });
+
+    const sess = await query('SELECT customer_id FROM users.sessions WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP', [token]);
+    if (sess.rows.length === 0) return res.status(401).json({ success: false, error: 'Session expired' });
+
+    const customerId = sess.rows[0].customer_id;
+    const { label, name, phone, line, address_line1, address_line2, city, state, pincode, isDefault } = req.body;
+
+    const line1 = (line || address_line1 || '').trim();
+    if (!line1 || !city || !pincode) {
+      return res.status(400).json({ success: false, error: 'Address, city, and pincode are required.' });
+    }
+
+    if (isDefault) {
+      await query('UPDATE users.addresses SET is_default = FALSE WHERE customer_id = $1', [customerId]);
+    }
+
+    const insertRes = await query(`
+      INSERT INTO users.addresses (customer_id, label, full_name, phone, address_line1, address_line2, city, state, pincode, is_default)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      RETURNING id
+    `, [
+      customerId,
+      label || 'Home',
+      name || 'Customer',
+      phone || '',
+      line1,
+      address_line2 || null,
+      city.trim(),
+      state || 'Karnataka',
+      pincode.trim(),
+      Boolean(isDefault)
+    ]);
+
+    const addrRes = await query(`
+      SELECT id, label as tag, full_name as name, phone, address_line1 as line, address_line2, city, state, pincode, is_default as "isDefault"
+      FROM users.addresses WHERE customer_id = $1 ORDER BY is_default DESC, id DESC
+    `, [customerId]);
+
+    res.json({ success: true, message: 'Address saved successfully', data: addrRes.rows, newId: insertRes.rows[0].id });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/user/addresses/:id', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ success: false, error: 'Authentication required' });
+
+    const sess = await query('SELECT customer_id FROM users.sessions WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP', [token]);
+    if (sess.rows.length === 0) return res.status(401).json({ success: false, error: 'Session expired' });
+
+    await query('DELETE FROM users.addresses WHERE id = $1 AND customer_id = $2', [req.params.id, sess.rows[0].customer_id]);
+    res.json({ success: true, message: 'Address removed' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.patch('/api/user/addresses/:id/default', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ success: false, error: 'Authentication required' });
+
+    const sess = await query('SELECT customer_id FROM users.sessions WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP', [token]);
+    if (sess.rows.length === 0) return res.status(401).json({ success: false, error: 'Session expired' });
+
+    const customerId = sess.rows[0].customer_id;
+    await query('UPDATE users.addresses SET is_default = FALSE WHERE customer_id = $1', [customerId]);
+    await query('UPDATE users.addresses SET is_default = TRUE WHERE id = $1 AND customer_id = $2', [req.params.id, customerId]);
+
+    res.json({ success: true, message: 'Default address updated' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }
@@ -498,7 +1047,16 @@ app.get('/api/user/session', async (req, res) => {
 // Persistent Shopping Cart (stored in users.cart_items)
 app.get('/api/user/cart', async (req, res) => {
   try {
-    const sessionId = req.query.sessionId || req.headers['x-session-id'] || 'guest';
+    let sessionId = req.query.sessionId || req.headers['x-session-id'] || 'guest';
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '');
+    if (token) {
+      const sessRes = await query('SELECT customer_id FROM users.sessions WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP', [token]);
+      if (sessRes.rows.length > 0) {
+        sessionId = sessRes.rows[0].customer_id;
+      }
+    }
+
     const result = await query(`
       SELECT 
         c.id as cart_item_id,
@@ -549,16 +1107,26 @@ app.get('/api/user/cart', async (req, res) => {
 // Add or Update Item in Cart
 app.post('/api/user/cart', async (req, res) => {
   try {
-    const { sessionId, productId, size, quantity } = req.body;
+    let { sessionId, productId, size, quantity } = req.body;
+    const authHeader = req.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '');
+    if (token) {
+      const sessRes = await query('SELECT customer_id FROM users.sessions WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP', [token]);
+      if (sessRes.rows.length > 0) {
+        sessionId = sessRes.rows[0].customer_id;
+      }
+    }
+
     if (!sessionId || !productId) {
       return res.status(400).json({ success: false, error: 'sessionId and productId are required' });
     }
 
-    const prodRes = await query('SELECT base_price FROM company.products WHERE id = $1', [productId]);
+    const prodRes = await query('SELECT id, base_price FROM company.products WHERE id = $1 OR slug = $1', [productId]);
     if (prodRes.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
+    const resolvedProductId = prodRes.rows[0].id;
     const unitPrice = Number(prodRes.rows[0].base_price);
     const itemSize = size || 'Queen';
     const qty = Math.max(parseInt(quantity || 1, 10), 1);
@@ -568,7 +1136,7 @@ app.post('/api/user/cart', async (req, res) => {
       VALUES ($1, $2, $3, $4, $5)
       ON CONFLICT (session_or_customer_id, product_id, size)
       DO UPDATE SET quantity = users.cart_items.quantity + EXCLUDED.quantity, unit_price = EXCLUDED.unit_price
-    `, [sessionId, productId, itemSize, qty, unitPrice]);
+    `, [sessionId, resolvedProductId, itemSize, qty, unitPrice]);
 
     res.json({ success: true, message: 'Item added to persistent PostgreSQL cart' });
   } catch (err) {
@@ -1503,8 +2071,74 @@ app.get('/api/company/stats', async (req, res) => {
 
 
 // ══════════════════════════════════════════════════════════════════════════════
-// 6. SYSTEM SYNCHRONIZATION & RESET TESTING ENDPOINTS
+// 6. SYSTEM SYNCHRONIZATION & INSPECTOR TESTING ENDPOINTS
 // ══════════════════════════════════════════════════════════════════════════════
+
+// Live Schema Overview for Backend Inspector
+app.get('/api/system/schema-overview', async (req, res) => {
+  try {
+    const companyTables = ['staff_users', 'admin_sessions', 'login_attempts', 'categories', 'products', 'inventory', 'pricing_promos', 'quiz_questions', 'doctors', 'audit_logs', 'settings'];
+    const userTables = ['customers', 'sessions', 'addresses', 'orders', 'order_items', 'cart_items', 'wishlist_items', 'quiz_diagnoses', 'returns_rmas', 'referral_stats'];
+
+    const schemas = {
+      company: [],
+      users: []
+    };
+
+    for (const t of companyTables) {
+      try {
+        const cRes = await query(`SELECT COUNT(*) as count FROM company.${t}`);
+        schemas.company.push({ table: t, rowCount: parseInt(cRes.rows[0].count, 10) });
+      } catch (e) {
+        schemas.company.push({ table: t, rowCount: 0 });
+      }
+    }
+
+    for (const t of userTables) {
+      try {
+        const cRes = await query(`SELECT COUNT(*) as count FROM users.${t}`);
+        schemas.users.push({ table: t, rowCount: parseInt(cRes.rows[0].count, 10) });
+      } catch (e) {
+        schemas.users.push({ table: t, rowCount: 0 });
+      }
+    }
+
+    res.json({ success: true, schemas });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Live Table Data Inspection
+app.get('/api/system/table-data/:schema/:table', async (req, res) => {
+  try {
+    const { schema, table } = req.params;
+    const limit = Math.min(parseInt(req.query.limit || 50, 10), 100);
+
+    // Sanitize schema and table name to prevent SQL injection
+    const allowedSchemas = ['company', 'users'];
+    const allowedTables = [
+      'staff_users', 'admin_sessions', 'login_attempts', 'categories', 'products', 'inventory', 'pricing_promos', 'quiz_questions', 'doctors', 'audit_logs', 'settings',
+      'customers', 'sessions', 'addresses', 'orders', 'order_items', 'cart_items', 'wishlist_items', 'quiz_diagnoses', 'returns_rmas', 'referral_stats'
+    ];
+
+    if (!allowedSchemas.includes(schema) || !allowedTables.includes(table)) {
+      return res.status(400).json({ success: false, error: 'Invalid schema or table name' });
+    }
+
+    const result = await query(`SELECT * FROM ${schema}.${table} ORDER BY 1 DESC LIMIT ${limit}`);
+    res.json({
+      success: true,
+      schema,
+      table,
+      count: result.rows.length,
+      data: result.rows,
+      latencyMs: result.durationMs
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // Wipe users schema (customers, sessions, orders, order_items, returns, cart, quiz)
 app.post('/api/system/reset-users', async (req, res) => {

@@ -1441,52 +1441,185 @@
     </div>
 
         <!-- If NOT logged in (Embedded Interactive Sign In & Sign Up) -->
-    <div id="accountPageGuest" class="container" style="display:block;padding:40px 0 80px;max-width:540px;margin:0 auto;">
-      <div style="background:var(--bg-surface,#FFFFFF);border:1px solid rgba(76,63,94,0.14);border-radius:16px;padding:36px;box-shadow:0 12px 40px rgba(10,17,40,0.08);">
-        <div style="text-align:center;margin-bottom:24px;">
-          <div style="width:54px;height:54px;margin:0 auto 12px;border-radius:50%;background:rgba(212,175,55,0.12);display:flex;align-items:center;justify-content:center;color:var(--champagne-gold,#D4AF37);">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    <div id="accountPageGuest" class="container" style="display:block;padding:32px 0 80px;max-width:560px;margin:0 auto;">
+      <div style="background:var(--bg-surface,#FFFFFF);border:1px solid rgba(76,63,94,0.14);border-radius:18px;padding:36px 32px;box-shadow:0 16px 48px rgba(10,17,40,0.08);">
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="width:52px;height:52px;margin:0 auto 12px;border-radius:50%;background:rgba(212,175,55,0.12);display:flex;align-items:center;justify-content:center;color:var(--champagne-gold,#D4AF37);">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
           </div>
-          <h2 style="font-family:'Lora',serif;font-size:1.6rem;color:var(--midnight-blue,#0A1128);margin-bottom:6px;">Sleep Partner Access</h2>
-          <p style="font-size:0.86rem;color:var(--text-secondary,#4A4A4A);margin:0;">Instant passwordless login to track orders, trial days &amp; warranty</p>
+          <h2 style="font-family:'Lora',serif;font-size:1.65rem;color:var(--midnight-blue,#0A1128);margin-bottom:4px;">Sleep Partner Access</h2>
+          <p style="font-size:0.86rem;color:var(--text-secondary,#4A4A4A);margin:0;">Instant passwordless OTP access to track orders, trial days, saved addresses &amp; cart</p>
         </div>
 
-        <!-- Google 1-Click Sign-in -->
-        <button class="google-sign-in-btn" onclick="if(window.openLoginModal) window.openLoginModal();" style="width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 16px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;background:#fff;font-weight:600;font-size:0.9rem;cursor:pointer;margin-bottom:20px;transition:background 0.2s;">
-          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-          Continue with Google
-        </button>
-
-        <div style="display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--text-muted,#718096);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">
-          <div style="flex:1;height:1px;background:rgba(76,63,94,0.12);"></div>
-          <span>Or with Phone Number</span>
-          <div style="flex:1;height:1px;background:rgba(76,63,94,0.12);"></div>
-        </div>
-
-        <form id="inlineAccountLoginForm" onsubmit="event.preventDefault(); window.handleInlineAccountLogin();" style="display:flex;flex-direction:column;gap:14px;">
-          <div>
-            <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--midnight-blue,#0A1128);margin-bottom:4px;">Full Name</label>
-            <input class="form-input" id="inlineAcctName" type="text" placeholder="e.g. Sanjeev" style="width:100%;padding:10px 14px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.9rem;" required>
-          </div>
-          <div>
-            <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--midnight-blue,#0A1128);margin-bottom:4px;">Email Address</label>
-            <input class="form-input" id="inlineAcctEmail" type="email" placeholder="name@example.com" style="width:100%;padding:10px 14px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.9rem;" required>
-          </div>
-          <div>
-            <label style="display:block;font-size:0.8rem;font-weight:700;color:var(--midnight-blue,#0A1128);margin-bottom:4px;">10-Digit Mobile Number *</label>
-            <div style="display:flex;gap:8px;">
-              <span style="background:var(--bg-secondary,#F7F5F0);border:1px solid rgba(76,63,94,0.18);padding:10px 14px;border-radius:8px;font-weight:700;font-size:0.88rem;color:var(--midnight-blue,#0A1128);">+91</span>
-              <input class="form-input" id="inlineAcctPhone" type="tel" maxlength="10" placeholder="98800 11223" style="flex:1;padding:10px 14px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.9rem;" required>
-            </div>
-          </div>
-
-          <button type="submit" id="inlineAcctSubmitBtn" class="btn btn-gold btn-lg btn-block" style="margin-top:6px;width:100%;padding:14px;font-weight:700;font-size:0.95rem;">
-            Enter Sleep Partner Hub →
+        <!-- 2-Mode Switcher Tabs: Sign Up (New User) | Log In (Registered User) -->
+        <div class="auth-mode-pill-tabs">
+          <button type="button" id="guestTabSignUp" class="auth-mode-tab active" onclick="window.switchGuestAuthTab('signup')">
+            <span>📝 Sign Up (New User)</span>
           </button>
-        </form>
+          <button type="button" id="guestTabLogin" class="auth-mode-tab" onclick="window.switchGuestAuthTab('login')">
+            <span>🔑 Log In (Registered User)</span>
+          </button>
+        </div>
 
-        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(76,63,94,0.08);text-align:center;font-size:0.78rem;color:var(--text-muted,#718096);line-height:1.5;">
-          🔒 Encrypted &amp; DPDP 2023 Compliant. By continuing you agree to Velvet Hug's 100-Night Trial &amp; Privacy Policy.
+        <!-- ══════════════ SIGN UP (NEW USER) CONTAINER ══════════════ -->
+        <div id="guestSignUpContainer">
+          <!-- Step 1: User & Address Information Form -->
+          <form id="guestSignupForm" onsubmit="event.preventDefault(); window.handleGuestSignupSendOtp();" style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label class="form-label" style="font-weight:700;color:var(--midnight-blue,#0A1128);font-size:0.82rem;margin-bottom:4px;display:block;">Full Name *</label>
+              <input class="form-input" id="guestSignupName" type="text" placeholder="e.g. Rahul Sharma" style="width:100%;padding:11px 14px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.9rem;" required>
+            </div>
+
+            <div>
+              <label class="form-label" style="font-weight:700;color:var(--midnight-blue,#0A1128);font-size:0.82rem;margin-bottom:4px;display:block;">10-Digit Mobile Number *</label>
+              <div style="display:flex;gap:8px;">
+                <span style="background:var(--bg-secondary,#F7F5F0);border:1px solid rgba(76,63,94,0.18);padding:11px 14px;border-radius:8px;font-weight:700;font-size:0.88rem;color:var(--midnight-blue,#0A1128);">+91</span>
+                <input class="form-input" id="guestSignupPhone" type="tel" maxlength="10" placeholder="9807564321" style="flex:1;padding:11px 14px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.9rem;" required>
+              </div>
+            </div>
+
+            <div>
+              <label class="form-label" style="font-weight:700;color:var(--midnight-blue,#0A1128);font-size:0.82rem;margin-bottom:4px;display:block;">Email Address *</label>
+              <input class="form-input" id="guestSignupEmail" type="email" placeholder="rahul@gmail.com" style="width:100%;padding:11px 14px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.9rem;" required>
+            </div>
+
+            <!-- Address Section -->
+            <div style="background:var(--bg-secondary,#FBF9F5);border:1px solid rgba(76,63,94,0.1);border-radius:10px;padding:14px;margin-top:2px;">
+              <div style="font-weight:700;font-size:0.82rem;color:var(--midnight-blue,#0A1128);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+                <span>📍 Delivery Address</span>
+                <span style="font-size:0.72rem;font-weight:500;color:var(--text-muted,#718096);">(Saved to your profile)</span>
+              </div>
+              <input class="form-input" id="guestSignupAddrLine" type="text" placeholder="Flat/House No, Building, Street, Area" style="width:100%;padding:9px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.85rem;margin-bottom:8px;" required>
+              <div style="display:grid;grid-template-columns:1.2fr 1.2fr 1fr;gap:6px;">
+                <input class="form-input" id="guestSignupAddrCity" type="text" placeholder="City" style="padding:9px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.85rem;" required>
+                <input class="form-input" id="guestSignupAddrState" type="text" placeholder="State" style="padding:9px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.85rem;" required>
+                <input class="form-input" id="guestSignupAddrPin" type="tel" maxlength="6" placeholder="Pincode" style="padding:9px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.85rem;" required>
+              </div>
+            </div>
+
+            <!-- Receive OTP Option Selector -->
+            <div>
+              <label class="form-label" style="font-weight:700;color:var(--midnight-blue,#0A1128);font-size:0.82rem;margin-bottom:6px;display:block;">Receive Verification OTP via *</label>
+              <div class="otp-channel-selector" style="margin:0 0 6px;">
+                <div class="otp-channel-card active" id="signupChanPhoneCard" onclick="window.selectSignupOtpChannel('phone')">
+                  <input type="radio" id="signupChanPhone" name="signupOtpChannel" value="phone" checked>
+                  <span>📱 Phone Number</span>
+                </div>
+                <div class="otp-channel-card" id="signupChanEmailCard" onclick="window.selectSignupOtpChannel('email')">
+                  <input type="radio" id="signupChanEmail" name="signupOtpChannel" value="email">
+                  <span>✉️ Email Address</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="guestSignupSubmitBtn" class="btn btn-gold btn-lg btn-block" style="margin-top:4px;width:100%;padding:13px;font-weight:700;font-size:0.95rem;">
+              Get Verification OTP &amp; Create Account →
+            </button>
+          </form>
+
+          <!-- Step 2: Sign Up OTP Verification -->
+          <div id="guestSignupOtpStep" style="display:none;padding:8px 0;">
+            <div style="text-align:center;margin-bottom:16px;">
+              <div style="font-size:0.88rem;color:var(--text-secondary,#4A4A4A);margin-bottom:4px;">
+                Enter the 4-digit code sent to
+              </div>
+              <div id="guestSignupOtpTargetText" style="font-weight:700;color:var(--midnight-blue,#0A1128);font-size:0.95rem;">
+                +91 98075 •••••
+              </div>
+            </div>
+
+            <div class="otp-input-group">
+              <input class="otp-box" maxlength="1" id="signupOtp1" type="tel" autofocus>
+              <input class="otp-box" maxlength="1" id="signupOtp2" type="tel">
+              <input class="otp-box" maxlength="1" id="signupOtp3" type="tel">
+              <input class="otp-box" maxlength="1" id="signupOtp4" type="tel">
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+              <button type="button" class="btn btn-outline btn-sm" id="signupAutoFillBtn" onclick="window.autofillSignupOtp()" style="font-size:0.75rem;">
+                ⚡ Auto-fill Code (<span id="signupSimulatedCode">4821</span>)
+              </button>
+              <span style="font-size:0.78rem;color:var(--text-muted,#718096);" id="signupOtpTimer">00:45</span>
+            </div>
+
+            <button type="button" id="guestSignupVerifyBtn" onclick="window.handleGuestSignupVerifyOtp()" class="btn btn-gold btn-lg btn-block" style="width:100%;padding:13px;font-weight:700;font-size:0.95rem;">
+              Verify OTP &amp; Enter Sleep Partner Hub →
+            </button>
+
+            <button type="button" class="btn btn-outline-light btn-sm btn-block" onclick="window.backToSignupForm()" style="margin-top:10px;width:100%;color:var(--text-muted,#718096);border:none;background:transparent;cursor:pointer;">
+              ← Back / Edit Information
+            </button>
+          </div>
+        </div>
+
+        <!-- ══════════════ LOG IN (REGISTERED USER) CONTAINER ══════════════ -->
+        <div id="guestLoginContainer" style="display:none;">
+          <!-- Step 1: Login Phone or Email Input Form -->
+          <form id="guestLoginForm" onsubmit="event.preventDefault(); window.handleGuestLoginSendOtp();" style="display:flex;flex-direction:column;gap:14px;">
+            <div>
+              <label class="form-label" style="font-weight:700;color:var(--midnight-blue,#0A1128);font-size:0.82rem;margin-bottom:4px;display:block;">
+                Registered Mobile Number or Email Address *
+              </label>
+              <input class="form-input" id="guestLoginIdentifier" type="text" placeholder="e.g. 9807564321 or rahul@gmail.com" style="width:100%;padding:12px 14px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.9rem;" required>
+            </div>
+
+            <!-- OTP Destination Channel -->
+            <div>
+              <label class="form-label" style="font-weight:700;color:var(--midnight-blue,#0A1128);font-size:0.82rem;margin-bottom:6px;display:block;">Send Verification OTP via *</label>
+              <div class="otp-channel-selector" style="margin:0 0 6px;">
+                <div class="otp-channel-card active" id="loginChanPhoneCard" onclick="window.selectLoginOtpChannel('phone')">
+                  <input type="radio" id="loginChanPhone" name="loginOtpChannel" value="phone" checked>
+                  <span>📱 Phone Number</span>
+                </div>
+                <div class="otp-channel-card" id="loginChanEmailCard" onclick="window.selectLoginOtpChannel('email')">
+                  <input type="radio" id="loginChanEmail" name="loginOtpChannel" value="email">
+                  <span>✉️ Email Address</span>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" id="guestLoginSubmitBtn" class="btn btn-gold btn-lg btn-block" style="margin-top:6px;width:100%;padding:13px;font-weight:700;font-size:0.95rem;">
+              Send Verification Code →
+            </button>
+          </form>
+
+          <!-- Step 2: Login OTP Verification -->
+          <div id="guestLoginOtpStep" style="display:none;padding:8px 0;">
+            <div style="text-align:center;margin-bottom:16px;">
+              <div style="font-size:0.88rem;color:var(--text-secondary,#4A4A4A);margin-bottom:4px;">
+                Enter 4-digit code sent to
+              </div>
+              <div id="guestLoginOtpTargetText" style="font-weight:700;color:var(--midnight-blue,#0A1128);font-size:0.95rem;">
+                +91 98075 •••••
+              </div>
+            </div>
+
+            <div class="otp-input-group">
+              <input class="otp-box" maxlength="1" id="loginOtp1" type="tel" autofocus>
+              <input class="otp-box" maxlength="1" id="loginOtp2" type="tel">
+              <input class="otp-box" maxlength="1" id="loginOtp3" type="tel">
+              <input class="otp-box" maxlength="1" id="loginOtp4" type="tel">
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+              <button type="button" class="btn btn-outline btn-sm" id="loginAutoFillBtn" onclick="window.autofillLoginOtp()" style="font-size:0.75rem;">
+                ⚡ Auto-fill Code (<span id="loginSimulatedCode">4821</span>)
+              </button>
+              <span style="font-size:0.78rem;color:var(--text-muted,#718096);" id="loginOtpTimer">00:45</span>
+            </div>
+
+            <button type="button" id="guestLoginVerifyBtn" onclick="window.handleGuestLoginVerifyOtp()" class="btn btn-gold btn-lg btn-block" style="width:100%;padding:13px;font-weight:700;font-size:0.95rem;">
+              Verify &amp; Access My Account →
+            </button>
+
+            <button type="button" class="btn btn-outline-light btn-sm btn-block" onclick="window.backToLoginForm()" style="margin-top:10px;width:100%;color:var(--text-muted,#718096);border:none;background:transparent;cursor:pointer;">
+              ← Back / Use Different Number or Email
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-top:22px;padding-top:16px;border-top:1px solid rgba(76,63,94,0.08);text-align:center;font-size:0.78rem;color:var(--text-muted,#718096);line-height:1.5;">
+          🔒 Encrypted &amp; DPDP 2023 Compliant. Your details and orders sync directly with Velvet Hug PostgreSQL Engine.
         </div>
       </div>
     </div>
@@ -1981,89 +2114,171 @@
 </div>
 
 <!-- LOGIN & AUTH MODAL -->
+<!-- LOGIN & AUTH MODAL -->
 <div class="modal-backdrop" id="loginModal" role="dialog" aria-modal="true" aria-label="Sign in" onclick="if(event.target===this) window.closeLoginModal();">
-  <div class="modal-card" style="max-width:440px;width:100%;">
+  <div class="modal-card" style="max-width:460px;width:100%;border-radius:18px;padding:32px 28px;">
     <button class="modal-close-icon" onclick="window.closeLoginModal();" aria-label="Close">✕</button>
-    <div style="text-align:center;margin-bottom:20px;">
-      <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%;background:rgba(76,63,94,0.1);display:flex;align-items:center;justify-content:center;color:var(--midnight-blue);">
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%;background:rgba(212,175,55,0.12);display:flex;align-items:center;justify-content:center;color:var(--champagne-gold,#D4AF37);">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
       </div>
       <h2 style="font-family:var(--font-serif);font-size:1.4rem;color:var(--midnight-blue);margin-bottom:4px;">Sleep Partner Access</h2>
-      <p style="font-size:0.84rem;color:var(--text-muted);">Passwordless OTP login or 1-click Google Sign-in</p>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">Instant passwordless OTP access</p>
     </div>
 
-    <!-- Google Sign In -->
-    <button class="google-sign-in-btn" id="googleLoginBtn">
-      <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-      Continue with Google
-    </button>
-
-    <div style="display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-muted);font-size:0.78rem;">
-      <div style="flex:1;height:1px;background:rgba(76,63,94,0.12);"></div>
-      <span>OR WITH PHONE NUMBER</span>
-      <div style="flex:1;height:1px;background:rgba(76,63,94,0.12);"></div>
+    <!-- Modal 2-Tab Switcher -->
+    <div class="auth-mode-pill-tabs" style="margin-bottom:18px;">
+      <button type="button" id="modalTabSignUp" class="auth-mode-tab active" onclick="window.switchModalAuthTab('signup')">
+        <span>📝 Sign Up</span>
+      </button>
+      <button type="button" id="modalTabLogin" class="auth-mode-tab" onclick="window.switchModalAuthTab('login')">
+        <span>🔑 Log In</span>
+      </button>
     </div>
 
-    <!-- Phone OTP Container -->
-    <div id="otpPhoneStep">
-      <div style="margin-bottom:12px;">
-        <label class="form-label">Full Name</label>
-        <input class="form-input" id="loginNameInput" type="text" placeholder="Your Name (e.g. Sanjeev)">
-      </div>
-      <div style="margin-bottom:12px;">
-        <label class="form-label">Email Address</label>
-        <input class="form-input" id="loginEmailInput" type="email" placeholder="yourname@example.com">
-      </div>
-      <div style="margin-bottom:16px;">
-        <label class="form-label">10-Digit Mobile Number *</label>
-        <div style="display:flex;gap:8px;">
-          <span style="background:var(--bg-secondary);border:1px solid rgba(76,63,94,0.14);padding:10px 14px;border-radius:var(--radius-sm);font-weight:600;font-size:0.88rem;color:var(--midnight-blue);">+91</span>
-          <input class="form-input" id="loginPhoneInput" type="tel" maxlength="10" placeholder="Enter your 10-digit number" style="flex:1;">
+    <!-- Modal Sign Up Panel -->
+    <div id="modalSignUpContainer">
+      <form id="modalSignupForm" onsubmit="event.preventDefault(); window.handleModalSignupSendOtp();" style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:3px;display:block;">Full Name *</label>
+          <input class="form-input" id="modalSignupName" type="text" placeholder="e.g. Rahul Sharma" style="width:100%;padding:10px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.88rem;" required>
         </div>
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:3px;display:block;">10-Digit Mobile Number *</label>
+          <div style="display:flex;gap:6px;">
+            <span style="background:var(--bg-secondary);border:1px solid rgba(76,63,94,0.18);padding:10px 12px;border-radius:8px;font-weight:700;font-size:0.85rem;color:var(--midnight-blue);">+91</span>
+            <input class="form-input" id="modalSignupPhone" type="tel" maxlength="10" placeholder="9807564321" style="flex:1;padding:10px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.88rem;" required>
+          </div>
+        </div>
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:3px;display:block;">Email Address *</label>
+          <input class="form-input" id="modalSignupEmail" type="email" placeholder="rahul@gmail.com" style="width:100%;padding:10px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.88rem;" required>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:3px;display:block;">Delivery Address *</label>
+          <input class="form-input" id="modalSignupAddrLine" type="text" placeholder="Flat/House No, Street, Landmark" style="width:100%;padding:9px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.82rem;margin-bottom:6px;" required>
+          <div style="display:grid;grid-template-columns:1.2fr 1.2fr 1fr;gap:6px;">
+            <input class="form-input" id="modalSignupAddrCity" type="text" placeholder="City" style="padding:9px 10px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.82rem;" required>
+            <input class="form-input" id="modalSignupAddrState" type="text" placeholder="State" style="padding:9px 10px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.82rem;" required>
+            <input class="form-input" id="modalSignupAddrPin" type="tel" maxlength="6" placeholder="Pincode" style="padding:9px 10px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.82rem;" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:4px;display:block;">Receive Verification OTP via *</label>
+          <div class="otp-channel-selector" style="margin:0;">
+            <div class="otp-channel-card active" id="modalSignupChanPhoneCard" onclick="window.selectModalSignupOtpChannel('phone')">
+              <input type="radio" id="modalSignupChanPhone" name="modalSignupOtpChannel" value="phone" checked>
+              <span>📱 Mobile</span>
+            </div>
+            <div class="otp-channel-card" id="modalSignupChanEmailCard" onclick="window.selectModalSignupOtpChannel('email')">
+              <input type="radio" id="modalSignupChanEmail" name="modalSignupOtpChannel" value="email">
+              <span>✉️ Email</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="modalSignupSubmitBtn" class="btn btn-gold btn-lg btn-block" style="margin-top:4px;width:100%;padding:12px;font-weight:700;font-size:0.92rem;">
+          Get Verification OTP →
+        </button>
+      </form>
+
+      <!-- Modal Sign Up OTP Verification -->
+      <div id="modalSignupOtpStep" style="display:none;padding:6px 0;">
+        <div style="text-align:center;margin-bottom:14px;">
+          <div style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:3px;">
+            Enter 4-digit code sent to
+          </div>
+          <div id="modalSignupOtpTargetText" style="font-weight:700;color:var(--midnight-blue);font-size:0.92rem;">
+            +91 ••••• •••••
+          </div>
+        </div>
+
+        <div class="otp-input-group">
+          <input class="otp-box" maxlength="1" id="modalSignupOtp1" type="tel" autofocus>
+          <input class="otp-box" maxlength="1" id="modalSignupOtp2" type="tel">
+          <input class="otp-box" maxlength="1" id="modalSignupOtp3" type="tel">
+          <input class="otp-box" maxlength="1" id="modalSignupOtp4" type="tel">
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="window.autofillModalSignupOtp()" style="font-size:0.72rem;">
+            ⚡ Auto-fill (<span id="modalSignupSimulatedCode">4821</span>)
+          </button>
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="modalSignupOtpTimer">00:45</span>
+        </div>
+
+        <button type="button" onclick="window.handleModalSignupVerifyOtp()" class="btn btn-gold btn-lg btn-block" style="width:100%;padding:12px;font-weight:700;font-size:0.92rem;">
+          Verify &amp; Enter Sleep Partner Hub →
+        </button>
+        <button type="button" class="btn btn-outline-light btn-sm btn-block" onclick="window.backToModalSignupForm()" style="margin-top:8px;width:100%;color:var(--text-muted);border:none;background:transparent;cursor:pointer;">
+          ← Back / Edit Info
+        </button>
       </div>
-      <button class="btn btn-primary btn-lg btn-block" id="sendOtpBtn">Get Verification Code →</button>
     </div>
 
-    <!-- Google Account Step -->
-    <div id="googleAccountStep" style="display:none;">
-      <div style="font-size:0.92rem;font-weight:700;color:var(--midnight-blue);margin-bottom:6px;text-align:center;">
-        Sign in with Google
-      </div>
-      <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:16px;text-align:center;">
-        Enter your Google account details to link your sleep profile
-      </p>
-      <div style="margin-bottom:12px;">
-        <label class="form-label">Full Name *</label>
-        <input class="form-input" id="googleNameInput" type="text" placeholder="Your Full Name">
-      </div>
-      <div style="margin-bottom:12px;">
-        <label class="form-label">Google Email Address *</label>
-        <input class="form-input" id="googleEmailInput" type="email" placeholder="yourname@gmail.com">
-      </div>
-      <div style="margin-bottom:16px;">
-        <label class="form-label">Mobile Number (Optional)</label>
-        <input class="form-input" id="googlePhoneInput" type="tel" maxlength="10" placeholder="10-digit mobile number">
-      </div>
-      <button class="btn btn-primary btn-lg btn-block" id="confirmGoogleLoginBtn">Sign In with Google →</button>
-      <button class="btn btn-outline-light btn-sm btn-block" id="backFromGoogleBtn" style="margin-top:8px;color:var(--text-muted);border:none;">← Back to Other Options</button>
-    </div>
+    <!-- Modal Log In Panel -->
+    <div id="modalLoginContainer" style="display:none;">
+      <form id="modalLoginForm" onsubmit="event.preventDefault(); window.handleModalLoginSendOtp();" style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:4px;display:block;">
+            Mobile Number or Email Address *
+          </label>
+          <input class="form-input" id="modalLoginIdentifier" type="text" placeholder="e.g. 9807564321 or rahul@gmail.com" style="width:100%;padding:11px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.88rem;" required>
+        </div>
 
-    <div id="otpVerifyStep" style="display:none;">
-      <div style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:12px;text-align:center;">
-        Enter 4-digit code sent to <strong id="otpTargetPhone">+91 ••••• •••••</strong>
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:4px;display:block;">Send Verification OTP via *</label>
+          <div class="otp-channel-selector" style="margin:0;">
+            <div class="otp-channel-card active" id="modalLoginChanPhoneCard" onclick="window.selectModalLoginOtpChannel('phone')">
+              <input type="radio" id="modalLoginChanPhone" name="modalLoginOtpChannel" value="phone" checked>
+              <span>📱 Mobile</span>
+            </div>
+            <div class="otp-channel-card" id="modalLoginChanEmailCard" onclick="window.selectModalLoginOtpChannel('email')">
+              <input type="radio" id="modalLoginChanEmail" name="modalLoginOtpChannel" value="email">
+              <span>✉️ Email</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="modalLoginSubmitBtn" class="btn btn-gold btn-lg btn-block" style="margin-top:4px;width:100%;padding:12px;font-weight:700;font-size:0.92rem;">
+          Send Verification Code →
+        </button>
+      </form>
+
+      <!-- Modal Login OTP Verification -->
+      <div id="modalLoginOtpStep" style="display:none;padding:6px 0;">
+        <div style="text-align:center;margin-bottom:14px;">
+          <div style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:3px;">
+            Enter 4-digit code sent to
+          </div>
+          <div id="modalLoginOtpTargetText" style="font-weight:700;color:var(--midnight-blue);font-size:0.92rem;">
+            +91 ••••• •••••
+          </div>
+        </div>
+
+        <div class="otp-input-group">
+          <input class="otp-box" maxlength="1" id="modalLoginOtp1" type="tel" autofocus>
+          <input class="otp-box" maxlength="1" id="modalLoginOtp2" type="tel">
+          <input class="otp-box" maxlength="1" id="modalLoginOtp3" type="tel">
+          <input class="otp-box" maxlength="1" id="modalLoginOtp4" type="tel">
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="window.autofillModalLoginOtp()" style="font-size:0.72rem;">
+            ⚡ Auto-fill (<span id="modalLoginSimulatedCode">4821</span>)
+          </button>
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="modalLoginOtpTimer">00:45</span>
+        </div>
+
+        <button type="button" onclick="window.handleModalLoginVerifyOtp()" class="btn btn-gold btn-lg btn-block" style="width:100%;padding:12px;font-weight:700;font-size:0.92rem;">
+          Verify &amp; Access My Account →
+        </button>
+        <button type="button" class="btn btn-outline-light btn-sm btn-block" onclick="window.backToModalLoginForm()" style="margin-top:8px;width:100%;color:var(--text-muted);border:none;background:transparent;cursor:pointer;">
+          ← Back / Use Different Details
+        </button>
       </div>
-      <div class="otp-input-group">
-        <input class="otp-box" maxlength="1" id="otp1" type="tel" autofocus>
-        <input class="otp-box" maxlength="1" id="otp2" type="tel">
-        <input class="otp-box" maxlength="1" id="otp3" type="tel">
-        <input class="otp-box" maxlength="1" id="otp4" type="tel">
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
-        <button class="btn btn-outline btn-sm" id="autoFillOtpBtn" style="font-size:0.75rem;">⚡ Auto-fill Code (<span id="simulatedCode">4821</span>)</button>
-        <span style="font-size:0.75rem;color:var(--text-muted);" id="otpTimer">00:45</span>
-      </div>
-      <button class="btn btn-primary btn-lg btn-block" id="verifyOtpBtn">Verify & Enter Hub →</button>
-      <button class="btn btn-outline-light btn-sm btn-block" id="changePhoneBtn" style="margin-top:8px;color:var(--text-muted);border:none;">← Change Phone Number</button>
     </div>
   </div>
 </div>

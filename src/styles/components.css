@@ -2017,67 +2017,98 @@
   align-items: center;
 }
 
-/* Auth / Login Modal */
-.auth-mode-selector {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-.auth-mode-btn {
-  padding: 10px;
-  border: 1px solid rgba(76,63,94,0.15);
-  border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-}
-.auth-mode-btn.active {
-  background: var(--midnight-blue);
-  color: #fff;
-  border-color: var(--midnight-blue);
-}
-.google-sign-in-btn {
-  width: 100%;
+/* Auth / Login Modal & Embedded Sleep Partner Hub */
+.auth-mode-pill-tabs {
   display: flex;
+  background: var(--bg-secondary, #F7F5F0);
+  border: 1px solid rgba(76, 63, 94, 0.12);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 22px;
+  gap: 4px;
+}
+.auth-mode-tab {
+  flex: 1;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text-secondary, #4A4A4A);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  background: #fff;
-  border: 1px solid #dadce0;
-  color: #3c4043;
-  padding: 12px;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
-  font-size: 0.9rem;
+  gap: 6px;
+}
+.auth-mode-tab:hover {
+  color: var(--midnight-blue, #0A1128);
+}
+.auth-mode-tab.active {
+  background: #FFFFFF;
+  color: var(--midnight-blue, #0A1128);
+  box-shadow: 0 2px 8px rgba(10, 17, 40, 0.1);
+}
+
+.otp-channel-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 8px 0 16px;
+}
+.otp-channel-card {
+  border: 1.5px solid rgba(76, 63, 94, 0.16);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--bg-surface, #FFFFFF);
   cursor: pointer;
-  transition: var(--transition-fast);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-secondary, #4A4A4A);
+  transition: all 0.2s ease;
 }
-.google-sign-in-btn:hover {
-  background: #f8f9fa;
-  border-color: #c6c6c6;
+.otp-channel-card:hover {
+  border-color: var(--champagne-gold, #D4AF37);
+  background: rgba(212, 175, 55, 0.04);
 }
+.otp-channel-card.active {
+  border-color: var(--midnight-blue, #0A1128);
+  background: rgba(10, 17, 40, 0.04);
+  color: var(--midnight-blue, #0A1128);
+  font-weight: 700;
+  box-shadow: 0 0 0 1px var(--midnight-blue, #0A1128);
+}
+.otp-channel-card input[type="radio"] {
+  accent-color: var(--midnight-blue, #0A1128);
+}
+
 .otp-input-group {
   display: flex;
   gap: 10px;
   justify-content: center;
-  margin: 16px 0;
+  margin: 18px 0;
 }
 .otp-box {
-  width: 46px;
-  height: 52px;
-  font-size: 1.4rem;
+  width: 52px;
+  height: 56px;
+  font-size: 1.5rem;
   text-align: center;
-  font-weight: 700;
-  border: 2px solid rgba(76,63,94,0.2);
-  border-radius: var(--radius-sm);
-  background: #fff;
+  font-weight: 800;
+  font-family: monospace;
+  border: 2px solid rgba(76, 63, 94, 0.2);
+  border-radius: 10px;
+  background: #FFFFFF;
+  color: var(--midnight-blue, #0A1128);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .otp-box:focus {
-  border-color: var(--midnight-blue);
+  border-color: var(--midnight-blue, #0A1128);
+  box-shadow: 0 0 0 3px rgba(10, 17, 40, 0.12);
   outline: none;
 }
 
@@ -3680,7 +3711,109 @@ body.dark-theme .glass-card {
 .floating-hero-pill:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
+}/* --------------------------------------------------
+   35. Dedicated Auth Mode Tabs, OTP Channel Selectors & Inputs
+   -------------------------------------------------- */
+.auth-mode-pill-tabs {
+  display: flex;
+  background: var(--bg-secondary, #F4F1EA);
+  padding: 4px;
+  border-radius: 12px;
+  gap: 4px;
+  margin: 18px 0 20px;
+  border: 1px solid rgba(76, 63, 94, 0.12);
 }
 
+.auth-mode-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #4A4A4A);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
+.auth-mode-tab:hover {
+  color: var(--midnight-blue, #0A1128);
+}
+
+.auth-mode-tab.active {
+  background: var(--bg-surface, #FFFFFF);
+  color: var(--midnight-blue, #0A1128);
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(10, 17, 40, 0.08);
+}
+
+.otp-channel-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.otp-channel-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1.5px solid rgba(76, 63, 94, 0.18);
+  border-radius: 8px;
+  background: var(--bg-surface, #FFFFFF);
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-secondary, #4A4A4A);
+  transition: all 0.2s ease;
+}
+
+.otp-channel-card:hover {
+  border-color: rgba(212, 175, 55, 0.6);
+}
+
+.otp-channel-card.active {
+  border-color: var(--champagne-gold, #D4AF37);
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--midnight-blue, #0A1128);
+  font-weight: 700;
+}
+
+.otp-channel-card input[type="radio"] {
+  accent-color: var(--champagne-gold, #D4AF37);
+  cursor: pointer;
+}
+
+.otp-input-group {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0 14px;
+}
+
+.otp-box {
+  width: 52px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--font-body);
+  border: 1.5px solid rgba(76, 63, 94, 0.22);
+  border-radius: 10px;
+  background: var(--bg-surface, #FFFFFF);
+  color: var(--midnight-blue, #0A1128);
+  transition: all 0.2s ease;
+}
+
+.otp-box:focus {
+  border-color: var(--champagne-gold, #D4AF37);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  outline: none;
+}
 
