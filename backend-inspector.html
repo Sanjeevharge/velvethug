@@ -8,7 +8,8 @@
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Velvet Hug — PostgreSQL Engine &amp; Performance Inspector</title>
+  <title>Velvet Hug — PostgreSQL Database &amp; System Inspector</title>
+  <meta name="robots" content="noindex, nofollow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -36,6 +37,17 @@
       padding-bottom: 60px;
     }
 
+    .internal-banner {
+      background: #78350F;
+      color: #FEF3C7;
+      border-bottom: 1px solid #B45309;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 6px 16px;
+      text-align: center;
+      letter-spacing: 0.04em;
+    }
+
     .container {
       max-width: 1320px;
       margin: 0 auto;
@@ -45,7 +57,7 @@
     header {
       background: linear-gradient(180deg, rgba(19, 30, 54, 0.8) 0%, rgba(11, 17, 32, 0.95) 100%);
       border-bottom: 1px solid var(--card-border);
-      padding: 24px 0;
+      padding: 18px 0;
       position: sticky;
       top: 0;
       z-index: 50;
@@ -68,9 +80,8 @@
 
     .brand-title h1 {
       font-family: 'Lora', serif;
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 600;
-      letter-spacing: 0.02em;
       color: var(--gold-light);
     }
 
@@ -89,22 +100,16 @@
       color: var(--emerald);
     }
 
-    .badge-pill.gold {
-      background: rgba(212, 175, 55, 0.15);
-      border-color: rgba(212, 175, 55, 0.3);
-      color: var(--gold);
-    }
-
     .header-nav {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
     }
 
     .nav-btn {
-      padding: 8px 16px;
+      padding: 7px 14px;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s;
@@ -112,6 +117,9 @@
       background: var(--card-bg);
       color: var(--text-main);
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .nav-btn:hover {
@@ -119,21 +127,97 @@
       color: var(--gold-light);
     }
 
-    .nav-btn.primary {
-      background: var(--gold);
-      color: #0B1120;
+    /* Auth Screen */
+    .auth-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 70vh;
+      padding: 40px 16px;
+    }
+
+    .auth-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      border-radius: 16px;
+      padding: 36px 32px;
+      max-width: 440px;
+      width: 100%;
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .auth-header h2 {
+      font-family: 'Lora', serif;
+      color: var(--gold-light);
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+    }
+
+    .auth-header p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .auth-input-group {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .auth-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .auth-input {
+      background: var(--code-bg);
+      border: 1px solid var(--card-border);
+      color: #FFFFFF;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    .auth-input:focus {
       border-color: var(--gold);
     }
-    .nav-btn.primary:hover {
+
+    .btn-auth-primary {
+      background: var(--gold);
+      color: #0B1120;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-auth-primary:hover {
       background: var(--gold-light);
     }
 
-    /* Grid Layouts */
+    /* Metrics Grid */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
-      margin: 28px 0;
+      margin: 24px 0;
     }
 
     .metric-card {
@@ -166,7 +250,7 @@
 
     .metric-value {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       font-weight: 700;
       color: var(--text-main);
     }
@@ -199,16 +283,15 @@
     }
 
     .section-title {
-      font-family: 'Lora', serif;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--gold-light);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
-    /* Schema Partition Grid */
+    /* Partition Panels */
     .partition-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
@@ -216,26 +299,26 @@
     }
 
     .partition-panel {
-      background: #0D1629;
+      background: var(--code-bg);
       border: 1px solid var(--card-border);
       border-radius: 12px;
-      padding: 20px;
+      padding: 16px;
     }
 
     .partition-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
       padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 12px;
     }
 
     .partition-name {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 1rem;
+      font-size: 0.88rem;
       font-weight: 700;
-      color: var(--sky);
+      color: var(--gold-light);
     }
 
     .table-list {
@@ -248,157 +331,162 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 12px;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 6px;
+      padding: 10px 14px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all 0.2s;
     }
 
-    .table-row-item:hover {
-      background: rgba(212, 175, 55, 0.1);
-      border-left: 3px solid var(--gold);
+    .table-row-item:hover, .table-row-item.active {
+      border-color: var(--gold);
+      background: rgba(212, 175, 55, 0.08);
     }
 
-    .table-name-code {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
+    .table-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .table-label-text {
+      font-weight: 600;
+      font-size: 0.88rem;
       color: var(--text-main);
     }
 
     .table-count-badge {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
+      color: var(--sky);
+      background: rgba(56, 189, 248, 0.1);
       padding: 2px 8px;
-      border-radius: 4px;
-      background: rgba(255, 255, 255, 0.08);
-      color: var(--text-muted);
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
     }
 
-    /* Interactive Data Explorer Table */
-    .data-table-container {
-      max-height: 380px;
-      overflow-x: auto;
-      overflow-y: auto;
-      background: var(--code-bg);
+    /* Data Table & Controls */
+    .table-controls-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .pagination-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+
+    .btn-page {
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 8px;
-      margin-top: 16px;
+      color: var(--text-main);
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .btn-page:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn-page:hover:not(:disabled) {
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    .data-table-container {
+      overflow-x: auto;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      background: var(--code-bg);
+      max-height: 520px;
+      overflow-y: auto;
     }
 
     table.data-table {
       width: 100%;
       border-collapse: collapse;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       text-align: left;
     }
 
     table.data-table th {
+      background: #182542;
+      color: var(--gold-light);
+      padding: 10px 14px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
       position: sticky;
       top: 0;
-      background: #111C33;
-      padding: 10px 12px;
-      color: var(--gold-light);
+      z-index: 10;
       border-bottom: 1px solid var(--card-border);
       white-space: nowrap;
-      z-index: 10;
     }
 
     table.data-table td {
-      padding: 8px 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      color: #E2E8F0;
-      white-space: nowrap;
-      max-width: 280px;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(30, 46, 82, 0.6);
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      max-width: 320px;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     table.data-table tr:hover td {
       background: rgba(255, 255, 255, 0.02);
     }
 
-    /* Benchmark Actions */
-    .actions-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .btn-action {
-      padding: 10px 18px;
-      border-radius: 8px;
-      border: 1px solid var(--card-border);
-      background: var(--card-bg);
-      color: var(--text-main);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
+    .pii-masked {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
+      gap: 6px;
+      color: var(--text-muted);
     }
 
-    .btn-action:hover {
-      border-color: var(--gold);
-      background: rgba(212, 175, 55, 0.1);
-      color: var(--gold-light);
+    .btn-reveal {
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      color: var(--gold);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
     }
 
-    .btn-action.run-bench {
-      background: linear-gradient(135deg, #10B981, #059669);
-      border-color: #059669;
-      color: #FFFFFF;
-    }
-    .btn-action.run-bench:hover {
-      filter: brightness(1.1);
-    }
-
-    .btn-action.acid-test {
-      background: linear-gradient(135deg, #D4AF37, #B38F24);
-      border-color: #B38F24;
+    .btn-reveal:hover {
+      background: var(--gold);
       color: #0B1120;
     }
-    .btn-action.acid-test:hover {
-      filter: brightness(1.1);
-    }
 
-    .btn-action.rollback-test {
-      background: linear-gradient(135deg, #EF4444, #DC2626);
-      border-color: #DC2626;
-      color: #FFFFFF;
-    }
-
-    /* Live Output Box */
     .console-box {
       background: var(--code-bg);
       border: 1px solid var(--card-border);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 16px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.82rem;
-      color: #A5F3FC;
-      max-height: 240px;
-      overflow-y: auto;
+      color: var(--emerald);
+      min-height: 120px;
       white-space: pre-wrap;
       line-height: 1.6;
     }
 
-    .spinner {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-radius: 50%;
-      border-top-color: #FFF;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
+    /* Light Mode */
     body.light-mode {
       --bg-dark: #F5F7FB;
       --card-bg: #FFFFFF;
@@ -411,6 +499,7 @@
       --text-muted: #5E6B82;
       --code-bg: #EEF2F7;
     }
+    body.light-mode .internal-banner { background: #FEF3C7; color: #92400E; border-color: #FCD34D; }
     body.light-mode header { background: rgba(255,255,255,0.94); }
     body.light-mode .partition-panel { background: #F8FAFD; }
     body.light-mode .section-card { box-shadow: 0 8px 24px rgba(31,41,55,0.06); }
@@ -419,55 +508,87 @@
     body.light-mode table.data-table th { background: #E5EBF4; color: #5A4200; }
     body.light-mode table.data-table td { color: #1F2937; border-bottom-color: #D9E0EC; }
     body.light-mode .console-box { color: #075E54; }
-    body.light-mode .partition-header { border-bottom-color: #D9E0EC; }
   </style>
 </head>
 <body>
+
+  <div class="internal-banner">
+    ⚠️ Internal use only — do not share this link. All inspection queries are logged for statutory DPDP compliance.
+  </div>
 
   <header>
     <div class="container header-content">
       <div class="brand-title">
         <h1>Velvet Hug</h1>
-        <span class="badge-pill">● PostgreSQL 16 Online</span>
-        <span class="badge-pill gold">100% ACID Enforced</span>
+        <span class="badge-pill">● Database Inspector</span>
       </div>
       <div class="header-nav">
-        <button class="nav-btn" onclick="refreshDashboard()">🔄 Refresh Live Metrics</button>
         <button class="nav-btn" id="themeToggleBtn" onclick="toggleInspectorTheme()">☀️ Light Mode</button>
+        <button class="nav-btn" id="refreshMetricsBtn" onclick="refreshDashboard()" style="display:none;">🔄 Refresh</button>
         <a href="/" class="nav-btn">🛍️ Storefront</a>
-        <a href="/admin.html" class="nav-btn primary">🛡️ Operations Portal</a>
+        <button class="nav-btn" id="signOutBtn" onclick="inspectorSignOut()" style="display:none;color:#F87171;">🚪 Sign Out</button>
       </div>
     </div>
   </header>
 
-  <main class="container">
+  <!-- AUTHENTICATION GATE (Visible when unauthenticated) -->
+  <div id="authGateContainer" class="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2>Administrator Authorization</h2>
+        <p>Enter staff credentials and 2FA token to inspect live database records.</p>
+      </div>
+
+      <!-- Step 1: Credentials Form -->
+      <form id="inspectorLoginForm" onsubmit="event.preventDefault(); submitInspectorLogin();">
+        <div class="auth-input-group">
+          <label class="auth-label" for="inspEmail">Staff Email</label>
+          <input class="auth-input" id="inspEmail" type="email" autocomplete="username" placeholder="name@velvethug.in" value="subashini@velvethug.in" required>
+        </div>
+        <div class="auth-input-group">
+          <label class="auth-label" for="inspPassword">Password</label>
+          <input class="auth-input" id="inspPassword" type="password" autocomplete="current-password" placeholder="••••••••••••" value="velvethug" required>
+        </div>
+        <div class="auth-input-group">
+          <label class="auth-label" for="insp2FACode">4-Digit 2FA Code</label>
+          <input class="auth-input" id="insp2FACode" type="password" inputmode="numeric" placeholder="1234" maxlength="8" style="text-align:center;font-size:1.2rem;letter-spacing:0.3em;font-weight:700;" required>
+        </div>
+
+        <button type="submit" id="inspSubmitBtn" class="btn-auth-primary">Verify &amp; Enter Inspector</button>
+        <div id="inspAuthError" style="display:none;color:#FCA5A5;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:8px 12px;font-size:0.82rem;margin-top:12px;text-align:center;"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- AUTHENTICATED DASHBOARD (Hidden until logged in) -->
+  <main class="container" id="inspectorDashboard" style="display:none;">
 
     <!-- Metrics Row -->
     <div class="metrics-grid">
       <div class="metric-card">
         <div class="metric-title">Query Ping Latency</div>
-        <div class="metric-value" id="pingLatencyVal">0.43 ms</div>
+        <div class="metric-value" id="pingLatencyVal">0.45 ms</div>
         <div class="metric-sub">⚡ Sub-millisecond engine execution</div>
       </div>
       <div class="metric-card">
         <div class="metric-title">On-Disk Database Size</div>
         <div class="metric-value" id="diskSizeVal">39.22 MB</div>
-        <div class="metric-sub">💾 Persistent at ./data/postgres_store</div>
+        <div class="metric-sub">💾 Persistent PostgreSQL Storage</div>
       </div>
       <div class="metric-card">
         <div class="metric-title">Total Products in Catalog</div>
         <div class="metric-value" id="productsCountVal">18</div>
-        <div class="metric-sub">📦 Schema: company.products</div>
+        <div class="metric-sub">📦 Active catalog items</div>
       </div>
       <div class="metric-card">
         <div class="metric-title">Orders Processed</div>
         <div class="metric-value" id="ordersCountVal">4</div>
-        <div class="metric-sub">🛡️ Schema: users.orders</div>
+        <div class="metric-sub">🛡️ Verified orders</div>
       </div>
       <div class="metric-card">
         <div class="metric-title">Active Customers</div>
         <div class="metric-value" id="customersCountVal">4</div>
-        <div class="metric-sub">👥 Schema: users.customers</div>
+        <div class="metric-sub">👥 Registered accounts</div>
       </div>
     </div>
 
@@ -475,10 +596,10 @@
     <div class="section-card">
       <div class="section-header">
         <div class="section-title">
-          <span>🏛️</span> Dual-Partition PostgreSQL Architecture ("company" &amp; "users")
+          <span>🏛️</span> Dual-Partition PostgreSQL Architecture
         </div>
         <div style="font-size: 0.8rem; color: var(--text-muted);">
-          Click any table below to inspect real live records in the database
+          Click any table below to inspect records in read-only mode
         </div>
       </div>
 
@@ -487,12 +608,12 @@
         <div class="partition-panel">
           <div class="partition-header">
             <div>
-              <div class="partition-name">PARTITION 1: "company" SCHEMA</div>
+              <div class="partition-name">PARTITION 1: Operations &amp; Catalog</div>
               <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
                 Catalog, Inventory, Staff RBAC, Audit Logs, Settings
               </div>
             </div>
-            <span class="badge-pill gold">Operations</span>
+            <span class="badge-pill">Operations</span>
           </div>
 
           <div class="table-list" id="companyTableList">
@@ -504,7 +625,7 @@
         <div class="partition-panel">
           <div class="partition-header">
             <div>
-              <div class="partition-name">PARTITION 2: "users" SCHEMA</div>
+              <div class="partition-name">PARTITION 2: Customer &amp; Order Records</div>
               <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
                 Customers, Sessions, Orders, Items, RMAs, Cart
               </div>
@@ -523,18 +644,37 @@
     <div class="section-card">
       <div class="section-header">
         <div class="section-title">
-          <span>🔍</span> Live PostgreSQL Table Explorer: <span id="activeTableTitle" style="color:var(--sky); font-family:'JetBrains Mono', monospace; font-size:1.05rem;">company.products</span>
+          <span>🔍</span> Table Records Explorer: <span id="activeTableTitle" style="color:var(--sky); font-family:'JetBrains Mono', monospace; font-size:1.05rem;">Product Catalog</span>
         </div>
         <div style="display:flex; align-items:center; gap:10px;">
-          <span id="tableQuerySpeed" style="font-family:'JetBrains Mono', monospace; font-size:0.8rem; color:var(--emerald);">Query time: 1.45ms</span>
+          <span id="tableQuerySpeed" style="font-family:'JetBrains Mono', monospace; font-size:0.8rem; color:var(--emerald);">Query time: 1.2ms</span>
           <button class="nav-btn" onclick="reloadActiveTable()">Refresh Table</button>
+        </div>
+      </div>
+
+      <!-- Table Controls & Pagination Bar -->
+      <div class="table-controls-bar">
+        <div class="pagination-bar">
+          <button class="btn-page" id="btnPrevPage" onclick="changeTablePage(-1)" disabled>◀ Prev</button>
+          <span id="pageIndicatorText" style="font-weight:600;color:var(--text-muted);">Page 1 of 1</span>
+          <button class="btn-page" id="btnNextPage" onclick="changeTablePage(1)" disabled>Next ▶</button>
+          <span id="totalRowsCountText" style="color:var(--text-muted);margin-left:8px;">(0 total records)</span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--text-muted);">
+          <label for="pageSizeSelect">Rows:</label>
+          <select id="pageSizeSelect" onchange="changePageSize(this.value)" style="background:var(--code-bg);border:1px solid var(--card-border);color:#FFF;padding:4px 8px;border-radius:6px;font-size:0.8rem;">
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+          </select>
         </div>
       </div>
 
       <div class="data-table-container">
         <table class="data-table" id="liveDataTable">
           <thead>
-            <tr><th>Loading schema...</th></tr>
+            <tr><th>Loading records...</th></tr>
           </thead>
           <tbody>
             <tr><td>Please wait while records are fetched...</td></tr>
@@ -543,59 +683,32 @@
       </div>
     </div>
 
-    <!-- System Synchronization & Testing Reset Control Suite -->
-    <div class="section-card" style="border: 1px solid rgba(212, 175, 55, 0.4); background: linear-gradient(180deg, rgba(212, 175, 55, 0.05) 0%, rgba(19, 30, 54, 1) 100%);">
-      <div class="section-header">
-        <div class="section-title" style="color: var(--gold-light);">
-          <span>🔄</span> 3-Layer System Synchronization &amp; Testing Reset Suite
-        </div>
-        <div style="font-size:0.8rem; color:var(--text-muted);">
-          Instant atomic reset for continuous automated or manual end-to-end testing
-        </div>
-      </div>
-
-      <div class="actions-bar">
-        <button class="btn-action" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.4); color: #FCA5A5;" onclick="purgeUsersData()">
-          🧹 Purge "users" Data (0 Customers, 0 Orders, 0 RMAs)
-        </button>
-        <button class="btn-action" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #7DD3FC;" onclick="resetCompanyCatalog()">
-          🔄 Factory Reset Master Catalog (18 Products &amp; 46 SKUs)
-        </button>
-        <button class="btn-action" style="background: linear-gradient(135deg, #D4AF37, #B38F24); border-color: #D4AF37; color: #0B1120; font-weight: 700;" onclick="fullSystemSyncReset()">
-          ⚡ Full 3-Layer Synchronous Reset (Storefront + DB + Admin)
-        </button>
-      </div>
-    </div>
-
-    <!-- Live Performance & ACID Verification Suite -->
+    <!-- Read-Only Audit Log Viewer -->
     <div class="section-card">
       <div class="section-header">
         <div class="section-title">
-          <span>⚡</span> Live Performance &amp; ACID Transaction Verification Engine
+          <span>📜</span> System &amp; Compliance Audit Trail
         </div>
+        <button class="nav-btn" onclick="fetchLiveAuditStream()">🔄 Refresh Audit Trail</button>
       </div>
 
-      <div class="actions-bar">
-        <button class="btn-action run-bench" onclick="runConcurrentBenchmark()">
-          🚀 Run 50 Concurrent Queries Benchmark
-        </button>
-        <button class="btn-action acid-test" onclick="simulateAcidCheckout()">
-          ✅ Test ACID Atomic Checkout (Stock Deduct + Order)
-        </button>
-        <button class="btn-action rollback-test" onclick="simulateRollbackTest()">
-          🛡️ Test ACID Rollback (Stock Overdraft Protection)
-        </button>
-        <button class="btn-action" onclick="fetchLiveAuditStream()">
-          📜 Inspect Audit Trail (company.audit_logs)
-        </button>
-      </div>
-
-      <div class="console-box" id="consoleOutput">Click any button above to run real-time queries against PostgreSQL and observe live execution latencies and ACID guarantees...</div>
+      <div class="console-box" id="consoleOutput">Click "Refresh Audit Trail" to inspect immutable logs from company.audit_logs...</div>
     </div>
 
   </main>
 
   <script>
+    let activeInspectorToken = null;
+
+    // Flush tokens on reload / pagehide so inspector requires fresh login on reload
+    localStorage.removeItem('vh_inspector_token');
+    sessionStorage.removeItem('vh_inspector_token');
+    window.addEventListener('beforeunload', () => {
+      activeInspectorToken = null;
+      localStorage.removeItem('vh_inspector_token');
+      sessionStorage.removeItem('vh_inspector_token');
+    });
+
     function applyInspectorTheme() {
       const light = localStorage.getItem('vh_inspector_theme') === 'light';
       document.body.classList.toggle('light-mode', light);
@@ -609,60 +722,76 @@
     }
     applyInspectorTheme();
 
-    const inspectorFetch = window.fetch.bind(window);
-    window.fetch = (input, init = {}) => {
-      const url = typeof input === 'string' ? input : input.url;
-      const token = localStorage.getItem('vh_admin_token');
-      if (token && (url?.includes('/api/company') || url?.includes('/api/system'))) {
-        init.headers = { ...(init.headers || {}), Authorization: `Bearer ${token}` };
-      }
-      return inspectorFetch(input, init);
-    };
-
-    
-    function getAdminToken() {
-      const cookieTok = ('; ' + document.cookie).split('; vh_admin_tok=').pop().split(';').shift();
-      return cookieTok || localStorage.getItem('vh_admin_token') || null;
-    }
-
     function getAuthHeaders() {
-      const tok = getAdminToken();
-      return tok ? { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+      return activeInspectorToken ? { 'Authorization': 'Bearer ' + activeInspectorToken, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
     }
 
-    async function promptAdminAuth() {
-      const email = prompt('Administrator Email:');
-      if (!email) return false;
-      const password = prompt('Administrator Password:');
-      if (!password) return false;
-      const twoFactorCode = prompt('2FA Code:');
-      if (!twoFactorCode) return false;
+    async function submitInspectorLogin() {
+      const email = document.getElementById('inspEmail').value.trim();
+      const password = document.getElementById('inspPassword').value.trim();
+      const code = document.getElementById('insp2FACode').value.trim();
+      const btn = document.getElementById('inspSubmitBtn');
+      const errBox = document.getElementById('inspAuthError');
+      if (errBox) { errBox.style.display = 'none'; errBox.textContent = ''; }
+
+      if (!email || !password || !code) {
+        if (errBox) {
+          errBox.textContent = 'Please provide your staff email, password, and 2FA code.';
+          errBox.style.display = 'block';
+        }
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying Authorization...';
 
       try {
         const res = await fetch('/api/company/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, twoFactorCode })
+          body: JSON.stringify({ email, password, twoFactorCode: code })
         }).then(r => r.json());
 
         if (res.success && res.token) {
-          localStorage.setItem('vh_admin_token', res.token);
-          document.cookie = 'vh_admin_tok=' + res.token + ';path=/;SameSite=Strict';
-          alert('Authenticated successfully.');
+          activeInspectorToken = res.token;
+          document.getElementById('authGateContainer').style.display = 'none';
+          document.getElementById('inspectorDashboard').style.display = 'block';
+          document.getElementById('refreshMetricsBtn').style.display = 'inline-flex';
+          document.getElementById('signOutBtn').style.display = 'inline-flex';
           refreshDashboard();
-          return true;
         } else {
-          alert('Authentication failed: ' + (res.error || 'Invalid credentials'));
-          return false;
+          const msg = res.error || 'Invalid credentials or 2FA code.';
+          if (errBox) {
+            errBox.textContent = 'Authentication failed: ' + msg;
+            errBox.style.display = 'block';
+          }
         }
       } catch (e) {
-        alert('Authentication error: ' + e.message);
-        return false;
+        if (errBox) {
+          errBox.textContent = 'Authentication error. Please verify backend service is running.';
+          errBox.style.display = 'block';
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Verify & Enter Inspector';
       }
+    }
+
+    function inspectorSignOut() {
+      activeInspectorToken = null;
+      document.getElementById('authGateContainer').style.display = 'flex';
+      document.getElementById('inspectorDashboard').style.display = 'none';
+      document.getElementById('refreshMetricsBtn').style.display = 'none';
+      document.getElementById('signOutBtn').style.display = 'none';
+      document.getElementById('insp2FACode').value = '';
     }
 
     let activeSchema = 'company';
     let activeTable = 'products';
+    let activeTableLabel = 'Product Catalog';
+    let currentPage = 1;
+    let pageSize = 50;
+    let totalPages = 1;
 
     async function loadHealth() {
       try {
@@ -697,44 +826,88 @@
       container.innerHTML = '';
 
       tables.forEach(t => {
+        const tableName = t.table || t.name;
+        const tableLabel = t.label || tableName;
         const div = document.createElement('div');
-        div.className = 'table-row-item';
-        div.onclick = () => selectActiveTable(schemaName, t.name);
+        div.className = `table-row-item ${activeSchema === schemaName && activeTable === tableName ? 'active' : ''}`;
+        div.onclick = () => selectActiveTable(schemaName, tableName, tableLabel);
         div.innerHTML = `
-          <div class="table-name-code">${schemaName}.${t.name}</div>
+          <div class="table-info">
+            <div class="table-label-text">${tableLabel}</div>
+            <div style="font-family:monospace;font-size:0.72rem;color:var(--text-muted);">${tableName}</div>
+          </div>
           <div class="table-count-badge">${t.rowCount} rows</div>
         `;
         container.appendChild(div);
       });
     }
 
-    function selectActiveTable(schema, table) {
+    function selectActiveTable(schema, table, label) {
       activeSchema = schema;
       activeTable = table;
-      document.getElementById('activeTableTitle').textContent = `${schema}.${table}`;
+      activeTableLabel = label || table;
+      currentPage = 1;
+      document.getElementById('activeTableTitle').textContent = activeTableLabel;
+
+      // Update active highlight in lists
+      document.querySelectorAll('.table-row-item').forEach(el => el.classList.remove('active'));
+      loadSchemaOverview();
       reloadActiveTable();
     }
+
+    function changeTablePage(delta) {
+      const next = currentPage + delta;
+      if (next >= 1 && next <= totalPages) {
+        currentPage = next;
+        reloadActiveTable();
+      }
+    }
+
+    function changePageSize(val) {
+      pageSize = parseInt(val, 10) || 50;
+      currentPage = 1;
+      reloadActiveTable();
+    }
+
+    const SENSITIVE_COLUMNS = ['phone', 'customer_phone', 'email', 'customer_email', 'address', 'delivery_address', 'address_line1', 'address_line2', 'payment_ref', 'password_hash', 'two_factor_secret', 'pincode', 'razorpay_payment_id'];
 
     async function reloadActiveTable() {
       const tableEl = document.getElementById('liveDataTable');
       const speedEl = document.getElementById('tableQuerySpeed');
-      speedEl.textContent = 'Querying PostgreSQL...';
+      speedEl.textContent = 'Querying records...';
 
       try {
-        const res = await fetch(`/api/system/table-data/${activeSchema}/${activeTable}?limit=50`, { headers: getAuthHeaders() }).then(r => r.json());
-        if (res.success && res.data.length > 0) {
+        const res = await fetch(`/api/system/table-data/${activeSchema}/${activeTable}?limit=${pageSize}&page=${currentPage}`, { headers: getAuthHeaders() }).then(r => r.json());
+        if (res.success && res.data && res.data.length > 0) {
+          totalPages = res.totalPages || 1;
           speedEl.textContent = `Retrieved ${res.count} rows in ${res.latencyMs}ms`;
+          document.getElementById('pageIndicatorText').textContent = `Page ${res.page} of ${res.totalPages}`;
+          document.getElementById('totalRowsCountText').textContent = `(${res.totalRows} total records)`;
+          document.getElementById('btnPrevPage').disabled = (res.page <= 1);
+          document.getElementById('btnNextPage').disabled = (res.page >= res.totalPages);
 
           // Generate Headers
           const columns = Object.keys(res.data[0]);
           let thead = '<tr>' + columns.map(c => `<th>${c}</th>`).join('') + '</tr>';
-          
-          // Generate Rows
-          let tbody = res.data.map(row => {
+
+          // Generate Rows with PII Masking
+          let tbody = res.data.map((row, rowIdx) => {
             return '<tr>' + columns.map(col => {
               let val = row[col];
+              const isSensitive = SENSITIVE_COLUMNS.includes(col.toLowerCase());
               if (typeof val === 'object' && val !== null) val = JSON.stringify(val);
-              if (val === null || val === undefined) val = '<span style="color:#64748B">NULL</span>';
+              if (val === null || val === undefined) return '<td style="color:#64748B">NULL</td>';
+
+              if (isSensitive) {
+                const cellId = `pii_${activeTable}_${rowIdx}_${col}`;
+                return `<td>
+                  <span id="${cellId}" class="pii-masked">
+                    <span>••••••••••••</span>
+                    <button type="button" class="btn-reveal" onclick="revealPiiField('${cellId}', '${encodeURIComponent(String(val))}', '${col}', '${activeTable}', '${activeSchema}')">👁️ Reveal</button>
+                  </span>
+                </td>`;
+              }
+
               return `<td title="${String(val).replace(/"/g, '&quot;')}">${val}</td>`;
             }).join('') + '</tr>';
           }).join('');
@@ -743,6 +916,10 @@
           tableEl.querySelector('tbody').innerHTML = tbody;
         } else {
           speedEl.textContent = `Empty table (0 rows)`;
+          document.getElementById('pageIndicatorText').textContent = 'Page 1 of 1';
+          document.getElementById('totalRowsCountText').textContent = '(0 total records)';
+          document.getElementById('btnPrevPage').disabled = true;
+          document.getElementById('btnNextPage').disabled = true;
           tableEl.querySelector('thead').innerHTML = '<tr><th>Notice</th></tr>';
           tableEl.querySelector('tbody').innerHTML = '<tr><td>Table contains 0 records currently.</td></tr>';
         }
@@ -752,225 +929,49 @@
       }
     }
 
-    async function refreshDashboard() {
-      await loadHealth();
-      await loadSchemaOverview();
-      await reloadActiveTable();
-    }
+    async function revealPiiField(cellId, encodedVal, fieldName, tableName, schemaName) {
+      const el = document.getElementById(cellId);
+      if (!el) return;
+      const rawVal = decodeURIComponent(encodedVal);
 
-    // Benchmark 1: 50 Concurrent Queries
-    async function runConcurrentBenchmark() {
-      const log = document.getElementById('consoleOutput');
-      log.textContent = `[BENCHMARK] Firing 50 concurrent lookups to /api/catalog/products/vh-m001 against PostgreSQL...`;
-      
-      const start = performance.now();
-      const promises = [];
-      for (let i = 0; i < 50; i++) {
-        promises.push(fetch('/api/catalog/products/vh-m001').then(r => r.json()));
-      }
-
-      const results = await Promise.all(promises);
-      const totalTime = (performance.now() - start).toFixed(2);
-      const avg = (totalTime / 50).toFixed(2);
-
-      log.textContent = `[BENCHMARK RESULTS] 50 Concurrent Lookups Completed!
-------------------------------------------------------------
-• Total Execution Time:    ${totalTime} ms
-• Average Query Latency:   ${avg} ms per request
-• Requests Succeeded:      ${results.filter(r => r.success).length}/50
-• Internal DB Latencies:   min: ${Math.min(...results.map(r => r.latencyMs || 1))}ms, max: ${Math.max(...results.map(r => r.latencyMs || 5))}ms
-• ACID Isolation Mode:     READ COMMITTED (Standard PostgreSQL)
-------------------------------------------------------------
-Status: Ultra-Fast sub-millisecond execution verified.`;
-      loadHealth();
-    }
-
-    // Benchmark 2: Simulate Atomic Checkout
-    async function simulateAcidCheckout() {
-      const log = document.getElementById('consoleOutput');
-      log.textContent = `[ACID TRANSACTION] Initiating atomic checkout transaction (BEGIN ... COMMIT)...`;
-
-      const orderPayload = {
-        customerName: 'Inspector Benchmark Buyer',
-        customerEmail: 'inspector@velvethug.test',
-        deliveryAddress: 'Lavelle Road, Bangalore, Karnataka',
-        paymentMethod: 'upi',
-        couponUsed: 'DIWALI30',
-        items: [
-          { productId: 'vh-m001', size: 'King', quantity: 1 }
-        ]
-      };
-
-      const start = performance.now();
-      try {
-        const res = await fetch('/api/user/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderPayload)
-        }).then(r => r.json());
-
-        const duration = (performance.now() - start).toFixed(2);
-
-        if (res.success) {
-          log.textContent = `[ACID TRANSACTION SUCCESS] Order Created with Full ACID Guarantees!
-------------------------------------------------------------
-• Order ID Generated:    ${res.data.orderId}
-• Tracking Code:         ${res.data.trackingNumber}
-• Subtotal:              ₹${res.data.subtotal}
-• Discount Applied:      -₹${res.data.discountAmount} (DIWALI30)
-• Total Amount:          ₹${res.data.totalAmount}
-• Transaction Duration:  ${duration} ms
-• Operations Atomic:     1. Verified & decremented stock in company.inventory
-                         2. Created master order in users.orders
-                         3. Created line items in users.order_items
-                         4. Wrote compliance log to company.audit_logs
-                         5. Committed cleanly with 0 data drift.
-------------------------------------------------------------`;
-          refreshDashboard();
-        } else {
-          log.textContent = `[ACID TRANSACTION FAILED] Error: ${res.error}`;
-        }
-      } catch (err) {
-        log.textContent = `[ACID ERROR] ${err.message}`;
-      }
-    }
-
-    // Benchmark 3: Test Rollback on Overdraft
-    async function simulateRollbackTest() {
-      const log = document.getElementById('consoleOutput');
-      log.textContent = `[ACID ROLLBACK TEST] Deliberately attempting order of 999,999 units to trigger rollback...`;
-
-      const failPayload = {
-        customerName: 'Rollback Tester',
-        deliveryAddress: 'Bangalore',
-        items: [{ productId: 'vh-m001', size: 'King', quantity: 999999 }]
-      };
-
-      const res = await fetch('/api/user/checkout', {
+      // Audit Log Reveal Request to Server
+      fetch('/api/system/audit-reveal', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(failPayload)
-      }).then(r => r.json());
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ field: fieldName, table: tableName, schema: schemaName })
+      }).catch(() => {});
 
-      log.textContent = `[ACID ROLLBACK TEST RESULT]
-------------------------------------------------------------
-• Request Accepted:    NO (Rejected cleanly with HTTP 400)
-• Error from Engine:   "${res.error}"
-• Rollback Status:     TRANSACTION ROLLED BACK AUTOMATICALLY
-• Data Integrity:      100% Intact. Stock in company.inventory was NOT decremented.
-                       No orphaned rows in users.orders or users.order_items.
-------------------------------------------------------------`;
+      el.innerHTML = `<span style="color:var(--gold-light);font-weight:600;">${rawVal}</span>`;
     }
 
-    // Benchmark 4: Live Audit Stream
     async function fetchLiveAuditStream() {
       const log = document.getElementById('consoleOutput');
       log.textContent = `[AUDIT LOG] Fetching latest DPDP audit logs from company.audit_logs...`;
 
-      const res = await fetch('/api/company/audit-logs', { headers: getAuthHeaders() }).then(r => r.json());
-      if (res.success) {
-        let text = `[DPDP AUDIT LOG STREAM] (${res.count} immutable entries retrieved in ${res.latencyMs}ms)\n`;
-        text += `------------------------------------------------------------\n`;
-        res.data.slice(0, 8).forEach(entry => {
-          text += `[${new Date(entry.created_at).toLocaleTimeString()}] ${entry.action} by ${entry.staff_name || 'SYSTEM'} (${entry.entity_type} #${entry.entity_id})\n`;
-          if (entry.details_json) text += `    Details: ${JSON.stringify(entry.details_json)}\n`;
-        });
-        log.textContent = text;
-      }
-    }
-
-    // System Reset 1: Purge Users Partition
-    async function purgeUsersData() {
-      if (!confirm('Are you sure you want to purge all customer data, sessions, test orders, and RMAs from PostgreSQL "users" schema?')) return;
-      const log = document.getElementById('consoleOutput');
-      log.textContent = `[SYSTEM RESET] Purging all records in "users" schema...`;
-
       try {
-        const res = await fetch('/api/system/reset-users', { method: 'POST', headers: getAuthHeaders() }).then(r => r.json());
+        const res = await fetch('/api/company/audit-logs', { headers: getAuthHeaders() }).then(r => r.json());
         if (res.success) {
-          log.textContent = `[SYSTEM RESET COMPLETE] "users" Schema Cleanly Purged!
-------------------------------------------------------------
-• Status:            100% Clean Slate for Test Runs
-• Customers Count:   0
-• Orders Count:      0
-• RMAs / Returns:    0
-• Cart / Wishlist:   0
-• Message:           "${res.message}"
-------------------------------------------------------------`;
-          // Also clear any browser customer test caches
-          localStorage.removeItem('vh_user_data');
-          localStorage.removeItem('vh_cart_items');
-          localStorage.removeItem('vh_wishlist');
-          refreshDashboard();
+          let text = `[DPDP AUDIT LOG STREAM] (${res.count} immutable entries retrieved in ${res.latencyMs}ms)\n`;
+          text += `------------------------------------------------------------\n`;
+          res.data.slice(0, 15).forEach(entry => {
+            text += `[${new Date(entry.created_at).toLocaleString('en-IN')}] ${entry.action} by ${entry.staff_name || 'SYSTEM'} (${entry.entity_type} #${entry.entity_id})\n`;
+            if (entry.details_json) text += `    Details: ${JSON.stringify(entry.details_json)}\n`;
+          });
+          log.textContent = text;
         } else {
-          log.textContent = `[RESET ERROR] ${res.error}`;
+          log.textContent = 'Failed to load audit logs. Please ensure you are authorized.';
         }
       } catch (err) {
-        log.textContent = `[RESET ERROR] ${err.message}`;
+        log.textContent = 'Error querying audit trail: ' + err.message;
       }
     }
 
-    // System Reset 2: Factory Reset Company Partition
-    async function resetCompanyCatalog() {
-      if (!confirm('Reset company catalog to canonical factory master (18 products, 46 sized SKUs, categories, promotions)?')) return;
-      const log = document.getElementById('consoleOutput');
-      log.textContent = `[SYSTEM RESET] Restoring master catalog in "company" schema...`;
-
-      try {
-        const res = await fetch('/api/system/reset-company', { method: 'POST', headers: getAuthHeaders() }).then(r => r.json());
-        if (res.success) {
-          log.textContent = `[SYSTEM RESET COMPLETE] "company" Master Catalog Restored!
-------------------------------------------------------------
-• Status:            Canonical 18 Products & 46 Sized SKUs Active
-• Categories:        5 (Mattresses, Pillows, Cushions, Bolsters, Accessories)
-• Promos & Pricing:  15% Lifetime Founding, Diwali30, Velvet10, Founder500
-• Diagnostic Quiz:   5 Clinical Questions Active
-• Staff Users:       Subashini (Sole Administrator)
-• Message:           "${res.message}"
-------------------------------------------------------------`;
-          refreshDashboard();
-        } else {
-          log.textContent = `[RESET ERROR] ${res.error}`;
-        }
-      } catch (err) {
-        log.textContent = `[RESET ERROR] ${err.message}`;
-      }
+    async function refreshDashboard() {
+      await loadHealth();
+      await loadSchemaOverview();
+      await reloadActiveTable();
+      await fetchLiveAuditStream();
     }
-
-    // System Reset 3: Full 3-Layer Synchronous Reset
-    async function fullSystemSyncReset() {
-      if (!confirm('Execute FULL 3-LAYER SYNCHRONOUS RESET? This wipes test customer data, restores the master catalog, and synchronizes Storefront, PostgreSQL, and Admin Portal.')) return;
-      const log = document.getElementById('consoleOutput');
-      log.textContent = `[FULL SYSTEM RESET] Executing synchronous reset across Storefront, PostgreSQL, and Admin Portal...`;
-
-      try {
-        const res = await fetch('/api/system/full-reset', { method: 'POST', headers: getAuthHeaders() }).then(r => r.json());
-        if (res.success) {
-          log.textContent = `[FULL SYSTEM RESET COMPLETE] All 3 Layers 100% Synchronized!
-------------------------------------------------------------
-• Storefront:        18 Products, 46 Variants, 0 Test Orders
-• Database Engine:   Dual Partition PostgreSQL 16 (100% ACID)
-• Admin Portal:      Synchronized with Live PostgreSQL Inventory
-• Customer Data:     Clean Slate (0 fake users, 0 mock orders)
-• Message:           "${res.message}"
-------------------------------------------------------------`;
-          localStorage.removeItem('vh_user_data');
-          localStorage.removeItem('vh_cart_items');
-          localStorage.removeItem('vh_wishlist');
-          localStorage.removeItem('vh_admin_store_v1');
-          localStorage.setItem('vh_founding_count', '347');
-          refreshDashboard();
-        } else {
-          log.textContent = `[RESET ERROR] ${res.error}`;
-        }
-      } catch (err) {
-        log.textContent = `[RESET ERROR] ${err.message}`;
-      }
-    }
-
-    // Auto load on boot
-    refreshDashboard();
-    setInterval(refreshDashboard, 15000);
   </script>
 </body>
 </html>
