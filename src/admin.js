@@ -33,17 +33,22 @@ function qs(sel, ctx = document) { return ctx.querySelector(sel); }
 function qsa(sel, ctx = document) { return [...ctx.querySelectorAll(sel)]; }
 
 const ADMIN_TOKEN_KEY = 'vh_admin_token';
+let activeAdminSessionToken = null;
+
 const nativeFetch = window.fetch.bind(window);
 window.fetch = (input, init = {}) => {
   const url = typeof input === 'string' ? input : input.url;
-  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  const token = activeAdminSessionToken || localStorage.getItem(ADMIN_TOKEN_KEY);
   if (url?.includes('/api/company') && token) {
     init.headers = { ...(init.headers || {}), Authorization: `Bearer ${token}` };
   }
   return nativeFetch(input, init).then(response => {
     if (response.status === 401 && url?.includes('/api/company')) {
+      activeAdminSessionToken = null;
       localStorage.removeItem(ADMIN_TOKEN_KEY);
+      sessionStorage.removeItem(ADMIN_TOKEN_KEY);
       adminState.currentUser = null;
+      renderAuthScreen();
     }
     return response;
   });
@@ -192,36 +197,21 @@ async function syncWithPostgresBackend() {
 export async function initAdminAuth() {
   initAdminTheme();
 
-  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
-  if (token) {
-    try {
-      const checkRes = await nativeFetch('/api/company/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (checkRes.ok) {
-        const statsData = await checkRes.json();
-        if (statsData.success) {
-          adminState.currentUser = {
-            id: 'usr_001',
-            name: 'Subashini',
-            email: 'subashini@velvethug.in',
-            role: 'super_admin',
-            roleLabel: 'Sole Administrator'
-          };
-          renderAuthScreen();
-          syncWithPostgresBackend();
-    if (!window._adminSyncInterval) {
-      window._adminSyncInterval = setInterval(syncWithPostgresBackend, 8000);
-    }
-          startIdleTimer();
-          return;
-        }
-      } else {
-        localStorage.removeItem(ADMIN_TOKEN_KEY);
-      }
-    } catch (e) {
-      console.warn('[Admin Auth Re-verification]', e);
-    }
+  // Strict Security Policy: Always log out on every page reload/visit.
+  // Sessions are strictly ephemeral and never persisted across reloads.
+  activeAdminSessionToken = null;
+  localStorage.removeItem(ADMIN_TOKEN_KEY);
+  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  document.cookie = 'vh_admin_tok=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Strict';
+
+  adminState.currentUser = null;
+  adminState.loginStep = 'credentials';
+  adminState._pendingEmail = 'subashini@velvethug.in';
+  adminState._pendingPassword = null;
+
+  if (window._adminSyncInterval) {
+    clearInterval(window._adminSyncInterval);
+    window._adminSyncInterval = null;
   }
 
   renderAuthScreen();
@@ -379,6 +369,7 @@ window.verify2FACode = async function() {
       throw new Error('Backend server is starting or unreachable. Please try again in a few seconds.');
     }
     if (!response.ok || !result.success) throw new Error(result.error || 'Authentication failed');
+    activeAdminSessionToken = result.token;
     localStorage.setItem(ADMIN_TOKEN_KEY, result.token);
     document.cookie = `vh_admin_tok=${result.token};path=/;SameSite=Strict`;
     adminState._pendingPassword = null;
@@ -395,6 +386,9 @@ window.verify2FACode = async function() {
     adminToast(`Welcome, ${result.user.name} (${result.user.roleLabel || 'Administrator'})`);
     renderAuthScreen();
     syncWithPostgresBackend();
+    if (!window._adminSyncInterval) {
+      window._adminSyncInterval = setInterval(syncWithPostgresBackend, 8000);
+    }
   } catch (error) {
     adminToast(error.message);
     if (submitBtn) {
@@ -425,7 +419,7 @@ window.adminLogout = async function() {
   if (adminState.currentUser) {
     logAuditAction(adminState.currentUser.name, adminState.currentUser.roleLabel, 'Security', 'Session Terminated', 'Staff signed out');
   }
-  const token = localStorage.getItem(ADMIN_TOKEN_KEY);
+  const token = activeAdminSessionToken || localStorage.getItem(ADMIN_TOKEN_KEY);
   if (token) {
     try {
       await nativeFetch('/api/company/auth/logout', {
@@ -434,12 +428,33 @@ window.adminLogout = async function() {
       });
     } catch (e) {}
   }
+  activeAdminSessionToken = null;
   localStorage.removeItem(ADMIN_TOKEN_KEY);
+  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  document.cookie = 'vh_admin_tok=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Strict';
   adminState.currentUser = null;
   adminState.activeModule = 'dashboard';
+  if (window._adminSyncInterval) {
+    clearInterval(window._adminSyncInterval);
+    window._adminSyncInterval = null;
+  }
   renderAuthScreen();
   adminToast('Signed out of Velvet Hug Admin');
 };
+
+// Ensure beforeunload / pagehide always purges session tokens so reload requires fresh login
+window.addEventListener('beforeunload', () => {
+  activeAdminSessionToken = null;
+  localStorage.removeItem(ADMIN_TOKEN_KEY);
+  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  document.cookie = 'vh_admin_tok=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Strict';
+});
+window.addEventListener('pagehide', () => {
+  activeAdminSessionToken = null;
+  localStorage.removeItem(ADMIN_TOKEN_KEY);
+  sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+  document.cookie = 'vh_admin_tok=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Strict';
+});
 
 function startIdleTimer() {
   setInterval(() => {

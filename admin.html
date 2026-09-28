@@ -14,7 +14,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles/admin.css?v=1.2">
-      <script>
+  <script>
+    // Strict Reload Logout Policy: Admin tokens are immediately invalidated on every page reload/visit
+    localStorage.removeItem('vh_admin_token');
+    sessionStorage.removeItem('vh_admin_token');
+    document.cookie = 'vh_admin_tok=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Strict';
+
+    window.addEventListener('beforeunload', function() {
+      localStorage.removeItem('vh_admin_token');
+      sessionStorage.removeItem('vh_admin_token');
+      document.cookie = 'vh_admin_tok=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Strict';
+    });
+    window.addEventListener('pagehide', function() {
+      localStorage.removeItem('vh_admin_token');
+      sessionStorage.removeItem('vh_admin_token');
+      document.cookie = 'vh_admin_tok=;path=/;expires=Thu, 01 Jan 1970 00:00:00 GMT;SameSite=Strict';
+    });
+
     window.submitAdminLogin = window.submitAdminLogin || function() {
       var emailEl = document.getElementById('adminEmailInput');
       var passEl = document.getElementById('adminPasswordInput');
@@ -114,7 +130,10 @@
         if (data.token) {
           localStorage.setItem('vh_admin_token', data.token);
           document.cookie = 'vh_admin_tok=' + data.token + ';path=/;SameSite=Strict';
-          location.reload();
+          var authCard = document.getElementById('adminAuthContainer');
+          var portal = document.getElementById('adminPortalLayout');
+          if (authCard) authCard.style.display = 'none';
+          if (portal) portal.style.display = 'flex';
         }
       } catch(e) {
         alert(e.message);
