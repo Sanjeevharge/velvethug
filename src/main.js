@@ -2064,11 +2064,11 @@ async function handleGuestSignupSendOtp() {
 }
 
 function autofillSignupOtp() {
-  const code = '';
-  if (qs('#signupOtp1')) qs('#signupOtp1').value = code[0] || '1';
-  if (qs('#signupOtp2')) qs('#signupOtp2').value = code[1] || '2';
-  if (qs('#signupOtp3')) qs('#signupOtp3').value = code[2] || '3';
-  if (qs('#signupOtp4')) qs('#signupOtp4').value = code[3] || '4';
+  const code = '1234';
+  if (qs('#signupOtp1')) qs('#signupOtp1').value = '1';
+  if (qs('#signupOtp2')) qs('#signupOtp2').value = '2';
+  if (qs('#signupOtp3')) qs('#signupOtp3').value = '3';
+  if (qs('#signupOtp4')) qs('#signupOtp4').value = '4';
 }
 
 function backToSignupForm() {
