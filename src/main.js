@@ -1194,22 +1194,51 @@ window.checkPincodeDeliveryUI = function(inputVal, resultContainerId) {
   localStorage.setItem('vh_checked_pincode', res.pincode);
   state.rememberedPincode = res.pincode;
 
+  // COMPACT CART VIEW: Lightweight 1-line badge that does NOT push down or cover cart items
+  if (resultContainerId === 'cartPincodeResult') {
+    resultEl.innerHTML = `
+      <div class="cart-pincode-compact-pill">
+        <div style="display:flex;align-items:center;gap:6px;min-width:0;">
+          <span style="color:#10B981;font-size:0.85rem;">⚡</span>
+          <span style="font-size:0.78rem;color:#0F172A;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            Est. Arrival: <strong style="color:#059669;">${res.estimatedDateText}</strong>
+          </span>
+        </div>
+        <span style="font-size:0.72rem;background:#F1F5F9;color:#475569;padding:2px 6px;border-radius:4px;font-weight:600;flex-shrink:0;">
+          PIN ${res.pincode}
+        </span>
+      </div>
+    `;
+    return;
+  }
+
+  // FULL DETAILED VIEW: Clean, uncluttered, spacious delivery breakdown (PDP / Checkout / Details)
   resultEl.innerHTML = `
     <div class="pincode-card-rich">
       <div class="pincode-header-row">
         <span class="pincode-speed-badge">⚡ ${res.speedTag}</span>
-        <span style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">PIN: ${res.pincode} (${res.region})</span>
+        <span class="pincode-region-badge">PIN: <strong>${res.pincode}</strong> (${res.region})</span>
       </div>
-      <div class="pincode-eta-date">Estimated Arrival: ${res.estimatedDateText}</div>
-      <div style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:4px;">
-        Fulfilled via <strong>${res.partner}</strong>
+      
+      <div class="pincode-eta-row">
+        <span class="pincode-eta-label">Estimated Arrival:</span>
+        <span class="pincode-eta-date">${res.estimatedDateText}</span>
       </div>
-      <div style="font-size:0.74rem;color:var(--muted-violet);margin-bottom:6px;display:flex;align-items:center;gap:4px;">
-        <span>🏭 Origin Hub:</span> <strong>${res.originWarehouse || 'Velvet Hug Central Mother Warehouse, Chennai'}</strong>
+
+      <div class="pincode-logistics-box">
+        <div class="pincode-logistics-line">
+          <span class="logistics-icon">🚚</span>
+          <span>Fulfilled via <strong>${res.partner}</strong></span>
+        </div>
+        <div class="pincode-logistics-line">
+          <span class="logistics-icon">🏭</span>
+          <span>Origin Hub: <strong>${res.originWarehouse || 'Velvet Hug Central Mother Warehouse & Sleep Lab (Chennai)'}</strong></span>
+        </div>
+        <div class="pincode-logistics-note">
+          ${res.specialNote}
+        </div>
       </div>
-      <div style="font-size:0.75rem;color:var(--text-secondary);line-height:1.4;">
-        ${res.specialNote}
-      </div>
+
       <div class="pincode-feature-grid">
         <div class="pincode-feature-chip"><span>✓</span> Free White-Glove Room Unboxing</div>
         <div class="pincode-feature-chip"><span>✓</span> 100-Night Risk-Free Trial</div>
@@ -4086,48 +4115,52 @@ function renderQuizResults() {
   }).catch(error => console.warn('[Quiz] Backend persistence failed:', error.message));
 
   el.innerHTML = `
-    <div style="text-align:center;margin-bottom:18px;">
-      <div style="font-size:2.2rem;margin-bottom:6px;">✨</div>
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:2rem;margin-bottom:4px;">✨</div>
       <h3 style="font-family:var(--font-serif);font-size:1.35rem;font-weight:700;color:var(--midnight-blue);margin-bottom:4px;">Your Posture Diagnosis &amp; Sleep Match</h3>
       <p style="font-size:0.84rem;color:var(--text-secondary);max-width:440px;margin:0 auto;">Scientifically calibrated across your age, spine condition, sleeper weight, and firmness preference.</p>
     </div>
 
-    <div class="quiz-results-container" style="display:flex;flex-direction:column;gap:14px;max-height:420px;overflow-y:auto;padding-right:4px;">
+    <div class="quiz-results-container">
       ${diagnosisResults.map((item, idx) => {
         const p = item.product;
         return `
-          <div class="quiz-result-card" style="background:var(--bg-secondary);border:1.5px solid ${idx === 0 ? 'var(--champagne-gold)' : 'rgba(76,63,94,0.12)'};border-radius:var(--radius-sm);padding:14px;position:relative;transition:all 0.2s ease;">
-            ${idx === 0 ? `<div style="position:absolute;top:-10px;right:14px;background:var(--champagne-gold);color:var(--midnight-blue);font-size:0.7rem;font-weight:800;padding:2px 10px;border-radius:12px;text-transform:uppercase;letter-spacing:0.04em;box-shadow:0 2px 6px rgba(0,0,0,0.15);">Top Match • ${item.score}% Calibrated</div>` : ''}
+          <div class="quiz-result-card ${idx === 0 ? 'top-match-card' : ''}">
+            ${idx === 0 ? `
+              <div class="quiz-top-match-ribbon">
+                <span>⭐ TOP MATCH • ${item.score}% CALIBRATED</span>
+              </div>
+            ` : ''}
             
-            <div style="display:flex;gap:12px;align-items:flex-start;">
-              <img src="${p.image}" alt="${p.name}" style="width:84px;height:72px;object-fit:cover;border-radius:6px;flex-shrink:0;border:1px solid rgba(76,63,94,0.1);"
+            <div class="quiz-result-body">
+              <img src="${p.image}" alt="${p.name}" class="quiz-result-image"
                    onerror="this.src='./src/assets/images/mattress_hybrid_luxury.jpg'">
               
-              <div style="flex:1;min-width:0;">
-                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px;">
-                  <span style="font-family:var(--font-serif);font-weight:700;font-size:1.02rem;color:var(--midnight-blue);">${p.name}</span>
+              <div class="quiz-result-info">
+                <div class="quiz-result-title-row">
+                  <span class="quiz-product-title">${p.name}</span>
                   <span class="badge ${getBadgeClass(p.badge)}" style="font-size:0.65rem;">${p.badgeLabel || p.collection}</span>
                 </div>
                 
-                <div style="font-size:0.76rem;color:var(--text-muted);margin-bottom:6px;">
+                <div class="quiz-product-meta">
                   ${p.mattressType || 'Mattress'} • <strong>${p.firmness}</strong> • ${p.collection} Tier
                 </div>
 
-                <div style="background:rgba(212,175,55,0.1);border-left:3px solid var(--champagne-gold);padding:4px 8px;border-radius:0 4px 4px 0;font-size:0.76rem;color:var(--midnight-blue);margin-bottom:8px;line-height:1.4;">
+                <div class="quiz-clinical-box">
                   🩺 <strong>Clinical Match:</strong> ${item.reason}
                 </div>
 
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                  <div style="display:flex;align-items:baseline;gap:6px;">
-                    <span style="font-size:1.05rem;font-weight:800;color:var(--midnight-blue);">${formatPrice(p.basePrice)}</span>
-                    ${p.mrp ? `<span style="font-size:0.78rem;color:var(--text-muted);text-decoration:line-through;">${formatPrice(p.mrp)}</span>` : ''}
+                <div class="quiz-result-footer">
+                  <div class="quiz-price-wrap">
+                    <span class="quiz-price-current">${formatPrice(p.basePrice)}</span>
+                    ${p.mrp ? `<span class="quiz-price-mrp">${formatPrice(p.mrp)}</span>` : ''}
                   </div>
 
-                  <div style="display:flex;gap:6px;">
-                    <button type="button" class="btn btn-gold btn-xs" style="padding:6px 12px;font-size:0.76rem;" onclick="closeQuiz();openPDP(getProductById('${p.id}'))">
+                  <div class="quiz-actions-wrap">
+                    <button type="button" class="btn btn-gold btn-xs quiz-action-btn" onclick="closeQuiz();openPDP(getProductById('${p.id}'))">
                       View Details →
                     </button>
-                    <button type="button" class="btn btn-outline-dark btn-xs" style="padding:6px 10px;font-size:0.76rem;" onclick="closeQuiz();addToCart('${p.id}');openCart();">
+                    <button type="button" class="btn btn-outline-dark btn-xs quiz-action-btn" onclick="closeQuiz();addToCart('${p.id}');openCart();">
                       + Cart
                     </button>
                   </div>
@@ -4147,6 +4180,7 @@ function renderQuizResults() {
 
 window.openQuiz = openQuiz;
 window.closeQuiz = closeQuiz;
+window.renderQuizResults = renderQuizResults;
 
 // ────────────────────────────────────────────────────────────
 // EMI & FINANCIAL SCHEMES CONTROLLER
