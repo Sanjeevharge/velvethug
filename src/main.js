@@ -4786,15 +4786,10 @@ function initPromoAd() {
     }
   });
 
-  // Auto trigger on laptops and desktop screens (>= 992px) if not seen in session
-  const seen = sessionStorage.getItem('vh_promo_ad_seen');
-  if (!seen && typeof window !== 'undefined' && window.innerWidth >= 992) {
-    setTimeout(() => {
-      if (state.currentPage === 'home') {
-        openPromoAd();
-      }
-    }, 2200);
-  }
+  // Auto trigger promotional popup ad on every page load / reload (phones & laptops)
+  setTimeout(() => {
+    openPromoAd();
+  }, 1200);
 
   // Click triggers on promo banner & coupon pills
   qsa('#promoBanner, #promoTag, #promoCoupon, #promoAdOpenBtn, .hero-pill-badge, [data-open-promo]').forEach(el => {
@@ -4821,7 +4816,6 @@ function closePromoAd(e) {
   const modal = qs('#promoAdModal');
   if (!modal) return;
   modal.classList.remove('show');
-  sessionStorage.setItem('vh_promo_ad_seen', 'true');
   setTimeout(() => {
     if (!modal.classList.contains('show')) {
       modal.style.display = 'none';
