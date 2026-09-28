@@ -1404,10 +1404,10 @@ export const MATTRESS_FILTER_SCHEMA = {
     { id: 'Budget', label: 'Budget (Under ₹15,000)' }
   ],
   firmnessLevels: [
-    { key: 'Soft', label: '1. Soft (Plush Cloud)' },
-    { key: 'Medium Soft', label: '2. Medium Soft (Gentle Hug)' },
-    { key: 'Medium', label: '3. Medium (Balanced Bounce)' },
-    { key: 'Medium Firm', label: '4. Medium Firm (Lumbar Pushback)' },
+    { key: 'Soft', label: '1. Soft (Plush)' },
+    { key: 'Medium Soft', label: '2. Medium Soft' },
+    { key: 'Medium', label: '3. Medium (Balanced)' },
+    { key: 'Medium Firm', label: '4. Medium Firm' },
     { key: 'Firm', label: '5. Firm (Orthopedic)' }
   ],
   sizes: ['Single', 'Twin', 'Double', 'Queen', 'XL Queen', 'Super Queen', 'King', 'Super King', 'Kids'],

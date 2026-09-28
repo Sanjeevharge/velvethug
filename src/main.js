@@ -1239,6 +1239,55 @@ function getPresetIconSvg(id) {
   return icons[id] || icons['all'];
 }
 
+
+// ────────────────────────────────────────────────────────────
+// MATTRESS FILTER BAR (Exact Minimalist Popover UI matching Reference)
+// ────────────────────────────────────────────────────────────
+state.activeFilterPopover = null;
+state.filterPopoverLeft = null;
+
+window.toggleFilterPopover = function(popoverKey, event) {
+  if (event) {
+    event.stopPropagation();
+    const btn = event.currentTarget;
+    if (btn) {
+      const card = btn.closest('.filter-dropdowns-card');
+      if (card) {
+        const btnRect = btn.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        state.filterPopoverLeft = Math.max(10, btnRect.left - cardRect.left);
+      }
+    }
+  }
+  state.activeFilterPopover = (state.activeFilterPopover === popoverKey) ? null : popoverKey;
+  renderMattressFilters();
+};
+
+window.applyAndClosePopover = function() {
+  state.activeFilterPopover = null;
+  renderMattressFilters();
+};
+
+window.resetFilterAxis = function(axisKey) {
+  state.mattressFilters = state.mattressFilters || {};
+  state.mattressFilters[axisKey] = [];
+  if (axisKey === 'budget') {
+    state.mattressFilters.tiers = [];
+    state.mattressFilters.maxPrice = null;
+  }
+  renderMattressFilters();
+};
+
+// Global click outside listener to dismiss active filter popover
+document.addEventListener('click', (e) => {
+  if (state.activeFilterPopover) {
+    if (!e.target.closest('.filter-popover-menu') && !e.target.closest('.filter-dropdown-trigger')) {
+      state.activeFilterPopover = null;
+      renderMattressFilters();
+    }
+  }
+});
+
 function renderMattressFilters() {
   const container = qs('#mattressFiltersContainer');
   if (!container) return;
@@ -1246,126 +1295,185 @@ function renderMattressFilters() {
   const schema = MATTRESS_FILTER_SCHEMA;
   const activeFilters = state.mattressFilters || { preset: 'all', types: [], tiers: [], firmness: [], sizes: [], thickness: [], maxPrice: null };
 
+  // Helper labels for dropdown triggers
+  const getFirmnessLabel = () => {
+    const list = activeFilters.firmness || [];
+    if (list.length === 0) return 'Firmness Level';
+    if (list.length === 1) {
+      const numMap = { 'Soft': '1', 'Medium Soft': '2', 'Medium': '3', 'Medium Firm': '4', 'Firm': '5' };
+      return `Firmness Level: ${list[0]} (${numMap[list[0]] || '1'})`;
+    }
+    return `Firmness Level: ${list.length} selected`;
+  };
+
+  const getSizeLabel = () => {
+    const list = activeFilters.sizes || [];
+    if (list.length === 0) return 'Mattress Size';
+    if (list.length === 1) return `Size: ${list[0]}`;
+    return `Size: ${list.length} selected`;
+  };
+
+  const getBudgetLabel = () => {
+    const tiers = activeFilters.tiers || [];
+    if (tiers.length === 1) return `Budget: ${tiers[0]}`;
+    if (tiers.length > 1) return `Budget: ${tiers.length} selected`;
+    if (activeFilters.maxPrice) return `Under ${formatPrice(activeFilters.maxPrice)}`;
+    return 'Budget & Price';
+  };
+
+  const getMaterialLabel = () => {
+    const types = activeFilters.types || [];
+    if (types.length === 0) return 'Material & Type';
+    if (types.length === 1) return `Material: ${types[0]}`;
+    return `Material: ${types.length} selected`;
+  };
+
+  // Check which popover is active
+  const activePop = state.activeFilterPopover;
+  const popoverLeftPos = state.filterPopoverLeft !== null ? `${state.filterPopoverLeft}px` : '18px';
+
   container.innerHTML = `
-    <!-- Top Row: Sleeper Profile Quick Views & Sorting Dropdown -->
-    <div class="filter-presets-row">
-      <div class="preset-pills-list" role="tablist" aria-label="Sleeper Profile Views">
-        <span style="font-size:0.76rem;font-weight:700;color:var(--midnight-blue);text-transform:uppercase;letter-spacing:0.06em;align-self:center;">Sleeper Profile:</span>
-        ${schema.sleeperProfiles.map(p => `
-          <button type="button" class="filter-preset-pill ${activeFilters.preset === p.id ? 'active' : ''}" onclick="window.setMattressPreset('${p.id}')" title="${p.label}">
-            ${getPresetIconSvg(p.id)} <span>${p.label}</span>
+    <div class="mattress-filters-wrap">
+      <!-- 1. SLEEPER PROFILE ROW -->
+      <div class="sleeper-profile-bar" role="tablist" aria-label="Sleeper Profile Views">
+        <span class="sleeper-profile-label">SLEEPER PROFILE:</span>
+        ${schema.sleeperProfiles.filter(p => p.id !== 'fit-all' && p.id !== 'budget').map(p => {
+          const isSelected = (activeFilters.preset || 'all') === p.id;
+          let labelText = p.label;
+          if (p.id === 'kids') labelText = 'Kids & Teens';
+          if (p.id === 'youth') labelText = 'Youth (18–35)';
+          if (p.id === 'adult') labelText = 'Adult (35–50)';
+          if (p.id === 'senior') labelText = 'Senior / Back Pain';
+          if (p.id === 'big-people') labelText = 'Heavy Weight (Up to 240kg)';
+          return `
+            <button type="button" class="sleeper-pill-btn ${isSelected ? 'active' : ''}" onclick="window.setMattressPreset('${p.id}')">
+              ${labelText}
+            </button>
+          `;
+        }).join('')}
+      </div>
+
+      <!-- 2. MAIN FILTER DROPDOWNS CARD -->
+      <div class="filter-dropdowns-card">
+        <div class="filter-dropdowns-group">
+          <!-- Firmness Dropdown Trigger -->
+          <button type="button" class="filter-dropdown-trigger ${(activeFilters.firmness?.length > 0) ? 'has-selection' : ''} ${activePop === 'firmness' ? 'active-popover' : ''}" onclick="window.toggleFilterPopover('firmness', event)">
+            <span>${getFirmnessLabel()}</span>
+            <span class="arrow-icon">∨</span>
           </button>
-        `).join('')}
-      </div>
-      <div class="filter-sort-controls">
-        <label style="font-size:0.78rem;font-weight:600;color:var(--text-secondary);white-space:nowrap;">Sort By:</label>
-        <select class="filter-sort-select" id="mattressSortSelect" onchange="window.setMattressSort(this.value)">
-          <option value="recommended" ${state.mattressSort === 'recommended' ? 'selected' : ''}>Recommended &amp; Best Sellers</option>
-          <option value="price-low" ${state.mattressSort === 'price-low' ? 'selected' : ''}>Price: Low to High</option>
-          <option value="price-high" ${state.mattressSort === 'price-high' ? 'selected' : ''}>Price: High to Low</option>
-          <option value="rating" ${state.mattressSort === 'rating' ? 'selected' : ''}>Customer Rating (4.8+★)</option>
-          <option value="firmness-soft" ${state.mattressSort === 'firmness-soft' ? 'selected' : ''}>Firmness: Softest First</option>
-          <option value="firmness-firm" ${state.mattressSort === 'firmness-firm' ? 'selected' : ''}>Firmness: Firmest First</option>
-        </select>
-        <button type="button" class="clear-filters-btn" onclick="window.resetMattressFilters()">Clear All</button>
-      </div>
-    </div>
 
-    <!-- Multi-Axis Filter Grid -->
-    <div class="mattress-filter-axes-grid">
-      <!-- Axis 1: Mattress Type -->
-      <div class="filter-axis-card">
-        <div class="filter-axis-title">
-          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M2 20h20"/><path d="M5 20v-4"/><path d="M19 20v-4"/><path d="M2 12a10 10 0 0 1 20 0v4H2v-4z"/></svg> Mattress Type</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.types?.length ? `${activeFilters.types.length} selected` : ''}</span>
-        </div>
-        <div class="filter-axis-options">
-          ${schema.types.map(t => `
-            <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.types?.includes(t.key) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('types', '${t.key}')">
-              <span>${t.label}</span>
-            </label>
-          `).join('')}
-        </div>
-      </div>
+          <!-- Mattress Size Dropdown Trigger -->
+          <button type="button" class="filter-dropdown-trigger ${(activeFilters.sizes?.length > 0) ? 'has-selection' : ''} ${activePop === 'sizes' ? 'active-popover' : ''}" onclick="window.toggleFilterPopover('sizes', event)">
+            <span>${getSizeLabel()}</span>
+            <span class="arrow-icon">∨</span>
+          </button>
 
-      <!-- Axis 2: Price Classification Tier -->
-      <div class="filter-axis-card">
-        <div class="filter-axis-title">
-          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Price Tier</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.tiers?.length ? `${activeFilters.tiers.length} selected` : ''}</span>
-        </div>
-        <div class="filter-axis-options">
-          ${schema.priceTiers.map(pt => `
-            <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.tiers?.includes(pt.id) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('tiers', '${pt.id}')">
-              <span>${pt.label}</span>
-            </label>
-          `).join('')}
-        </div>
-      </div>
+          <!-- Budget & Price Dropdown Trigger -->
+          <button type="button" class="filter-dropdown-trigger ${(activeFilters.tiers?.length > 0 || activeFilters.maxPrice) ? 'has-selection' : ''} ${activePop === 'budget' ? 'active-popover' : ''}" onclick="window.toggleFilterPopover('budget', event)">
+            <span>${getBudgetLabel()}</span>
+            <span class="arrow-icon">∨</span>
+          </button>
 
-      <!-- Axis 3: Firmness Level -->
-      <div class="filter-axis-card">
-        <div class="filter-axis-title">
-          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></svg> Firmness Level</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.firmness?.length ? `${activeFilters.firmness.length} selected` : ''}</span>
+          <!-- Material & Type Dropdown Trigger -->
+          <button type="button" class="filter-dropdown-trigger ${(activeFilters.types?.length > 0) ? 'has-selection' : ''} ${activePop === 'types' ? 'active-popover' : ''}" onclick="window.toggleFilterPopover('types', event)">
+            <span>${getMaterialLabel()}</span>
+            <span class="arrow-icon">∨</span>
+          </button>
         </div>
-        <div class="filter-axis-options">
-          ${schema.firmnessLevels.map(f => `
-            <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.firmness?.includes(f.key) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('firmness', '${f.key}')">
-              <span>${f.label}</span>
-            </label>
-          `).join('')}
-        </div>
-      </div>
 
-      <!-- Axis 4: Dimensions / Sizes -->
-      <div class="filter-axis-card">
-        <div class="filter-axis-title">
-          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M21 3 9 15"/><path d="M12 3H3v18h18v-9"/><path d="M16 3h5v5"/><path d="M14 15l-4 4"/></svg> Size</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.sizes?.length ? `${activeFilters.sizes.length} selected` : ''}</span>
-        </div>
-        <div class="filter-axis-options">
-          ${schema.sizes.map(s => `
-            <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.sizes?.includes(s) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('sizes', '${s}')">
-              <span>${s}</span>
-            </label>
-          `).join('')}
-        </div>
-      </div>
+        <button type="button" class="filter-clear-all-link" onclick="window.resetMattressFilters()">Clear All</button>
 
-      <!-- Axis 5: Height / Thickness -->
-      <div class="filter-axis-card">
-        <div class="filter-axis-title">
-          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg> Height (Thickness)</span>
-          <span style="font-size:0.72rem;color:var(--champagne-gold);">${activeFilters.thickness?.length ? `${activeFilters.thickness.length} selected` : ''}</span>
-        </div>
-        <div class="filter-axis-options">
-          ${schema.thicknessInches.map(t => `
-            <label class="filter-check-item">
-              <input type="checkbox" ${activeFilters.thickness?.includes(t) ? 'checked' : ''} onchange="window.toggleMattressFilterOption('thickness', ${t})">
-              <span>${t}-Inch (${Math.round(t * 2.54)} cm)</span>
-            </label>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- Axis 6: Max Budget Slider -->
-      <div class="filter-axis-card">
-        <div class="filter-axis-title">
-          <span style="display:inline-flex;align-items:center;gap:6px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg> Max Budget</span>
-          <span style="font-size:0.72rem;font-weight:700;color:var(--midnight-blue);" id="filterPriceDisplay">${activeFilters.maxPrice ? formatPrice(activeFilters.maxPrice) : 'Any Price'}</span>
-        </div>
-        <div style="padding:6px 0;">
-          <input type="range" min="7000" max="120000" step="1000" value="${activeFilters.maxPrice || 120000}" id="filterPriceRange" style="width:100%;accent-color:var(--midnight-blue);cursor:pointer;" oninput="window.setMattressMaxPrice(this.value)">
-          <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--text-muted);margin-top:4px;">
-            <span>₹7,000</span>
-            <span>₹1,20,000+</span>
+        <!-- 3. ACTIVE FLOATING POPOVER -->
+        ${activePop === 'firmness' ? `
+          <div class="filter-popover-menu" style="left:${popoverLeftPos};" onclick="event.stopPropagation();">
+            <div class="popover-header-title">SELECT FIRMNESS</div>
+            <div class="popover-options-list">
+              ${schema.firmnessLevels.map(f => {
+                const isChecked = activeFilters.firmness?.includes(f.key);
+                return `
+                  <label class="popover-option-row ${isChecked ? 'checked-row' : ''}">
+                    <span>${f.label}</span>
+                    <input type="checkbox" class="popover-checkbox" ${isChecked ? 'checked' : ''} onchange="window.toggleMattressFilterOption('firmness', '${f.key}')">
+                  </label>
+                `;
+              }).join('')}
+            </div>
+            <div class="popover-footer-actions">
+              <button type="button" class="popover-reset-btn" onclick="window.resetFilterAxis('firmness')">Reset</button>
+              <button type="button" class="popover-apply-btn" onclick="window.applyAndClosePopover()">Apply</button>
+            </div>
           </div>
-        </div>
+        ` : ''}
+
+        ${activePop === 'sizes' ? `
+          <div class="filter-popover-menu" style="left:${popoverLeftPos};" onclick="event.stopPropagation();">
+            <div class="popover-header-title">SELECT SIZE</div>
+            <div class="popover-options-list">
+              ${schema.sizes.map(s => {
+                const isChecked = activeFilters.sizes?.includes(s);
+                return `
+                  <label class="popover-option-row ${isChecked ? 'checked-row' : ''}">
+                    <span>${s}</span>
+                    <input type="checkbox" class="popover-checkbox" ${isChecked ? 'checked' : ''} onchange="window.toggleMattressFilterOption('sizes', '${s}')">
+                  </label>
+                `;
+              }).join('')}
+            </div>
+            <div class="popover-footer-actions">
+              <button type="button" class="popover-reset-btn" onclick="window.resetFilterAxis('sizes')">Reset</button>
+              <button type="button" class="popover-apply-btn" onclick="window.applyAndClosePopover()">Apply</button>
+            </div>
+          </div>
+        ` : ''}
+
+        ${activePop === 'budget' ? `
+          <div class="filter-popover-menu" style="left:${popoverLeftPos};" onclick="event.stopPropagation();">
+            <div class="popover-header-title">SELECT PRICE TIER</div>
+            <div class="popover-options-list">
+              ${schema.priceTiers.map(pt => {
+                const isChecked = activeFilters.tiers?.includes(pt.id);
+                return `
+                  <label class="popover-option-row ${isChecked ? 'checked-row' : ''}">
+                    <span>${pt.label}</span>
+                    <input type="checkbox" class="popover-checkbox" ${isChecked ? 'checked' : ''} onchange="window.toggleMattressFilterOption('tiers', '${pt.id}')">
+                  </label>
+                `;
+              }).join('')}
+            </div>
+            <div style="margin-top:14px;padding-top:10px;border-top:1px solid #F1F5F9;">
+              <div style="font-size:0.75rem;font-weight:700;color:#64748B;display:flex;justify-content:space-between;margin-bottom:6px;">
+                <span>MAX BUDGET</span>
+                <span style="color:#0F172A;">${activeFilters.maxPrice ? formatPrice(activeFilters.maxPrice) : 'Any Price'}</span>
+              </div>
+              <input type="range" min="7000" max="120000" step="1000" value="${activeFilters.maxPrice || 120000}" style="width:100%;accent-color:#4F46E5;cursor:pointer;" oninput="window.setMattressMaxPrice(this.value)">
+            </div>
+            <div class="popover-footer-actions">
+              <button type="button" class="popover-reset-btn" onclick="window.resetFilterAxis('budget')">Reset</button>
+              <button type="button" class="popover-apply-btn" onclick="window.applyAndClosePopover()">Apply</button>
+            </div>
+          </div>
+        ` : ''}
+
+        ${activePop === 'types' ? `
+          <div class="filter-popover-menu" style="left:${popoverLeftPos};" onclick="event.stopPropagation();">
+            <div class="popover-header-title">SELECT MATERIAL &amp; TYPE</div>
+            <div class="popover-options-list">
+              ${schema.types.map(t => {
+                const isChecked = activeFilters.types?.includes(t.key);
+                return `
+                  <label class="popover-option-row ${isChecked ? 'checked-row' : ''}">
+                    <span>${t.label}</span>
+                    <input type="checkbox" class="popover-checkbox" ${isChecked ? 'checked' : ''} onchange="window.toggleMattressFilterOption('types', '${t.key}')">
+                  </label>
+                `;
+              }).join('')}
+            </div>
+            <div class="popover-footer-actions">
+              <button type="button" class="popover-reset-btn" onclick="window.resetFilterAxis('types')">Reset</button>
+              <button type="button" class="popover-apply-btn" onclick="window.applyAndClosePopover()">Apply</button>
+            </div>
+          </div>
+        ` : ''}
       </div>
     </div>
   `;

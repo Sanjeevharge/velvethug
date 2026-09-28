@@ -3112,12 +3112,14 @@
    ENHANCED MATTRESS MULTI-AXIS FILTERING SYSTEM
    ──────────────────────────────────────────────────────────── */
 .mattress-filters-container {
-  background: var(--bg-surface);
-  border: 1px solid rgba(76, 63, 94, 0.12);
-  border-radius: var(--radius-lg);
-  padding: 20px 24px;
-  margin-bottom: 28px;
-  box-shadow: 0 4px 20px rgba(10, 17, 40, 0.03);
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin-bottom: 24px !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  position: relative !important;
 }
 
 .filter-presets-row {
@@ -4603,5 +4605,255 @@ body.dark-theme .glass-card {
     background: var(--bg-surface, #FFFFFF) !important;
     border-radius: 12px !important;
     border: 1px solid rgba(76, 63, 94, 0.12) !important;
+  }
+}
+
+
+/* ==========================================================================
+   MODERN MINIMALIST MATTRESS FILTER BAR (Exact Match to User Reference)
+   ========================================================================== */
+.mattress-filters-wrap {
+  margin-bottom: 24px;
+  position: relative;
+}
+
+/* 1. Top Sleeper Profile Row */
+.sleeper-profile-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 0 14px;
+}
+.sleeper-profile-bar::-webkit-scrollbar {
+  display: none;
+}
+.sleeper-profile-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #8E9BAE;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+.sleeper-pill-btn {
+  background: #FFFFFF;
+  color: #475569;
+  border: 1px solid #E2E8F0;
+  border-radius: 9999px;
+  padding: 7px 18px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.sleeper-pill-btn:hover {
+  border-color: #CBD5E1;
+  color: #0F172A;
+}
+.sleeper-pill-btn.active {
+  background: #0F172A !important;
+  color: #FFFFFF !important;
+  border-color: #0F172A !important;
+  font-weight: 600 !important;
+}
+
+/* 2. Main Filter Box Card */
+.filter-dropdowns-card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+.filter-dropdowns-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.filter-dropdown-trigger {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  user-select: none;
+}
+.filter-dropdown-trigger:hover {
+  border-color: #CBD5E1;
+}
+.filter-dropdown-trigger.active-popover {
+  border-color: #6366F1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+}
+.filter-dropdown-trigger.has-selection {
+  border: 1.5px solid #6366F1 !important;
+  color: #4F46E5 !important;
+  background: #F8FAFC !important;
+  font-weight: 600 !important;
+}
+.filter-dropdown-trigger .arrow-icon {
+  font-size: 0.72rem;
+  transition: transform 0.2s ease;
+  color: #64748B;
+  display: inline-block;
+}
+.filter-dropdown-trigger.active-popover .arrow-icon {
+  transform: rotate(180deg);
+  color: #4F46E5;
+}
+.filter-clear-all-link {
+  background: none;
+  border: none;
+  color: #8E9BAE;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px 8px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+.filter-clear-all-link:hover {
+  color: #4F46E5;
+}
+
+/* 3. Floating Dropdown Popover */
+.filter-popover-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  width: 290px;
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  padding: 18px 20px;
+  z-index: 500;
+  animation: popoverFadeIn 0.15s ease-out;
+}
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.popover-header-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #8E9BAE;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+}
+.popover-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.popover-option-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: #334155;
+  cursor: pointer;
+  padding: 4px 0;
+  user-select: none;
+}
+.popover-option-row:hover {
+  color: #0F172A;
+}
+.popover-option-row.checked-row {
+  color: #4F46E5;
+  font-weight: 600;
+}
+.popover-checkbox {
+  width: 17px;
+  height: 17px;
+  accent-color: #4F46E5;
+  cursor: pointer;
+}
+.popover-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #F1F5F9;
+}
+.popover-reset-btn {
+  background: none;
+  border: none;
+  color: #8E9BAE;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.popover-reset-btn:hover {
+  color: #475569;
+}
+.popover-apply-btn {
+  background: #4F46E5;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 18px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.popover-apply-btn:hover {
+  background: #4338CA;
+}
+
+@media (max-width: 768px) {
+  .filter-dropdowns-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+  .filter-dropdowns-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+  .filter-dropdown-trigger {
+    justify-content: space-between;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+  .filter-popover-menu {
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: calc(100vw - 40px);
+  }
+  .filter-clear-all-link {
+    text-align: right;
+    margin-left: auto;
   }
 }
