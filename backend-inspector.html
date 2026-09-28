@@ -49,9 +49,10 @@
     }
 
     .container {
-      max-width: 1320px;
+      max-width: 96%;
+      width: 100%;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 0 20px;
     }
 
     header {
@@ -407,46 +408,108 @@
     .data-table-container {
       overflow-x: auto;
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: 12px;
       background: var(--code-bg);
-      max-height: 520px;
+      max-height: 750px;
       overflow-y: auto;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 
     table.data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.82rem;
+      font-size: 0.85rem;
       text-align: left;
     }
 
     table.data-table th {
       background: #182542;
       color: var(--gold-light);
-      padding: 10px 14px;
+      padding: 11px 14px;
       font-weight: 700;
-      letter-spacing: 0.03em;
+      font-size: 0.76rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       position: sticky;
       top: 0;
-      z-index: 10;
-      border-bottom: 1px solid var(--card-border);
+      z-index: 5;
+      border-bottom: 2px solid var(--card-border);
       white-space: nowrap;
     }
 
     table.data-table td {
-      padding: 10px 14px;
+      padding: 11px 14px;
       border-bottom: 1px solid rgba(30, 46, 82, 0.6);
       color: var(--text-main);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
-      max-width: 320px;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.82rem;
+      line-height: 1.5;
       white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    table.data-table td.cell-wrap {
+      white-space: normal;
+      min-width: 220px;
+      max-width: 450px;
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+
+    table.data-table tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.02);
     }
 
     table.data-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
+      background: rgba(212, 175, 55, 0.08);
+    }
+
+    .table-cell-json {
+      background: rgba(11, 17, 32, 0.7);
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+      display: block;
+      min-width: 240px;
+      max-width: 550px;
+      color: #E2E8F0;
+      margin: 0;
+    }
+
+    .badge-bool-true {
+      color: #34D399;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.74rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .badge-bool-false {
+      color: #94A3B8;
+      background: rgba(148, 163, 184, 0.1);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.74rem;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .badge-null {
+      color: #64748B;
+      font-style: italic;
+      font-size: 0.78rem;
+      white-space: nowrap;
     }
 
     .pii-masked {
@@ -454,17 +517,22 @@
       align-items: center;
       gap: 6px;
       color: var(--text-muted);
+      white-space: nowrap;
     }
 
     .btn-reveal {
-      background: rgba(212, 175, 55, 0.15);
-      border: 1px solid rgba(212, 175, 55, 0.35);
+      background: rgba(212, 175, 55, 0.18);
+      border: 1px solid rgba(212, 175, 55, 0.4);
       color: var(--gold);
       padding: 2px 7px;
       border-radius: 4px;
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 600;
       cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
       transition: all 0.15s;
     }
 
@@ -505,8 +573,11 @@
     body.light-mode .section-card { box-shadow: 0 8px 24px rgba(31,41,55,0.06); }
     body.light-mode .section-title,
     body.light-mode .brand-title h1 { color: var(--gold-light); }
-    body.light-mode table.data-table th { background: #E5EBF4; color: #5A4200; }
-    body.light-mode table.data-table td { color: #1F2937; border-bottom-color: #D9E0EC; }
+    body.light-mode table.data-table th { background: #E5EBF4; color: #5A4200; border-bottom-color: #CBD5E1; }
+    body.light-mode table.data-table td { color: #1F2937; border-bottom-color: #E2E8F0; }
+    body.light-mode table.data-table tr:nth-child(even) td { background: #F8FAFD; }
+    body.light-mode table.data-table tr:hover td { background: #F1F5F9; }
+    body.light-mode .table-cell-json { background: #F1F5F9; border-color: #CBD5E1; color: #0F172A; }
     body.light-mode .console-box { color: #075E54; }
   </style>
 </head>
@@ -869,6 +940,16 @@
       reloadActiveTable();
     }
 
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     const SENSITIVE_COLUMNS = ['phone', 'customer_phone', 'email', 'customer_email', 'address', 'delivery_address', 'address_line1', 'address_line2', 'payment_ref', 'password_hash', 'two_factor_secret', 'pincode', 'razorpay_payment_id'];
 
     async function reloadActiveTable() {
@@ -890,25 +971,52 @@
           const columns = Object.keys(res.data[0]);
           let thead = '<tr>' + columns.map(c => `<th>${c}</th>`).join('') + '</tr>';
 
-          // Generate Rows with PII Masking
+          // Generate Rows with PII Masking & Clear Formatting
           let tbody = res.data.map((row, rowIdx) => {
             return '<tr>' + columns.map(col => {
               let val = row[col];
               const isSensitive = SENSITIVE_COLUMNS.includes(col.toLowerCase());
-              if (typeof val === 'object' && val !== null) val = JSON.stringify(val);
-              if (val === null || val === undefined) return '<td style="color:#64748B">NULL</td>';
+
+              if (val === null || val === undefined) {
+                return '<td><span class="badge-null">NULL</span></td>';
+              }
+
+              if (typeof val === 'boolean' || val === 'true' || val === 'false') {
+                const isTrue = val === true || val === 'true';
+                return `<td><span class="${isTrue ? 'badge-bool-true' : 'badge-bool-false'}">${isTrue ? 'true' : 'false'}</span></td>`;
+              }
 
               if (isSensitive) {
                 const cellId = `pii_${activeTable}_${rowIdx}_${col}`;
                 return `<td>
                   <span id="${cellId}" class="pii-masked">
-                    <span>••••••••••••</span>
+                    <span>••••••</span>
                     <button type="button" class="btn-reveal" onclick="revealPiiField('${cellId}', '${encodeURIComponent(String(val))}', '${col}', '${activeTable}', '${activeSchema}')">👁️ Reveal</button>
                   </span>
                 </td>`;
               }
 
-              return `<td title="${String(val).replace(/"/g, '&quot;')}">${val}</td>`;
+              let displayVal = val;
+              let isJson = false;
+              if (typeof val === 'object' && val !== null) {
+                displayVal = JSON.stringify(val, null, 2);
+                isJson = true;
+              } else if (typeof val === 'string' && (val.trim().startsWith('{') || val.trim().startsWith('['))) {
+                try {
+                  const parsed = JSON.parse(val);
+                  displayVal = JSON.stringify(parsed, null, 2);
+                  isJson = true;
+                } catch(e) {
+                  displayVal = val;
+                }
+              }
+
+              if (isJson) {
+                return `<td><pre class="table-cell-json">${escapeHtml(displayVal)}</pre></td>`;
+              }
+
+              const isWrapCol = ['address', 'delivery_address', 'address_line1', 'address_line2', 'description', 'tagline', 'notes', 'reason', 'pickup_address'].includes(col.toLowerCase());
+              return `<td class="${isWrapCol ? 'cell-wrap' : ''}">${escapeHtml(String(val))}</td>`;
             }).join('') + '</tr>';
           }).join('');
 
@@ -941,7 +1049,7 @@
         body: JSON.stringify({ field: fieldName, table: tableName, schema: schemaName })
       }).catch(() => {});
 
-      el.innerHTML = `<span style="color:var(--gold-light);font-weight:600;">${rawVal}</span>`;
+      el.innerHTML = `<span style="color:var(--gold-light);font-weight:600;word-break:break-word;">${escapeHtml(rawVal)}</span>`;
     }
 
     async function fetchLiveAuditStream() {
