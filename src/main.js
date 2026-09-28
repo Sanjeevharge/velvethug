@@ -4102,6 +4102,7 @@ function renderQuizStep() {
 function renderQuizResults() {
   const el = qs('#quizContent');
   if (!el) return;
+  setTimeout(() => { const mc = qs('.quiz-modal-card'); if (mc) mc.scrollTop = 0; }, 10);
   const ans = state.quizAnswers;
 
   const diagnosisResults = diagnoseSleepQuiz(ans);
