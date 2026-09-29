@@ -304,8 +304,8 @@ function navigateTo(page, pushHistory = true) {
   if (!page) page = 'home';
   
   // Consolidate cushions and bolsters under accessories category view
-  if (page === 'cushions' || page === 'bolsters') {
-    state.activeAccSubTab = page === 'cushions' ? 'Cushions' : 'Bolsters';
+  if (page === 'pillows' || page === 'cushions' || page === 'bolsters') {
+    state.activeAccSubTab = page === 'pillows' ? 'Pillows' : (page === 'cushions' ? 'Cushions' : 'Bolsters');
     page = 'accessories';
   }
 
@@ -1000,7 +1000,7 @@ function selectPDPSize(btn) {
   const currentPrice = Math.round(base * multiplier);
   const currentMrp = Math.round(mrp * multiplier);
   const currentDiscount = currentMrp - currentPrice;
-  const discountPct = state.pdpProduct.discount || Math.round((currentDiscount / currentMrp) * 100);
+  const discountPct = state.pdpProduct.discount || (currentMrp > 0 ? Math.round((currentDiscount / currentMrp) * 100) : 0);
   const emiMonthly = Math.round(currentPrice / 12);
 
   // Update DOM elements in PDP
@@ -1062,20 +1062,173 @@ window.addToCartFromPDP = addToCartFromPDP;
 window.openCheckoutDirect = openCheckoutDirect;
 window.togglePdpPolicy = togglePdpPolicy;
 
+
+function escapeXml(unsafe) {
+  if (!unsafe) return '';
+  return String(unsafe).replace(/[<>&'"]/g, c => {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+    }
+  });
+}
+
+function getMattressSpecialityImage(product) {
+  const name = product.name || 'Velvet Hug Mattress';
+  const tagline = product.tagline || 'Engineered for Indian bodies';
+  const firmness = product.firmness || 'Medium Firm';
+  const materials = (product.materials || ['Natural Latex', 'Pocket Spring']).join(' · ');
+  const thickness = product.thicknessInch ? `${product.thicknessInch}" Deep Profile` : 'Ergonomic Architecture';
+  const warranty = product.warranty || '10 Years';
+  const trial = product.trialDays ? `${product.trialDays}-Night Trial` : '100-Night Trial';
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+    <defs>
+      <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#1B1425"/>
+        <stop offset="50%" stop-color="#2D1E3A"/>
+        <stop offset="100%" stop-color="#0F0A18"/>
+      </linearGradient>
+      <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#D4AF37"/>
+        <stop offset="50%" stop-color="#F3E5AB"/>
+        <stop offset="100%" stop-color="#AA771C"/>
+      </linearGradient>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="800" height="600" fill="url(#bgGrad)" rx="16"/>
+    <rect x="20" y="20" width="760" height="560" fill="none" stroke="url(#goldGrad)" stroke-width="1.5" stroke-opacity="0.4" rx="12"/>
+    <rect x="26" y="26" width="748" height="548" fill="none" stroke="#FFFFFF" stroke-opacity="0.05" rx="8"/>
+
+    <!-- Brand Header -->
+    <text x="50" y="70" fill="url(#goldGrad)" font-family="Cinzel, Georgia, serif" font-size="13" font-weight="700" letter-spacing="4">VELVET HUG™ ARCHITECTURAL SPECIFICATION</text>
+    
+    <!-- Product Title -->
+    <text x="50" y="120" fill="#FFFFFF" font-family="Cinzel, Georgia, serif" font-size="28" font-weight="700">${escapeXml(name)}</text>
+    <text x="50" y="150" fill="#D4AF37" font-family="Georgia, serif" font-style="italic" font-size="16">"${escapeXml(tagline)}"</text>
+
+    <!-- Divider Line -->
+    <line x1="50" y1="175" x2="750" y2="175" stroke="url(#goldGrad)" stroke-width="1" stroke-opacity="0.3"/>
+
+    <!-- Speciality Grid Cards -->
+    <rect x="50" y="200" width="335" height="105" fill="#FFFFFF" fill-opacity="0.04" stroke="#D4AF37" stroke-opacity="0.25" rx="8"/>
+    <text x="70" y="232" fill="#F3E5AB" font-family="system-ui, sans-serif" font-size="14" font-weight="700">✦ 7-Zone Spinal Alignment</text>
+    <text x="70" y="258" fill="#D1D5DB" font-family="system-ui, sans-serif" font-size="12">Differential support for head, lumbar &amp; pelvis.</text>
+    <text x="70" y="280" fill="#9CA3AF" font-family="system-ui, sans-serif" font-size="11">Zero morning stiffness &amp; optimal posture.</text>
+
+    <rect x="415" y="200" width="335" height="105" fill="#FFFFFF" fill-opacity="0.04" stroke="#D4AF37" stroke-opacity="0.25" rx="8"/>
+    <text x="435" y="232" fill="#F3E5AB" font-family="system-ui, sans-serif" font-size="14" font-weight="700">✦ Premium Material Composition</text>
+    <text x="435" y="258" fill="#D1D5DB" font-family="system-ui, sans-serif" font-size="12">${escapeXml(materials)}</text>
+    <text x="435" y="280" fill="#9CA3AF" font-family="system-ui, sans-serif" font-size="11">Hypoallergenic · OEKO-TEX® Certified</text>
+
+    <rect x="50" y="325" width="335" height="105" fill="#FFFFFF" fill-opacity="0.04" stroke="#D4AF37" stroke-opacity="0.25" rx="8"/>
+    <text x="70" y="357" fill="#F3E5AB" font-family="system-ui, sans-serif" font-size="14" font-weight="700">✦ Zero Partner Disturbance</text>
+    <text x="70" y="383" fill="#D1D5DB" font-family="system-ui, sans-serif" font-size="12">Independent localized motion damping.</text>
+    <text x="70" y="405" fill="#9CA3AF" font-family="system-ui, sans-serif" font-size="11">Aero-Breeze Open-Cell cooling technology.</text>
+
+    <rect x="415" y="325" width="335" height="105" fill="#FFFFFF" fill-opacity="0.04" stroke="#D4AF37" stroke-opacity="0.25" rx="8"/>
+    <text x="435" y="357" fill="#F3E5AB" font-family="system-ui, sans-serif" font-size="14" font-weight="700">✦ Doctor &amp; Lab Endorsed</text>
+    <text x="435" y="383" fill="#D1D5DB" font-family="system-ui, sans-serif" font-size="12">Prescribed for spinal de-stressing &amp; joint care.</text>
+    <text x="435" y="405" fill="#9CA3AF" font-family="system-ui, sans-serif" font-size="11">Reinforced Edge Guard · Tested up to 240kg.</text>
+
+    <!-- Footer Stats Ribbon -->
+    <rect x="50" y="455" width="700" height="85" fill="#120A1C" stroke="url(#goldGrad)" stroke-width="1" stroke-opacity="0.3" rx="8"/>
+    
+    <text x="100" y="490" fill="#9CA3AF" font-family="system-ui, sans-serif" font-size="11" text-anchor="middle">FIRMNESS</text>
+    <text x="100" y="515" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="14" font-weight="700" text-anchor="middle">${escapeXml(firmness)}</text>
+    
+    <line x1="180" y1="470" x2="180" y2="525" stroke="#FFFFFF" stroke-opacity="0.1"/>
+
+    <text x="260" y="490" fill="#9CA3AF" font-family="system-ui, sans-serif" font-size="11" text-anchor="middle">THICKNESS</text>
+    <text x="260" y="515" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="14" font-weight="700" text-anchor="middle">${escapeXml(thickness)}</text>
+
+    <line x1="340" y1="470" x2="340" y2="525" stroke="#FFFFFF" stroke-opacity="0.1"/>
+
+    <text x="430" y="490" fill="#9CA3AF" font-family="system-ui, sans-serif" font-size="11" text-anchor="middle">BEDROOM TRIAL</text>
+    <text x="430" y="515" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="14" font-weight="700" text-anchor="middle">${escapeXml(trial)}</text>
+
+    <line x1="520" y1="470" x2="520" y2="525" stroke="#FFFFFF" stroke-opacity="0.1"/>
+
+    <text x="610" y="490" fill="#9CA3AF" font-family="system-ui, sans-serif" font-size="11" text-anchor="middle">WARRANTY</text>
+    <text x="610" y="515" fill="#FFFFFF" font-family="system-ui, sans-serif" font-size="14" font-weight="700" text-anchor="middle">${escapeXml(warranty)}</text>
+  </svg>`;
+
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+let _pdpGalleryImages = [];
+window.switchPDPImage = function(idx) {
+  const mainImg = qs('#pdpMainImg');
+  if (!mainImg || !_pdpGalleryImages[idx]) return;
+  mainImg.classList.remove('fade-in');
+  void mainImg.offsetWidth; // trigger reflow
+  mainImg.src = _pdpGalleryImages[idx];
+  mainImg.classList.add('fade-in');
+
+  qsa('.pdp-thumb-btn').forEach((btn, bIdx) => {
+    btn.classList.toggle('active', bIdx === idx);
+  });
+};
+
 function renderPDP(product) {
   const el = qs('#pdpContent');
   if (!el) return;
 
-  const discountedAmt = product.mrp - product.basePrice;
+  const discountedAmt = (product.mrp && product.mrp > product.basePrice) ? (product.mrp - product.basePrice) : 0;
+  const discountPct = product.discount || (product.mrp > product.basePrice ? Math.round(((product.mrp - product.basePrice) / product.mrp) * 100) : 0);
+
+  // 3 Gallery Images:
+  // 1. Mattress Main View
+  const img1 = product.image || './src/assets/images/mattress_hybrid_luxury.jpg';
+  
+  // 2. 3D Cross-Section Layer Breakdown
+  let img2 = './src/assets/images/mattress_crosssection_8inch.jpg';
+  if ((product.thicknessInch && product.thicknessInch <= 6) || (product.id && product.id.includes('6'))) {
+    img2 = './src/assets/images/mattress_crosssection_6inch.jpg';
+  }
+
+  // 3. Speciality Highlights Card
+  const img3 = getMattressSpecialityImage(product);
+
+  _pdpGalleryImages = [img1, img2, img3];
 
   el.innerHTML = `
     <button class="modal-close-icon" onclick="closePDP()">✕</button>
     
     <!-- Left: Media & Anatomy -->
     <div>
-      <div class="pdp-gallery-main">
-        <img src="${product.image || ''}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;"
-             onerror="this.src='./src/assets/logo.jpeg'">
+      <div class="pdp-gallery-container">
+        <div class="pdp-gallery-main" id="pdpGalleryMain">
+          <img id="pdpMainImg" src="${img1}" alt="${product.name}"
+               onerror="this.src='./src/assets/logo.jpeg'">
+        </div>
+        
+        <div class="pdp-thumbnail-row" id="pdpThumbnailRow">
+          <button type="button" class="pdp-thumb-btn active" data-img-idx="0" onclick="window.switchPDPImage(0)">
+            <div class="pdp-thumb-img-wrap">
+              <img src="${img1}" alt="Mattress View">
+            </div>
+            <span class="pdp-thumb-label">Mattress</span>
+          </button>
+          
+          <button type="button" class="pdp-thumb-btn" data-img-idx="1" onclick="window.switchPDPImage(1)">
+            <div class="pdp-thumb-img-wrap">
+              <img src="${img2}" alt="3D Cross Section">
+            </div>
+            <span class="pdp-thumb-label">3D Cross Section</span>
+          </button>
+          
+          <button type="button" class="pdp-thumb-btn" data-img-idx="2" onclick="window.switchPDPImage(2)">
+            <div class="pdp-thumb-img-wrap">
+              <img src="${img3}" alt="Speciality Specs">
+            </div>
+            <span class="pdp-thumb-label">Speciality Specs</span>
+          </button>
+        </div>
       </div>
       
       <div style="margin-top:20px;">
@@ -1105,7 +1258,7 @@ function renderPDP(product) {
         <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
           <span style="font-size:1.7rem;font-weight:800;color:var(--text-primary);" id="pdpCurrentPrice">${formatPrice(product.basePrice)}</span>
           <span style="color:var(--text-muted);text-decoration:line-through;font-size:1rem;" id="pdpMrpPrice">${formatPrice(product.mrp)}</span>
-          <span style="color:var(--accent-emerald);font-weight:700;font-size:0.86rem;" id="pdpSaveText">Save ${formatPrice(discountedAmt)} (${product.discount}% off)</span>
+          <span style="color:var(--accent-emerald);font-weight:700;font-size:0.86rem;" id="pdpSaveText">${discountedAmt > 0 ? `Save ${formatPrice(discountedAmt)} (${discountPct}% off)` : ''}</span>
         </div>
         <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;cursor:pointer;display:flex;align-items:center;gap:6px;" id="pdpEmiText" onclick="window.openEmiModalForCurrentPDP()">
           <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" style="display:inline-block;vertical-align:-2px;margin-right:2px;"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg> No-cost EMI from <strong style="color:var(--midnight-blue);" id="pdpEmiMonthlyVal">₹${Math.round(product.basePrice / 12).toLocaleString('en-IN')}/mo</strong></span>
@@ -1117,7 +1270,7 @@ function renderPDP(product) {
       <div style="margin-bottom:16px;">
         <label class="form-label">Select Size</label>
         <div style="display:flex;flex-wrap:wrap;gap:8px;" id="pdpSizeChips">
-          ${(product.sizes || ['Standard']).map((s, i) => `
+          ${(product.sizes || ['Single', 'Double', 'Queen', 'King']).map((s, i) => `
             <button class="pdp-chip-btn ${i === 0 ? 'active' : ''}" data-size="${s}" onclick="selectPDPSize(this)">${s}</button>
           `).join('')}
         </div>
@@ -1866,7 +2019,7 @@ function renderCategoryPage(category) {
 function initAccSubTabs() {
   const tabContainer = qs('#accSubTabs');
   if (!tabContainer) return;
-  const tabs = ['All Accessories', 'Cushions', 'Bolsters', 'Mattress Protectors', 'Pillow Covers', 'Sleep Sanctuary'];
+  const tabs = ['All Accessories', 'Pillows', 'Cushions', 'Bolsters', 'Mattress Protectors', 'Pillow Covers', 'Sleep Sanctuary'];
   if (!state.activeAccSubTab) state.activeAccSubTab = 'All Accessories';
   tabContainer.innerHTML = tabs.map(t => `
     <button class="acc-sub-tab ${t === state.activeAccSubTab ? 'active' : ''}" data-subtab="${t}">${t}</button>
@@ -1880,7 +2033,9 @@ function initAccSubTabs() {
     const container = qs('#view-accessories .products-grid');
     if (container) {
       let products = getProductsByCategory('accessories', {});
-      if (subtab === 'Cushions') {
+      if (subtab === 'Pillows') {
+        products = products.filter(p => p.category === 'pillows' || p.tags?.includes('pillow'));
+      } else if (subtab === 'Cushions') {
         products = products.filter(p => p.category === 'cushions' || p.tags?.includes('cushion'));
       } else if (subtab === 'Bolsters') {
         products = products.filter(p => p.category === 'bolsters' || p.tags?.includes('bolster'));
@@ -4083,7 +4238,7 @@ function renderQuizStep() {
     <div class="quiz-options-list">
       ${(q.options || []).map((opt, oIdx) => `
         <div class="quiz-option-card" data-qid="${q.id || state.quizStep}" data-oid="${opt.id || oIdx}">
-          <div style="font-size:1.5rem;margin-bottom:8px;">${opt.emoji || '✨'}</div>
+          <div style="font-size:0.95rem;color:var(--champagne-gold);margin-bottom:6px;font-weight:700;">✦</div>
           <div class="quiz-option-title">${opt.label}</div>
           <div class="quiz-option-sub">${opt.sub || ''}</div>
         </div>
@@ -4117,7 +4272,7 @@ function renderQuizResults() {
 
   el.innerHTML = `
     <div style="text-align:center;margin-bottom:16px;">
-      <div style="font-size:2rem;margin-bottom:4px;">✨</div>
+      <div style="font-size:1.2rem;color:var(--champagne-gold);margin-bottom:4px;">✦ ✦ ✦</div>
       <h3 style="font-family:var(--font-serif);font-size:1.35rem;font-weight:700;color:var(--midnight-blue);margin-bottom:4px;">Your Posture Diagnosis &amp; Sleep Match</h3>
       <p style="font-size:0.84rem;color:var(--text-secondary);max-width:440px;margin:0 auto;">Scientifically calibrated across your age, spine condition, sleeper weight, and firmness preference.</p>
     </div>
@@ -4129,7 +4284,7 @@ function renderQuizResults() {
           <div class="quiz-result-card ${idx === 0 ? 'top-match-card' : ''}">
             ${idx === 0 ? `
               <div class="quiz-top-match-ribbon">
-                <span>⭐ TOP MATCH • ${item.score}% CALIBRATED</span>
+                <span>TOP MATCH • ${item.score}% CALIBRATED</span>
               </div>
             ` : ''}
             
@@ -4148,7 +4303,7 @@ function renderQuizResults() {
                 </div>
 
                 <div class="quiz-clinical-box">
-                  🩺 <strong>Clinical Match:</strong> ${item.reason}
+                  <strong>Clinical Match:</strong> ${item.reason}
                 </div>
 
                 <div class="quiz-result-footer">

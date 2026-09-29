@@ -906,10 +906,10 @@ export const SLEEP_QUIZ = [
     question: '1. What is your age group?',
     sub: 'Spinal density and bone alignment needs change across life stages.',
     options: [
-      { id: 'kids', label: 'Kids (10 to 17 years)', sub: 'Active growth spurts & playful bounce needed', emoji: '🎈', profile: 'Kids' },
-      { id: 'youth', label: 'Youth (18 to 35 years)', sub: 'Fit, agile, hostel or young professional', emoji: '⚡', profile: 'Youth' },
-      { id: 'adult', label: 'Adult (35 to 50 years)', sub: 'Workday posture stress & lumbar care', emoji: '🌿', profile: 'Adult' },
-      { id: 'senior', label: 'Senior (50+ years)', sub: 'Joint care & maximum orthopedic stability', emoji: '🩺', profile: 'Senior / Severe Back Pain' }
+      { id: 'kids', label: 'Kids (10 to 17 years)', sub: 'Active growth spurts & playful bounce needed', profile: 'Kids' },
+      { id: 'youth', label: 'Youth (18 to 35 years)', sub: 'Fit, agile, hostel or young professional', profile: 'Youth' },
+      { id: 'adult', label: 'Adult (35 to 50 years)', sub: 'Workday posture stress & lumbar care', profile: 'Adult' },
+      { id: 'senior', label: 'Senior (50+ years)', sub: 'Joint care & maximum orthopedic stability', profile: 'Senior / Severe Back Pain' }
     ]
   },
   {
@@ -918,9 +918,9 @@ export const SLEEP_QUIZ = [
     question: '2. Do you experience any back or neck pain?',
     sub: 'Let our clinical spine algorithms match the right zoning.',
     options: [
-      { id: 'no_pain', label: 'No Pain / Fit', sub: 'Wake up fresh, general comfort focus', emoji: '✨', painLevel: 'No Pain / Fit' },
-      { id: 'mild_pain', label: 'Mild to Moderate Pain', sub: 'Occasional morning stiffness or lower back fatigue', emoji: '😣', painLevel: 'Mild to Moderate Pain' },
-      { id: 'severe_pain', label: 'Severe Back Pain / Slip Disc', sub: 'Chronic ache, doctor-recommended firm support needed', emoji: '🩺', painLevel: 'Severe Back Pain' }
+      { id: 'no_pain', label: 'No Pain / Fit', sub: 'Wake up fresh, general comfort focus', painLevel: 'No Pain / Fit' },
+      { id: 'mild_pain', label: 'Mild to Moderate Pain', sub: 'Occasional morning stiffness or lower back fatigue', painLevel: 'Mild to Moderate Pain' },
+      { id: 'severe_pain', label: 'Severe Back Pain / Slip Disc', sub: 'Chronic ache, doctor-recommended firm support needed', painLevel: 'Severe Back Pain' }
     ]
   },
   {
@@ -929,9 +929,9 @@ export const SLEEP_QUIZ = [
     question: '3. What is the overall weight of the sleeper(s)?',
     sub: 'Ensures zero sagging and appropriate coil compression.',
     options: [
-      { id: 'standard', label: 'Under 80 kg (Standard)', sub: 'Single sleeper / light build', emoji: '🌱', weightCategory: 'Standard (Under 80 kg)' },
-      { id: 'medium', label: '80 to 140 kg (Medium / Couple)', sub: 'Average build or standard couple weight', emoji: '🌟', weightCategory: 'Medium (80–140 kg)' },
-      { id: 'heavy', label: '140 to 240 kg (For Big People)', sub: 'Reinforced heavy-duty core required', emoji: '🛡️', weightCategory: 'Heavy Duty (Up to 240 kg)' }
+      { id: 'standard', label: 'Under 80 kg (Standard)', sub: 'Single sleeper / light build', weightCategory: 'Standard (Under 80 kg)' },
+      { id: 'medium', label: '80 to 140 kg (Medium / Couple)', sub: 'Average build or standard couple weight', weightCategory: 'Medium (80–140 kg)' },
+      { id: 'heavy', label: '140 to 240 kg (For Big People)', sub: 'Reinforced heavy-duty core required', weightCategory: 'Heavy Duty (Up to 240 kg)' }
     ]
   },
   {
@@ -940,11 +940,11 @@ export const SLEEP_QUIZ = [
     question: '4. What is your firmness preference?',
     sub: 'From plush cloud sink to clinical orthopedic pushback.',
     options: [
-      { id: 'soft', label: 'Soft (Plush Cloud)', sub: 'Deep sink & gentle hug', emoji: '☁️', firmness: 'Soft' },
-      { id: 'medium_soft', label: 'Medium Soft', sub: 'Contouring with gentle cushion', emoji: '🌙', firmness: 'Medium Soft' },
-      { id: 'medium', label: 'Medium (Balanced)', sub: 'Equal parts hug and responsive bounce', emoji: '⚖️', firmness: 'Medium' },
-      { id: 'medium_firm', label: 'Medium Firm (Recommended)', sub: 'Targeted lumbar pushback & spinal neutrality', emoji: '👍', firmness: 'Medium Firm' },
-      { id: 'firm', label: 'Firm (Orthopedic)', sub: 'Zero sag, high-density orthopedic alignment', emoji: '🧱', firmness: 'Firm' }
+      { id: 'soft', label: 'Soft (Plush Cloud)', sub: 'Deep sink & gentle hug', firmness: 'Soft' },
+      { id: 'medium_soft', label: 'Medium Soft', sub: 'Contouring with gentle cushion', firmness: 'Medium Soft' },
+      { id: 'medium', label: 'Medium (Balanced)', sub: 'Equal parts hug and responsive bounce', firmness: 'Medium' },
+      { id: 'medium_firm', label: 'Medium Firm (Recommended)', sub: 'Targeted lumbar pushback & spinal neutrality', firmness: 'Medium Firm' },
+      { id: 'firm', label: 'Firm (Orthopedic)', sub: 'Zero sag, high-density orthopedic alignment', firmness: 'Firm' }
     ]
   },
   {
@@ -953,10 +953,10 @@ export const SLEEP_QUIZ = [
     question: '5. What is your preferred price classification?',
     sub: 'Every Velvet Hug mattress includes our 100-Night Risk-Free Trial.',
     options: [
-      { id: 'budget', label: 'Budget (Under ₹15,000)', sub: 'Direct-from-lab essential value', emoji: '🏷️', tier: 'Budget' },
-      { id: 'foundation', label: 'Foundation (₹15,000 – ₹30,000)', sub: 'Essential luxury & everyday ergonomic care', emoji: '🌱', tier: 'Foundation' },
-      { id: 'signature', label: 'Signature (₹30,000 – ₹55,000)', sub: 'Flagship 5-layer anatomical engineering', emoji: '⭐', tier: 'Signature' },
-      { id: 'reserve', label: 'Reserve (₹55,000 and Above)', sub: '100% Organic Latex & Handcrafted Royal Heritage', emoji: '👑', tier: 'Reserve' }
+      { id: 'budget', label: 'Budget (Under ₹15,000)', sub: 'Direct-from-lab essential value', tier: 'Budget' },
+      { id: 'foundation', label: 'Foundation (₹15,000 – ₹30,000)', sub: 'Essential luxury & everyday ergonomic care', tier: 'Foundation' },
+      { id: 'signature', label: 'Signature (₹30,000 – ₹55,000)', sub: 'Flagship 5-layer anatomical engineering', tier: 'Signature' },
+      { id: 'reserve', label: 'Reserve (₹55,000 and Above)', sub: '100% Organic Latex & Handcrafted Royal Heritage', tier: 'Reserve' }
     ]
   }
 ];
@@ -1001,7 +1001,7 @@ export function getProductById(id) {
 export function getProductsByCategory(category, filters = {}) {
   let products = PRODUCTS.filter(p => {
     if (category === 'accessories') {
-      return p.category === 'accessories' || p.category === 'cushions' || p.category === 'bolsters';
+      return p.category === 'accessories' || p.category === 'pillows' || p.category === 'cushions' || p.category === 'bolsters';
     }
     return p.category === category;
   });
