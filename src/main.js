@@ -1160,18 +1160,31 @@ function getMattressSpecialityImage(product) {
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
 }
 
+let _pdpActiveImgIndex = 0;
 let _pdpGalleryImages = [];
+
 window.switchPDPImage = function(idx) {
+  if (!_pdpGalleryImages || !_pdpGalleryImages.length) return;
+  _pdpActiveImgIndex = (idx + _pdpGalleryImages.length) % _pdpGalleryImages.length;
   const mainImg = qs('#pdpMainImg');
-  if (!mainImg || !_pdpGalleryImages[idx]) return;
-  mainImg.classList.remove('fade-in');
-  void mainImg.offsetWidth; // trigger reflow
-  mainImg.src = _pdpGalleryImages[idx];
-  mainImg.classList.add('fade-in');
+  if (mainImg && _pdpGalleryImages[_pdpActiveImgIndex]) {
+    mainImg.classList.remove('fade-in');
+    void mainImg.offsetWidth; // trigger reflow
+    mainImg.src = _pdpGalleryImages[_pdpActiveImgIndex];
+    mainImg.classList.add('fade-in');
+  }
 
   qsa('.pdp-thumb-btn').forEach((btn, bIdx) => {
-    btn.classList.toggle('active', bIdx === idx);
+    btn.classList.toggle('active', bIdx === _pdpActiveImgIndex);
   });
+};
+
+window.pdpGalleryPrev = function() {
+  window.switchPDPImage(_pdpActiveImgIndex - 1);
+};
+
+window.pdpGalleryNext = function() {
+  window.switchPDPImage(_pdpActiveImgIndex + 1);
 };
 
 function renderPDP(product) {
@@ -1194,6 +1207,7 @@ function renderPDP(product) {
   // 3. Speciality Highlights Card
   const img3 = getMattressSpecialityImage(product);
 
+  _pdpActiveImgIndex = 0;
   _pdpGalleryImages = [img1, img2, img3];
 
   el.innerHTML = `
@@ -1205,6 +1219,12 @@ function renderPDP(product) {
         <div class="pdp-gallery-main" id="pdpGalleryMain">
           <img id="pdpMainImg" src="${img1}" alt="${product.name}"
                onerror="this.src='./src/assets/logo.jpeg'">
+          <button type="button" class="pdp-nav-arrow pdp-nav-prev" aria-label="Previous Image" onclick="window.pdpGalleryPrev()" title="Previous Image">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          <button type="button" class="pdp-nav-arrow pdp-nav-next" aria-label="Next Image" onclick="window.pdpGalleryNext()" title="Next Image">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
         </div>
         
         <div class="pdp-thumbnail-row" id="pdpThumbnailRow">
