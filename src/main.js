@@ -320,9 +320,9 @@ function navigateTo(page, pushHistory = true) {
   
   state.currentPage = page;
 
-  // Push to browser history cleanly (1 single state entry per click)
+  // Push to browser history cleanly with clean semantic URLs
   if (pushHistory) {
-    history.pushState({ page }, '', page === 'home' ? '#' : `#${page}`);
+    history.pushState({ page }, '', page === 'home' ? '/' : `/${page}`);
   }
 
   // Hide all views and show target view instantly
@@ -382,11 +382,57 @@ function navigateTo(page, pushHistory = true) {
   window.scrollTo(0, 0);
 }
 
+// URL & Route Resolver for SPA Navigation
+function getRequestedPage() {
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
+  if (path && ['mattresses', 'pillows', 'cushions', 'accessories', 'emi', 'returns', 'care', 'account', 'quiz', 'compare'].includes(path)) {
+    return path;
+  }
+  const hash = window.location.hash.replace('#', '');
+  if (hash && ['home', 'mattresses', 'pillows', 'cushions', 'accessories', 'emi', 'returns', 'care', 'account', 'quiz', 'compare'].includes(hash)) {
+    return hash;
+  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const pageParam = urlParams.get('page');
+  if (pageParam) return pageParam;
+  return 'home';
+}
+
 // Single handler for browser Back/Forward navigation
 window.addEventListener('popstate', e => {
-  const page = e.state?.page || window.location.hash.replace('#', '') || 'home';
+  const page = e.state?.page || getRequestedPage();
   navigateTo(page, false);
 });
+
+// Global Link Routing Handler (Intercepts local href clicks for instantaneous 0ms SPA transitions)
+function initGlobalLinkRouting() {
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a');
+    if (!link) return;
+    const href = link.getAttribute('href');
+    if (!href || href.startsWith('http') || href.startsWith('//') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('#') || href.startsWith('/api') || href.startsWith('/admin') || href.startsWith('/inspector') || href.startsWith('/images') || href.startsWith('/src') || href.endsWith('.xml') || href.endsWith('.jpg') || href.endsWith('.png')) {
+      return;
+    }
+    if (link.target === '_blank' || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) {
+      return;
+    }
+    e.preventDefault();
+    const cleanRoute = href.replace(/^\/+|\/+$/g, '') || 'home';
+    if (cleanRoute === 'privacy-policy') {
+      window.openPrivacyPolicyModal?.();
+      return;
+    }
+    if (cleanRoute === 'terms') {
+      window.openTermsModal?.();
+      return;
+    }
+    if (cleanRoute === 'quiz') {
+      window.openQuiz?.();
+      return;
+    }
+    navigateTo(cleanRoute, true);
+  });
+}
 
 window.navigateTo = navigateTo;
 window.goToPage = navigateTo;
@@ -394,26 +440,33 @@ window.goToPage = navigateTo;
 // ────────────────────────────────────────────────────────────
 // PROMO BANNER
 // ────────────────────────────────────────────────────────────
-let countdownInterval = null;
-function startCountdown(targetDate, el) {
-  if (countdownInterval) clearInterval(countdownInterval);
-  if (!el || !targetDate) return;
-  const targetMs = new Date(targetDate).getTime();
-  if (isNaN(targetMs)) {
-    el.textContent = 'Limited Time';
-    return;
-  }
+let unifiedCountdownInterval = null;
+function initUnifiedCountdown() {
+  if (unifiedCountdownInterval) clearInterval(unifiedCountdownInterval);
+
   function tick() {
-    const diff = targetMs - Date.now();
-    if (diff <= 0) { el.textContent = 'Special Festive Price'; return; }
+    const now = Date.now();
+    // Synchronize to unified festival countdown
+    const targetMs = (ACTIVE_PROMOS[0]?.endsAt ? new Date(ACTIVE_PROMOS[0].endsAt).getTime() : 0) || (now + (3 * 86400 + 14 * 3600 + 22 * 60) * 1000);
+    const diff = Math.max(0, targetMs - now);
+
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
-    el.textContent = d > 0 ? `${d}d ${h}h ${m}m` : `${h}h ${m}m ${s}s`;
+
+    const pad = (n) => String(n).padStart(2, '0');
+    const displayStr = d > 0 ? `${pad(d)}d ${pad(h)}h ${pad(m)}m` : `${pad(h)}h ${pad(m)}m ${pad(s)}s`;
+
+    const topBannerCountdown = qs('#promoCountdown');
+    if (topBannerCountdown) topBannerCountdown.textContent = displayStr;
+
+    const modalCountdown = qs('#promoAdCountdown');
+    if (modalCountdown) modalCountdown.textContent = displayStr;
   }
+
   tick();
-  countdownInterval = setInterval(tick, 1000);
+  unifiedCountdownInterval = setInterval(tick, 1000);
 }
 
 function initPromoBanner() {
@@ -426,21 +479,20 @@ function initPromoBanner() {
     const msgEl = qs('#promoMessage', banner);
     const tagEl = qs('#promoTag', banner);
     const couponEl = qs('#promoCoupon', banner);
-    const countEl = qs('#promoCountdown', banner);
     if (msgEl) msgEl.textContent = promo.message;
     if (tagEl) tagEl.textContent = promo.tag;
     if (couponEl) couponEl.textContent = promo.coupon;
-    if (promo.endsAt && countEl) startCountdown(promo.endsAt, countEl);
-    else if (countEl) countEl.textContent = '';
   }
   updatePromo();
+  initUnifiedCountdown();
+
   setInterval(() => {
     promoIdx = (promoIdx + 1) % ACTIVE_PROMOS.length;
     updatePromo();
   }, 6000);
 
   qs('#promoCoupon', banner)?.addEventListener('click', () => {
-    navigator.clipboard?.writeText(ACTIVE_PROMOS[promoIdx]?.coupon || '').catch(() => {});
+    navigator.clipboard?.writeText(ACTIVE_PROMOS[promoIdx]?.coupon || 'FOUNDING15').catch(() => {});
     toast('🎉 Coupon code copied!');
   });
   qs('#promoCloseBt')?.addEventListener('click', () => { banner.style.display = 'none'; });
@@ -1343,7 +1395,7 @@ function renderPDP(product) {
           • <strong>100 Nights at Home:</strong> Sleep for 30 nights to let your spine adapt. Full refund if not in love.<br>
           • <strong>Zero Reverse Shipping Fees:</strong> 100% free white-glove reverse pickup from your bedroom.<br>
           • <strong>1-Time Firmness Exchange:</strong> Switch to softer or firmer feel free of charge anytime.<br>
-          <a href="javascript:void(0)" onclick="closePDP();goToPage('returns')" style="color:var(--champagne-gold);font-weight:700;margin-top:4px;display:inline-block;">Read Full 100-Night Return Terms →</a>
+          <a href="/returns" onclick="closePDP();goToPage('returns');return false;" style="color:var(--champagne-gold);font-weight:700;margin-top:4px;display:inline-block;">Read Full 100-Night Return Terms →</a>
         </div>
       </div>
     </div>
@@ -3523,6 +3575,7 @@ function getActiveCoupons() {
   } catch (e) {}
   return [
     { code: 'DIWALI30', discountPct: 30, maxDiscount: 10000, minOrder: 15000 },
+    { code: 'FOUNDING15', discountPct: 15, maxDiscount: 15000, minOrder: 10000 },
     { code: 'FOUNDING', discountPct: 15, maxDiscount: 15000, minOrder: 10000 },
     { code: 'REST10', discountPct: 10, maxDiscount: 5000, minOrder: 5000 }
   ];
@@ -5095,9 +5148,11 @@ async function init() {
   renderCategoryPage('bolsters');
   renderCategoryPage('accessories');
 
+  initGlobalLinkRouting();
+
   // Initial route without pushing duplicate history
-  const initialPage = window.location.hash.replace('#', '') || 'home';
-  history.replaceState({ page: initialPage }, '', initialPage === 'home' ? '#' : `#${initialPage}`);
+  const initialPage = getRequestedPage();
+  history.replaceState({ page: initialPage }, '', initialPage === 'home' ? '/' : `/${initialPage}`);
   navigateTo(initialPage, false);
 
   // Background hydration

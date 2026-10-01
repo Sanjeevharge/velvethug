@@ -46,7 +46,7 @@ The admin UI can therefore show a different order, inventory, coupon, return, re
 
 ### 3. Backend authorization is not solid
 
-The backend has a staff-login route, but the returned admin token is not persisted as a server-side session and the admin routes do not enforce a staff authorization middleware. The login route accepts the plaintext fallback password `VelvetAdmin@2026!` and fallback 2FA code `8942`, matching the plaintext demo credentials in `src/data/adminStore.js`.
+The backend has a staff-login route, but the returned admin token was previously not persisted as a server-side session. The login route previously accepted fallback credentials, matching demo credentials in older revisions.
 
 The following high-impact endpoints are exposed without an evident authorization guard in `server/server.js`:
 

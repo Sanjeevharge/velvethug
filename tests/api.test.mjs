@@ -125,7 +125,7 @@ test('admin inventory rejects requests without a server token', async () => {
 test('admin login returns a usable server token', async () => {
   const { response, body } = await request('/api/company/auth/login', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: 'subashini@velvethug.in', password: 'VelvetAdmin@2026!', twoFactorCode: '8942' })
+    body: JSON.stringify({ email: 'subashini@velvethug.in', password: 'velvethug', twoFactorCode: '0702' })
   });
   assert.equal(response.status, 200);
   assert.equal(body.success, true);
@@ -138,14 +138,14 @@ test('admin login returns a usable server token', async () => {
 test('admin login rejects invalid password or missing 2FA code', async () => {
   const badPass = await request('/api/company/auth/login', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: 'subashini@velvethug.in', password: 'WrongPassword123!', twoFactorCode: '8942' })
+    body: JSON.stringify({ email: 'subashini@velvethug.in', password: 'WrongPassword123!', twoFactorCode: '0702' })
   });
   assert.equal(badPass.response.status, 401);
   assert.equal(badPass.body.success, false);
 
   const missing2FA = await request('/api/company/auth/login', {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: 'subashini@velvethug.in', password: 'VelvetAdmin@2026!' })
+    body: JSON.stringify({ email: 'subashini@velvethug.in', password: 'velvethug' })
   });
   assert.equal(missing2FA.response.status, 401);
   assert.equal(missing2FA.body.success, false);

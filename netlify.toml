@@ -30,6 +30,11 @@
     Cache-Control = "public, max-age=31536000, immutable"
 
 [[headers]]
-  for = "/public/*"
+  for = "/images/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -5460,3 +5460,18 @@ body.dark-theme .pdp-thumb-label {
     right: 8px;
   }
 }
+
+/* ===========================================================
+   HIGH-PERFORMANCE CONTENT VISIBILITY & MOBILE DEFERRED RENDERING
+   =========================================================== */
+.engineering-section,
+.fabric-section,
+.compare-tiers-section,
+.stories-section,
+.reviews-section,
+.doctors-section,
+.faq-section,
+.site-footer {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 700px;
+}

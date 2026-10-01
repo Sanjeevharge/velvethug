@@ -174,11 +174,11 @@
   <div class="promo-topbar-inner">
     <div class="promo-actions">
       <span class="promo-tag-badge" id="promoTag">FOUNDING EXCLUSIVE</span>
-      <span id="promoMessage">First 1,000 Sleep Partners — 15% Lifetime Price Lock (347 Claimed)</span>
+      <span id="promoMessage">First 1,000 Sleep Partners — 15% Lifetime Price Lock (348 Claimed)</span>
     </div>
     <div class="promo-actions">
       <span style="font-size:0.78rem;color:rgba(255,255,255,0.6);">Ends in:</span>
-      <span class="promo-countdown" id="promoCountdown">--h --m</span>
+      <span class="promo-countdown" id="promoCountdown">03d 14h 22m</span>
       <span class="promo-coupon" id="promoCoupon">FOUNDING15</span>
     </div>
     <button class="promo-close-btn" id="promoCloseBt" aria-label="Close banner">✕</button>
@@ -191,9 +191,9 @@
 <header class="site-header" role="banner">
   <div class="header-container">
     <!-- Logo -->
-    <a class="brand-logo" href="javascript:void(0)" onclick="goToPage('home')" data-page="home" aria-label="Velvet Hug — Home">
-      <img src="./src/assets/logo.jpeg" alt="Velvet Hug Logo" class="brand-logo-img"
-           onerror="this.style.display='none'">
+    <a class="brand-logo" href="/" onclick="goToPage('home')" data-page="home" aria-label="Velvet Hug — Home">
+      <img src="./images/logo.jpeg" alt="Velvet Hug Logo" class="brand-logo-img"
+           onerror="this.src='./images/logo.jpeg'">
       <div class="logo-text-wrap">
         <span class="logo-title">Velvet Hug</span>
         <span class="logo-subtitle">Be Held, Every Night</span>
@@ -203,13 +203,13 @@
     <!-- Primary Navigation -->
     <nav aria-label="Main navigation" class="nav-wrapper">
       <ul class="nav-links" role="list">
-        <li><a class="nav-link active" data-page="home" href="javascript:void(0)" onclick="goToPage('home')">Home</a></li>
-        <li><a class="nav-link" data-page="mattresses" href="javascript:void(0)" onclick="goToPage('mattresses')">Mattresses</a></li>
-                <li><a class="nav-link" data-page="accessories" href="javascript:void(0)" onclick="goToPage('accessories')">Accessories</a></li>
-        
-        <li><a class="nav-link" data-page="emi" href="javascript:void(0)" onclick="goToPage('emi')">EMI Plans</a></li>
+        <li><a class="nav-link active" data-page="home" href="/" onclick="goToPage('home')">Home</a></li>
+        <li><a class="nav-link" data-page="mattresses" href="/mattresses" onclick="goToPage('mattresses')">Mattresses</a></li>
+        <li><a class="nav-link" data-page="pillows" href="/pillows" onclick="goToPage('pillows')">Pillows</a></li>
+        <li><a class="nav-link" data-page="accessories" href="/accessories" onclick="goToPage('accessories')">Accessories</a></li>
+        <li><a class="nav-link" data-page="emi" href="/emi" onclick="goToPage('emi')">EMI Plans</a></li>
         <li>
-          <a class="nav-link" href="javascript:void(0)" id="quizBtn" onclick="if(window.openQuiz) openQuiz();">
+          <a class="nav-link" href="/quiz" id="quizBtn" onclick="if(window.openQuiz) { openQuiz(); return false; }">
             Sleep Quiz <span class="nav-badge-pill">New</span>
           </a>
         </li>
@@ -264,7 +264,7 @@
         <div class="hero-carousel-slide active" role="group" aria-roledescription="slide" aria-label="1 of 5: Orthopaedic Sleep Engineering" data-slide-index="0">
           <div class="hero-bg-media" aria-hidden="true">
             <img src="/images/crosssection-layers.jpg" alt=""
-                 onerror="this.src='./src/assets/images/hero_bedroom.jpg'">
+                 onerror="this.src='./images/hero_bedroom.jpg'">
           </div>
           <div class="hero-overlay-gradient" aria-hidden="true"></div>
           <div class="container">
@@ -324,7 +324,7 @@
         <div class="hero-carousel-slide" role="group" aria-roledescription="slide" aria-label="2 of 5: Grand Sleep Festival" data-slide-index="1">
           <div class="hero-bg-media" aria-hidden="true">
             <img src="/images/festival-banner.jpg" alt=""
-                 onerror="this.src='./src/assets/images/hero_bedroom.jpg'">
+                 onerror="this.src='./images/hero_bedroom.jpg'">
           </div>
           <div class="hero-overlay-gradient" aria-hidden="true"></div>
           <div class="container">
@@ -375,7 +375,7 @@
         <div class="hero-carousel-slide" role="group" aria-roledescription="slide" aria-label="3 of 5: Complete Sleep Ecosystem" data-slide-index="2">
           <div class="hero-bg-media" aria-hidden="true">
             <img src="/images/cat-accessories.jpg" alt=""
-                 onerror="this.src='./src/assets/images/hero_bedroom.jpg'">
+                 onerror="this.src='./images/hero_bedroom.jpg'">
           </div>
           <div class="hero-overlay-gradient" aria-hidden="true"></div>
           <div class="container">
@@ -409,7 +409,7 @@
                   <span class="trust-item-sub">Grade 6A 22-Momme</span>
                 </div>
                 <div class="trust-item">
-                  <span class="trust-item-title">✦ 30-Day Guarantee</span>
+                  <span class="trust-item-title">✦ 15-Day Guarantee</span>
                   <span class="trust-item-sub">Risk-Free Comfort</span>
                 </div>
               </div>
@@ -425,7 +425,7 @@
         <!-- SLIDE 4: Flagship Product: Elara Cloud™ Dual-Comfort -->
         <div class="hero-carousel-slide" role="group" aria-roledescription="slide" aria-label="4 of 5: The Flagship Elara Cloud" data-slide-index="3">
           <div class="hero-bg-media" aria-hidden="true">
-            <img src="./src/assets/images/mattress_elara_cloud.jpg" alt=""
+            <img src="./images/mattress_elara_cloud.jpg" alt=""
                  onerror="this.src='/images/hero-mattress.jpg'">
           </div>
           <div class="hero-overlay-gradient" aria-hidden="true"></div>
@@ -622,7 +622,7 @@
               <h3 class="ecosystem-card-title">Adaptive Mattresses</h3>
               <p class="ecosystem-card-desc">Zero-motion transfer, orthopedic spinal alignment, and breathable natural latex with a 100-night risk-free trial.</p>
               <div class="ecosystem-card-footer">
-                <span class="ecosystem-card-meta">6 Collections · From ₹18,999</span>
+                <span class="ecosystem-card-meta">4 Master Tiers · 10 Sleep Systems · From ₹18,999</span>
                 <span class="ecosystem-cta-btn">Explore Mattresses <span>→</span></span>
               </div>
             </div>
@@ -729,7 +729,7 @@
         <div class="meet-grid">
           <div class="meet-image-wrap">
             <img src="/images/meet_velvet_hug.jpg" alt="Velvet Hug mattress craftsmanship"
-                 onerror="this.src='./src/assets/logo.jpeg'">
+                 onerror="this.src='./images/logo.jpeg'">
             <div class="meet-image-badge">
               <div style="font-family:var(--font-serif);font-size:0.84rem;font-weight:700;color:var(--midnight-blue);">Crafted in India</div>
               <div style="font-size:0.72rem;color:var(--text-muted);">For Indian bodies. Every body.</div>
@@ -928,7 +928,7 @@
             <div class="tier-subline" style="color:var(--champagne-gold);">"The Founder's Edition"</div>
             <div class="tier-height-pill" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.2);">10"+ Height</div>
             <ul class="tier-features" style="color:rgba(253,251,247,0.85);">
-              <li>✦ 100% Organic natural Pinche latex</li>
+              <li>✦ 100% Organic Natural Pin-core Latex</li>
               <li>✦ Serialized Founding Partner engraving</li>
               <li>✦ Lifetime refurbishment guarantee</li>
               <li>✦ Priority concierge 24/7 support</li>
@@ -998,7 +998,7 @@
           <div class="engineering-card">
             <div class="engineering-number">11×</div>
             <div class="engineering-label">Per Second Adaptation</div>
-            <div class="engineering-desc">Our micro-springs respond to posture changes 11 times per second, silently adjusting to your every movement.</div>
+            <div class="engineering-desc">Our 7-zone active responsive contouring matrix adapts to posture changes 11 times per second, silently relieving pressure at every micro-movement.</div>
           </div>
           <div class="engineering-card">
             <div class="engineering-number">100k</div>
@@ -1063,7 +1063,7 @@
               </span>
               <div>
                 <div class="founding-perk-title">Founding Price Lock</div>
-                <div class="founding-perk-desc">Fixed discount on this and your next purchase — locked in forever.</div>
+                <div class="founding-perk-desc">15% Lifetime discount on this order, future mattress releases, and annual renewals — locked in forever.</div>
               </div>
             </div>
             <div class="founding-perk-item" role="listitem">
@@ -1120,7 +1120,7 @@
             </div>
             <p class="review-quote">"My chronic lower back pain after 12-hour surgery shifts used to keep me awake. The Signature 8" feels like my spine is being cradled in warm water. Life-changing."</p>
             <div class="review-author-info">
-              <img src="./src/assets/images/user1.jpg" alt="Dr. Alisha Roy" class="review-avatar" onerror="this.src='./src/assets/logo.jpeg'">
+              <img loading="lazy" decoding="async" src="./images/user1.jpg" alt="Dr. Alisha Roy" class="review-avatar" onerror="this.src='./images/logo.jpeg'">
               <div>
                 <div class="review-author-name">Dr. Alisha Roy</div>
                 <div class="review-author-loc">Bengaluru · Verified Buyer (Signature 8")</div>
@@ -1136,7 +1136,7 @@
             </div>
             <p class="review-quote">"Zero motion transfer is real. My husband tosses all night, and I didn't feel a single flutter. Velvet Hug's Reserve mattress is worth every single rupee."</p>
             <div class="review-author-info">
-              <img src="./src/assets/images/user2.jpg" alt="Meera & Rohan Kulkarni" class="review-avatar" onerror="this.src='./src/assets/logo.jpeg'">
+              <img loading="lazy" decoding="async" src="./images/user2.jpg" alt="Meera & Rohan Kulkarni" class="review-avatar" onerror="this.src='./images/logo.jpeg'">
               <div>
                 <div class="review-author-name">Meera Kulkarni</div>
                 <div class="review-author-loc">Mumbai · Verified Buyer (Reserve 10")</div>
@@ -1152,7 +1152,7 @@
             </div>
             <p class="review-quote">"The Five Sacred Minutes ritual before sleep with the lavender mist and cervical pillow has made insomnia a thing of the past. Waking up rested without guilt."</p>
             <div class="review-author-info">
-              <img src="./src/assets/images/user3.jpg" alt="Kabir Anand" class="review-avatar" onerror="this.src='./src/assets/logo.jpeg'">
+              <img loading="lazy" decoding="async" src="./images/user3.jpg" alt="Kabir Anand" class="review-avatar" onerror="this.src='./images/logo.jpeg'">
               <div>
                 <div class="review-author-name">Kabir Anand</div>
                 <div class="review-author-loc">New Delhi · Verified Buyer (Essential + Pillow)</div>
@@ -1180,7 +1180,7 @@
         <div class="reels-grid">
           <div class="reel-card">
             <div class="reel-thumbnail">
-              <img src="./src/assets/images/story_1.jpg" alt="Sleep partner story"
+              <img src="./images/story_1.jpg" alt="Sleep partner story"
                    onerror="this.parentElement.innerHTML='<div style=\'height:200px;background:linear-gradient(135deg,#0A1128,#1B263B);display:flex;align-items:center;justify-content:center;font-size:3rem;\'>🌙</div>'">
               <div class="reel-play-overlay">
                 <div class="reel-play-btn">▶</div>
@@ -1195,7 +1195,7 @@
           </div>
           <div class="reel-card">
             <div class="reel-thumbnail">
-              <img src="./src/assets/images/story_2.jpg" alt="Sleep partner story"
+              <img src="./images/story_2.jpg" alt="Sleep partner story"
                    onerror="this.parentElement.innerHTML='<div style=\'height:200px;background:linear-gradient(135deg,#1B263B,#4C3F5E);display:flex;align-items:center;justify-content:center;font-size:3rem;\'>✨</div>'">
               <div class="reel-play-overlay">
                 <div class="reel-play-btn">▶</div>
@@ -1210,7 +1210,7 @@
           </div>
           <div class="reel-card">
             <div class="reel-thumbnail">
-              <img src="./src/assets/images/story_3.jpg" alt="Sleep partner story"
+              <img src="./images/story_3.jpg" alt="Sleep partner story"
                    onerror="this.parentElement.innerHTML='<div style=\'height:200px;background:linear-gradient(135deg,#4C3F5E,#0A1128);display:flex;align-items:center;justify-content:center;font-size:3rem;\'>🌿</div>'">
               <div class="reel-play-overlay">
                 <div class="reel-play-btn">▶</div>
@@ -1236,7 +1236,7 @@
     <div class="page-hero-banner hero-mattresses">
       <div class="page-hero-overlay"></div>
       <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
-        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <a href="/" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
         <span class="breadcrumb-arrow">›</span>
         <span class="breadcrumb-current">Mattresses</span>
       </nav>
@@ -1277,7 +1277,7 @@
     <div class="page-hero-banner hero-pillows">
       <div class="page-hero-overlay"></div>
       <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
-        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <a href="/" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
         <span class="breadcrumb-arrow">›</span>
         <span class="breadcrumb-current">Pillows</span>
       </nav>
@@ -1308,7 +1308,7 @@
     <div class="page-hero-banner hero-cushions">
       <div class="page-hero-overlay"></div>
       <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
-        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <a href="/" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
         <span class="breadcrumb-arrow">›</span>
         <span class="breadcrumb-current">Cushions</span>
       </nav>
@@ -1339,7 +1339,7 @@
     <div class="page-hero-banner hero-bolsters">
       <div class="page-hero-overlay"></div>
       <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
-        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <a href="/" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
         <span class="breadcrumb-arrow">›</span>
         <span class="breadcrumb-current">Bolsters</span>
       </nav>
@@ -1370,7 +1370,7 @@
     <div class="page-hero-banner hero-accessories">
       <div class="page-hero-overlay"></div>
       <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
-        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <a href="/" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
         <span class="breadcrumb-arrow">›</span>
         <span class="breadcrumb-current">Accessories</span>
       </nav>
@@ -1406,7 +1406,7 @@
     <div class="page-hero-banner hero-account">
       <div class="page-hero-overlay"></div>
       <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
-        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <a href="/" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
         <span class="breadcrumb-arrow">›</span>
         <span class="breadcrumb-current">My Account</span>
       </nav>
@@ -1592,7 +1592,7 @@
         </div>
 
         <div style="margin-top:22px;padding-top:16px;border-top:1px solid rgba(76,63,94,0.08);text-align:center;font-size:0.78rem;color:var(--text-muted,#718096);line-height:1.5;">
-          🔒 Encrypted &amp; DPDP 2023 Compliant. Your details and orders sync directly with Velvet Hug PostgreSQL Engine.
+          🔒 Encrypted &amp; DPDP 2023 Compliant. All customer information and order details are protected by 256-bit enterprise encryption.
         </div>
       </div>
     </div>
@@ -1639,7 +1639,7 @@
     <div class="page-hero-banner hero-emi" style="background:linear-gradient(135deg,#0A1128 0%,#1B263B 60%,#4C3F5E 100%);">
       <div class="page-hero-overlay"></div>
       <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
-        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <a href="/" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
         <span class="breadcrumb-arrow">›</span>
         <span class="breadcrumb-current">EMI &amp; Financing</span>
       </nav>
@@ -1755,7 +1755,7 @@
     <div class="page-hero-banner hero-returns" style="background:linear-gradient(135deg,#0A1128 0%,#1B263B 60%,#4C3F5E 100%);">
       <div class="page-hero-overlay"></div>
       <nav class="breadcrumbs-trail" aria-label="Breadcrumb">
-        <a href="javascript:void(0)" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
+        <a href="/" onclick="goToPage('home')" class="breadcrumb-link">Home</a>
         <span class="breadcrumb-arrow">›</span>
         <span class="breadcrumb-current">100-Night Trial &amp; Returns</span>
       </nav>
@@ -1914,29 +1914,29 @@
       <div>
         <div class="footer-col-title">Products & Services</div>
         <ul class="footer-links-list">
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('mattresses')">Mattresses</a></li>
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('pillows')">Pillows</a></li>
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('cushions')">Cushions & Bolsters</a></li>
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('accessories')">Accessories</a></li>
+          <li><a class="footer-link" href="/mattresses" onclick="goToPage('mattresses')">Mattresses</a></li>
+          <li><a class="footer-link" href="/pillows" onclick="goToPage('pillows')">Pillows</a></li>
+          <li><a class="footer-link" href="/cushions" onclick="goToPage('cushions')">Cushions &amp; Bolsters</a></li>
+          <li><a class="footer-link" href="/accessories" onclick="goToPage('accessories')">Accessories</a></li>
         </ul>
       </div>
       <div>
         <div class="footer-col-title">Customer Trust</div>
         <ul class="footer-links-list">
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('returns')">100-Night Free Trial</a></li>
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('returns')">Return & Exchange Policy</a></li>
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('emi')">No-Cost EMI Schemes</a></li>
+          <li><a class="footer-link" href="/returns" onclick="goToPage('returns')">100-Night Free Trial</a></li>
+          <li><a class="footer-link" href="/returns" onclick="goToPage('returns')">Return &amp; Exchange Policy</a></li>
+          <li><a class="footer-link" href="/emi" onclick="goToPage('emi')">No-Cost EMI Schemes</a></li>
           <li><a class="footer-link" href="javascript:void(0)" onclick="window.openEmiModal(28000)">EMI Calculator Widget</a></li>
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('account')">Track My Order</a></li>
+          <li><a class="footer-link" href="/account" onclick="goToPage('account')">Track My Order</a></li>
           <li><a class="footer-link" href="https://wa.me/918069008358" target="_blank" rel="noopener">WhatsApp Concierge</a></li>
         </ul>
       </div>
       <div>
         <div class="footer-col-title">Company &amp; Ethos</div>
         <ul class="footer-links-list">
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('home')">About Velvet Hug</a></li>
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('home')">5-Layer Sleep Science</a></li>
-          <li><a class="footer-link" href="javascript:void(0)" onclick="goToPage('care')">Care &amp; Mattress Renewal</a></li>
+          <li><a class="footer-link" href="/" onclick="goToPage('home')">About Velvet Hug</a></li>
+          <li><a class="footer-link" href="/" onclick="goToPage('home')">5-Layer Sleep Science</a></li>
+          <li><a class="footer-link" href="/care" onclick="goToPage('care')">Care &amp; Mattress Renewal</a></li>
           <li><a class="footer-link" href="javascript:void(0)" onclick="window.openCorporateInquiry()">Business &amp; Bulk Enquiries</a></li>
         </ul>
       </div>
@@ -1957,9 +1957,9 @@
     <div class="footer-bottom-bar">
       <div>© 2026 Velvet Hug India Pvt. Ltd. All rights reserved.</div>
       <div style="display:flex;gap:16px;flex-wrap:wrap;">
-        <a href="javascript:void(0)" onclick="window.openPrivacyPolicyModal()" class="footer-link">Privacy Policy</a>
-        <a href="javascript:void(0)" onclick="window.openTermsModal()" class="footer-link">Terms of Service</a>
-        <a href="javascript:void(0)" onclick="goToPage('returns')" class="footer-link">Return &amp; Trial Policy</a>
+        <a href="/privacy-policy" onclick="window.openPrivacyPolicyModal();return false;" class="footer-link">Privacy Policy</a>
+        <a href="/terms" onclick="window.openTermsModal();return false;" class="footer-link">Terms of Service</a>
+        <a href="/returns" onclick="goToPage('returns')" class="footer-link">Return &amp; Trial Policy</a>
         <a href="/sitemap.xml" class="footer-link" target="_blank" rel="noopener">Sitemap</a>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -2027,7 +2027,7 @@
       <div style="margin-bottom:12px;">
         <div class="pincode-check-wrap">
           <input class="form-input" placeholder="Delivery Pincode (e.g. 600028)" maxlength="6" id="cartPincodeInput" value="600028">
-          <button class="btn btn-outline btn-sm" onclick="window.checkPincodeDeliveryUI(document.getElementById('cartPincodeInput').value, 'cartPincodeResult')">Check Speed</button>
+          <button class="btn btn-outline btn-sm" onclick="window.checkPincodeDeliveryUI(document.getElementById('cartPincodeInput').value, 'cartPincodeResult')">Check Delivery</button>
         </div>
         <div id="cartPincodeResult" style="margin-top:6px;"></div>
       </div>
@@ -2553,7 +2553,7 @@
     <button class="promo-modal-close-btn" id="promoAdCloseBtn" aria-label="Close promotional offer" onclick="window.closePromoAd(event)">✕</button>
     
     <div class="promo-modal-banner" onclick="window.claimPromoAd()">
-      <img src="/images/festival-banner.jpg" alt="Velvet Hug Grand Sleep Festival" onerror="this.src='./src/assets/images/hero_bedroom.jpg'">
+      <img src="/images/festival-banner.jpg" alt="Velvet Hug Grand Sleep Festival" onerror="this.src='./images/hero_bedroom.jpg'">
       <div class="promo-modal-badge">
         <span class="promo-pulse-dot"></span> LIMITED TIME FESTIVAL
       </div>
@@ -2647,7 +2647,7 @@
     </div>
     <div style="font-size:0.88rem;line-height:1.7;color:rgba(253,251,247,0.8);">
       <h4 style="color:#fff;margin-top:16px;">1. 100-Night Bedroom Trial Terms</h4>
-      <p>Every Velvet Hug mattress includes a 100-night trial starting from the verified delivery date. We require a minimum 21-night break-in period for body adjustment. If you are not satisfied, you may request a firmness adjustment or full return with zero restocking fees.</p>
+      <p>Every Velvet Hug mattress includes a 100-night trial starting from the verified delivery date. We require a minimum 30-night break-in period for musculoskeletal adaptation. If you are not satisfied, you may request a firmness adjustment or full return with zero restocking fees.</p>
 
       <h4 style="color:#fff;margin-top:16px;">2. 10-Year Limited Warranty</h4>
       <p>Mattress cores are warrantied against visible indentation greater than 1 inch and structural manufacturing defects across 10 years of domestic use.</p>

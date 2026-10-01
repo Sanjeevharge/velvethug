@@ -1,9 +1,7 @@
 async function testAdminLogin() {
   const credentials = [
     { email: 'subashini@velvethug.in', password: 'velvethug', twoFactorCode: '0702' },
-    { email: 'subashini@velvethug.in', password: 'velvethug', twoFactorCode: '8942' },
-    { email: 'subashini@velvethug.in', password: 'VelvetAdmin@2026!', twoFactorCode: '0702' },
-    { email: 'subashini@velvethug.in', password: 'VelvetAdmin@2026!', twoFactorCode: '8942' }
+    { email: 'subashini@velvethug.in', password: 'velvethug', twoFactorCode: 'wrong' }
   ];
 
   for (const cred of credentials) {
