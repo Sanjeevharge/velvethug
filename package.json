@@ -7,6 +7,7 @@
     "start": "node server/server.js",
     "dev": "vite",
     "build": "vite build",
+    "build:shopify": "node scratch/generate_theme.cjs && powershell -NoProfile -ExecutionPolicy Bypass -File .\\make_shopify_theme_zip.ps1",
     "preview": "vite preview",
     "server": "node server/server.js",
     "test": "node --test tests/api.test.mjs"

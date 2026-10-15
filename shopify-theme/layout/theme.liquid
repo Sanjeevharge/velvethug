@@ -239,8 +239,7 @@
   <div class="header-container">
     <!-- Logo -->
     <a class="brand-logo" href="/" onclick="goToPage('home')" data-page="home" aria-label="Velvet Hug — Home">
-      <img src="{{ 'logo.jpeg' | asset_url }}" alt="Velvet Hug Logo" class="brand-logo-img"
-           onerror="this.src="{{ 'logo.jpeg' | asset_url }}"">
+      {% if settings.logo != blank %}<img src="{{ settings.logo | image_url: width: 240 }}" alt="{{ shop.name | default: 'Velvet Hug' }}" class="brand-logo-img" style="max-width: {{ settings.logo_width | default: 55 }}px;">{% else %}<img src="{{ 'logo.jpeg' | asset_url }}" alt="Velvet Hug Logo" class="brand-logo-img" style="max-width: {{ settings.logo_width | default: 55 }}px;" onerror="this.src='{{ 'logo.jpeg' | asset_url }}'">{% endif %}
       <div class="logo-text-wrap">
         <span class="logo-title">Velvet Hug</span>
         <span class="logo-subtitle">Be Held, Every Night</span>
