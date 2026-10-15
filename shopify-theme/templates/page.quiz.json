@@ -1,11 +1,11 @@
 {
   "sections": {
-    "quiz_banner": {
-      "type": "categories-rail",
+    "main_storefront": {
+      "type": "main-storefront",
       "settings": {}
     }
   },
   "order": [
-    "quiz_banner"
+    "main_storefront"
   ]
 }

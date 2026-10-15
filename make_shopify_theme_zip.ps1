@@ -12,7 +12,11 @@ if (Test-Path $zipPath) {
 Write-Host "Creating valid Shopify Theme archive: velvethug-shopify-theme.zip..."
 $zip = [System.IO.Compression.ZipFile]::Open($zipPath, [System.IO.Compression.ZipArchiveMode]::Create)
 
-$files = Get-ChildItem -Path $sourceDir -Recurse -File
+$files = Get-ChildItem -Path $sourceDir -Recurse -File | Where-Object {
+    # Shopify does NOT support subdirectories inside assets/
+    # All images must be flat in assets/ — skip assets/images/ subfolder
+    $_.FullName -notlike "*\assets\images\*"
+}
 
 foreach ($f in $files) {
     $relPath = $f.FullName.Substring($sourceDir.Length).TrimStart("\", "/").Replace("\", "/")

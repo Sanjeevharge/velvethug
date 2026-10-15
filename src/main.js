@@ -21,6 +21,22 @@ import { api } from './api.js';
 import { soundEngine } from './components/Soundscape.js';
 
 // ────────────────────────────────────────────────────────────
+// ASSET URL RESOLVER (Shopify CDN / Local / Render compatible)
+// ────────────────────────────────────────────────────────────
+export function resolveAssetUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+  if (typeof window !== 'undefined' && window.SHOPIFY_CDN) {
+    const filename = url.split('/').pop().split('?')[0];
+    return window.SHOPIFY_CDN + filename;
+  }
+  return url;
+}
+if (typeof window !== 'undefined') {
+  window.resolveAssetUrl = resolveAssetUrl;
+}
+
+// ────────────────────────────────────────────────────────────
 // PERSISTENT STATE & STORAGE HELPERS
 // ────────────────────────────────────────────────────────────
 const STORAGE_KEY_USER = 'vh_user_data';
@@ -382,16 +398,31 @@ function navigateTo(page, pushHistory = true) {
   window.scrollTo(0, 0);
 }
 
-// URL & Route Resolver for SPA Navigation
+// URL & Route Resolver for SPA Navigation (supports Shopify collections and custom paths)
 function getRequestedPage() {
-  const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
-  if (path && ['mattresses', 'pillows', 'cushions', 'accessories', 'emi', 'returns', 'care', 'account', 'quiz', 'compare'].includes(path)) {
-    return path;
-  }
-  const hash = window.location.hash.replace('#', '');
-  if (hash && ['home', 'mattresses', 'pillows', 'cushions', 'accessories', 'emi', 'returns', 'care', 'account', 'quiz', 'compare'].includes(hash)) {
-    return hash;
-  }
+  const path = window.location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  if (path.includes('mattress')) return 'mattresses';
+  if (path.includes('pillow')) return 'pillows';
+  if (path.includes('cushion')) return 'cushions';
+  if (path.includes('bolster')) return 'bolsters';
+  if (path.includes('accessories')) return 'accessories';
+  if (path.includes('account')) return 'account';
+  if (path.includes('emi')) return 'emi';
+  if (path.includes('returns') || path.includes('warranty')) return 'returns';
+  if (path.includes('care') || path.includes('repair')) return 'returns';
+  if (path.includes('quiz')) return 'quiz';
+  if (path.includes('compare')) return 'compare';
+
+  const hash = window.location.hash.replace('#', '').toLowerCase();
+  if (hash.includes('mattress')) return 'mattresses';
+  if (hash.includes('pillow')) return 'pillows';
+  if (hash.includes('cushion')) return 'cushions';
+  if (hash.includes('bolster')) return 'bolsters';
+  if (hash.includes('accessories')) return 'accessories';
+  if (hash.includes('account')) return 'account';
+  if (hash.includes('emi')) return 'emi';
+  if (hash.includes('returns') || hash.includes('warranty')) return 'returns';
+
   const urlParams = new URLSearchParams(window.location.search);
   const pageParam = urlParams.get('page');
   if (pageParam) return pageParam;
@@ -693,7 +724,7 @@ function renderSearchResults(results, container) {
   }
   container.innerHTML = results.map(p => `
     <div class="search-result-item" onclick="openPDP(getProductById('${p.id}'));document.getElementById('searchModal').classList.remove('active');">
-      <img src="${p.image}" alt="${p.name}" class="search-result-img" onerror="this.style.display='none'">
+      <img src="${resolveAssetUrl(p.image)}" alt="${p.name}" class="search-result-img" onerror="this.style.display='none'">
       <div style="flex:1;">
         <div style="font-family:var(--font-serif);font-weight:600;color:var(--midnight-blue);">${p.name}</div>
         <div style="font-size:0.75rem;color:var(--text-muted);">${p.collection || ''} · ${p.category}</div>
@@ -876,7 +907,7 @@ function renderCart() {
 
   container.innerHTML = state.cart.map((item, idx) => `
     <div class="cart-item-row">
-      <img src="${item.product.image}" alt="${item.product.name}" class="cart-item-thumb" onerror="this.style.display='none'">
+      <img src="${resolveAssetUrl(item.product.image)}" alt="${item.product.name}" class="cart-item-thumb" onerror="this.style.display='none'">
       <div class="cart-item-info">
         <div class="cart-item-title">${item.product.name}</div>
         <div class="cart-item-meta">${item.size} · ${formatPrice(item.price ?? item.product.basePrice)}</div>
@@ -1260,7 +1291,7 @@ function renderPDP(product) {
   const img3 = getMattressSpecialityImage(product);
 
   _pdpActiveImgIndex = 0;
-  _pdpGalleryImages = [img1, img2, img3];
+  _pdpGalleryImages = [resolveAssetUrl(img1), resolveAssetUrl(img2), resolveAssetUrl(img3)];
 
   el.innerHTML = `
     <button class="modal-close-icon" onclick="closePDP()">✕</button>
@@ -2008,8 +2039,8 @@ function renderProductCard(p) {
       </div>
       
       <div class="product-card-media">
-        <img src="${p.image || ''}" alt="${p.name}"
-             onerror="this.src='./src/assets/logo.jpeg'">
+        <img src="${resolveAssetUrl(p.image)}" alt="${p.name}"
+             onerror="if(window.SHOPIFY_CDN){this.src=window.SHOPIFY_CDN+'logo.jpeg';}else{this.src='./src/assets/logo.jpeg';}">
         ${p.has3D ? '<button class="card-floating-3d-btn">⟳ 3D View</button>' : ''}
       </div>
       
@@ -3069,7 +3100,7 @@ function renderAccountTabContent() {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         ${PRODUCTS.slice(0, 2).map(p => `
           <div style="display:flex;gap:12px;background:var(--bg-secondary);border:1px solid rgba(76,63,94,0.1);border-radius:var(--radius-sm);padding:12px;align-items:center;">
-            <img src="${p.image}" style="width:70px;height:60px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">
+            <img src="${resolveAssetUrl(p.image)}" style="width:70px;height:60px;object-fit:cover;border-radius:4px;" onerror="this.style.display='none'">
             <div style="flex:1;">
               <div style="font-family:var(--font-serif);font-weight:600;font-size:0.92rem;color:var(--midnight-blue);">${p.name}</div>
               <div style="font-size:0.84rem;font-weight:700;color:var(--midnight-blue);">${formatPrice(p.basePrice)}</div>
@@ -4362,7 +4393,7 @@ function renderQuizResults() {
             ` : ''}
             
             <div class="quiz-result-body">
-              <img src="${p.image}" alt="${p.name}" class="quiz-result-image"
+              <img src="${resolveAssetUrl(p.image)}" alt="${p.name}" class="quiz-result-image"
                    onerror="this.src='./src/assets/images/mattress_hybrid_luxury.jpg'">
               
               <div class="quiz-result-info">

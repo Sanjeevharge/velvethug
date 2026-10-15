@@ -1,11 +1,11 @@
 {
   "sections": {
-    "care_repair_main": {
-      "type": "categories-rail",
+    "main_storefront": {
+      "type": "main-storefront",
       "settings": {}
     }
   },
   "order": [
-    "care_repair_main"
+    "main_storefront"
   ]
 }

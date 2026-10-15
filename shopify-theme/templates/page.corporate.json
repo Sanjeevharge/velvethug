@@ -1,11 +1,11 @@
 {
   "sections": {
-    "corporate_main": {
-      "type": "categories-rail",
+    "main_storefront": {
+      "type": "main-storefront",
       "settings": {}
     }
   },
   "order": [
-    "corporate_main"
+    "main_storefront"
   ]
 }

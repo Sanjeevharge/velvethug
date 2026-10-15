@@ -1,51 +1,1140 @@
 <!doctype html>
 <html class="no-js" lang="{{ request.locale.iso_code }}">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="theme-color" content="{{ settings.color_primary_bg | default: '#0b0f19' }}">
-    <link rel="canonical" href="{{ canonical_url }}">
-    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0A1128">
+  <link rel="canonical" href="{{ canonical_url }}">
+  <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
 
-    {%- if page_title -%}
-      <title>{{ page_title }} &ndash; Velvet Hug | velvethug.in</title>
-    {%- else -%}
-      <title>Velvet Hug &ndash; Luxury Ergonomic Mattresses & Sleep Wellness</title>
-    {%- endif -%}
+  {%- if page_title -%}
+    <title>{{ page_title }} &ndash; Velvet Hug | velvethug.in</title>
+  {%- else -%}
+    <title>Velvet Hug &ndash; Luxury Ergonomic Mattresses &amp; Sleep Wellness</title>
+  {%- endif -%}
 
-    {% if page_description %}
-      <meta name="description" content="{{ page_description | escape }}">
-    {% endif %}
+  {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+  {%- else -%}
+    <meta name="description" content="Velvet Hug crafts premium mattresses, pillows and sleep accessories for Indian bodies. Sleep engineered for the way you rest.">
+  {%- endif -%}
 
-    {{ content_for_header }}
+  {{ content_for_header }}
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 
-    <!-- Theme Stylesheets -->
-    {{ 'main.css' | asset_url | stylesheet_tag }}
-    {{ 'components.css' | asset_url | stylesheet_tag }}
-    {{ 'visualizer.css' | asset_url | stylesheet_tag }}
+  <!-- Theme Stylesheet (Unified Production CSS) -->
+  {{ 'main.css' | asset_url | stylesheet_tag }}
 
-    <!-- Three.js for 3D Layer Visualizer -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-  </head>
+  <!-- Three.js for 3D Layer Visualizer -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
 
-  <body class="velvet-hug-theme">
-    {% section 'promo-banner' %}
-    {% section 'header' %}
+  <!-- Global Shopify Asset CDN Resolver & Navigation Helpers -->
+  <script>
+    window.SHOPIFY_CDN = {{ 'logo.jpeg' | asset_url | json }}.replace('logo.jpeg', '');
 
-    <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
-      {{ content_for_layout }}
-    </main>
+    // Global SPA Page Navigation
+    window.goToPage = function(page) {
+      if (window.navigateTo) {
+        window.navigateTo(page);
+      } else {
+        document.querySelectorAll('.page-view').forEach(function(v) {
+          v.classList.remove('active');
+          v.style.display = 'none';
+        });
+        var el = document.getElementById('view-' + page);
+        if (el) {
+          el.classList.add('active');
+          el.style.display = 'block';
+        }
+        document.querySelectorAll('.nav-link').forEach(function(l) {
+          l.classList.toggle('active', l.getAttribute('data-page') === page);
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
 
-    {% section 'footer' %}
-    {% render 'whatsapp-widget' %}
-    {% render 'theme-modals' %}
+    window.goToAccount = function() {
+      if (window.navigateTo) {
+        window.navigateTo('account');
+      } else if (window.goToPage) {
+        window.goToPage('account');
+      }
+    };
 
-    <script src="{{ 'main.js' | asset_url }}" defer></script>
-  </body>
+    window.openSearch = function() {
+      var modal = document.getElementById('searchModal');
+      if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+        setTimeout(function() {
+          var input = document.getElementById('searchInput');
+          if (input) input.focus();
+        }, 80);
+      }
+    };
+
+    window.closeSearch = function() {
+      var modal = document.getElementById('searchModal');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      }
+    };
+
+    window.searchQuickTag = function(term) {
+      var input = document.getElementById('searchInput');
+      if (input) {
+        input.value = term;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    };
+
+    window.openCart = function() {
+      if (window._openCartReal) {
+        window._openCartReal();
+      } else {
+        var drawer = document.getElementById('cartDrawerBackdrop');
+        if (drawer) {
+          drawer.classList.add('active', 'open');
+          drawer.style.display = 'flex';
+        }
+      }
+    };
+
+    window.closeCart = function() {
+      if (window._closeCartReal) {
+        window._closeCartReal();
+      } else {
+        var drawer = document.getElementById('cartDrawerBackdrop');
+        if (drawer) {
+          drawer.classList.remove('active', 'open');
+          drawer.style.display = 'none';
+        }
+      }
+    };
+
+    window.openQuiz = function() {
+      if (window._openQuizReal) {
+        window._openQuizReal();
+      } else {
+        var quiz = document.getElementById('quizModalBackdrop');
+        if (quiz) {
+          quiz.classList.add('active');
+          quiz.style.display = 'flex';
+          if (window.renderQuizStep) window.renderQuizStep();
+        }
+      }
+    };
+
+    window.closeQuiz = function() {
+      var quiz = document.getElementById('quizModalBackdrop');
+      if (quiz) {
+        quiz.classList.remove('active');
+        quiz.style.display = 'none';
+      }
+    };
+
+    window.openLoginModal = function() {
+      var m = document.getElementById('loginModal');
+      if (m) {
+        m.classList.add('active');
+        m.style.display = 'flex';
+      }
+    };
+
+    window.closeLoginModal = function() {
+      var m = document.getElementById('loginModal');
+      if (m) {
+        m.classList.remove('active');
+        m.style.display = 'none';
+      }
+    };
+
+    window.toggleConsumerTheme = function() {
+      var isDark = document.body.classList.contains('dark-theme') || document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        document.body.classList.remove('dark-theme');
+        try { localStorage.setItem('vh_consumer_theme', 'light'); } catch(e){}
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.body.classList.add('dark-theme');
+        try { localStorage.setItem('vh_consumer_theme', 'dark'); } catch(e){}
+      }
+      var icon = document.getElementById('themeToggleIcon');
+      if (icon) {
+        icon.innerHTML = (!isDark)
+          ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>'
+          : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+      }
+    };
+
+    // Global ESC key listener to close ANY modal immediately
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        window.closeSearch();
+        window.closeCart();
+        window.closeQuiz();
+        window.closeLoginModal();
+        document.querySelectorAll('.modal-backdrop.active, .cart-drawer-backdrop.active, .promo-modal-backdrop.active').forEach(function(el) {
+          el.classList.remove('active', 'open');
+          el.style.display = 'none';
+        });
+        document.body.style.overflow = '';
+      }
+    });
+
+    try {
+      if (localStorage.getItem('vh_consumer_theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    } catch(e){}
+
+    // Global image fallback: automatically load from Shopify CDN if relative path fails
+    document.addEventListener('error', function(e) {
+      if (e.target && e.target.tagName === 'IMG') {
+        var src = e.target.getAttribute('src');
+        if (src && window.SHOPIFY_CDN && !src.startsWith(window.SHOPIFY_CDN)) {
+          var filename = src.split('/').pop().split('?')[0];
+          e.target.src = window.SHOPIFY_CDN + filename;
+        }
+      }
+    }, true);
+  </script>
+</head>
+<body class="velvet-hug-theme">
+
+<!-- ═══════════════════════════════════════════════
+     SCROLL PROGRESS BAR
+     ═══════════════════════════════════════════════ -->
+<div id="scrollProgressBar"></div>
+
+<!-- ═══════════════════════════════════════════════
+     PROMO TOP BAR
+     ═══════════════════════════════════════════════ -->
+<div id="promoBanner" class="promo-topbar">
+  <div class="promo-topbar-inner">
+    <div class="promo-actions">
+      <span class="promo-tag-badge" id="promoTag">FOUNDING EXCLUSIVE</span>
+      <span id="promoMessage">First 1,000 Sleep Partners — 15% Lifetime Price Lock (348 Claimed)</span>
+    </div>
+    <div class="promo-actions">
+      <span style="font-size:0.78rem;color:rgba(255,255,255,0.6);">Ends in:</span>
+      <span class="promo-countdown" id="promoCountdown">03d 14h 22m</span>
+      <span class="promo-coupon" id="promoCoupon">FOUNDING15</span>
+    </div>
+    <button class="promo-close-btn" id="promoCloseBt" aria-label="Close banner">✕</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SITE HEADER
+     ═══════════════════════════════════════════════ -->
+<header class="site-header" role="banner">
+  <div class="header-container">
+    <!-- Logo -->
+    <a class="brand-logo" href="/" onclick="goToPage('home')" data-page="home" aria-label="Velvet Hug — Home">
+      <img src="{{ 'logo.jpeg' | asset_url }}" alt="Velvet Hug Logo" class="brand-logo-img"
+           onerror="this.src="{{ 'logo.jpeg' | asset_url }}"">
+      <div class="logo-text-wrap">
+        <span class="logo-title">Velvet Hug</span>
+        <span class="logo-subtitle">Be Held, Every Night</span>
+      </div>
+    </a>
+
+    <!-- Primary Navigation -->
+    <nav aria-label="Main navigation" class="nav-wrapper">
+      <ul class="nav-links" role="list">
+        <li><a class="nav-link active" data-page="home" href="/" onclick="goToPage('home')">Home</a></li>
+        <li><a class="nav-link" data-page="mattresses" href="/mattresses" onclick="goToPage('mattresses')">Mattresses</a></li>
+        <li><a class="nav-link" data-page="pillows" href="/pillows" onclick="goToPage('pillows')">Pillows</a></li>
+        <li><a class="nav-link" data-page="accessories" href="/accessories" onclick="goToPage('accessories')">Accessories</a></li>
+        <li><a class="nav-link" data-page="emi" href="/emi" onclick="goToPage('emi')">EMI Plans</a></li>
+        <li>
+          <a class="nav-link" href="/quiz" id="quizBtn" onclick="if(window.openQuiz) { openQuiz(); return false; }">
+            Sleep Quiz <span class="nav-badge-pill">New</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Header Right Actions -->
+    <div class="header-right-group">
+      <div class="header-actions">
+        <!-- Dark / Light Mode Conversion Button -->
+        <button class="action-icon-btn theme-toggle-btn" id="consumerThemeToggleBtn" title="Switch Dark / Light Mode" aria-label="Toggle dark mode" onclick="window.toggleConsumerTheme()">
+          <span id="themeToggleIcon" style="display:flex;align-items:center;justify-content:center;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+          </span>
+        </button>
+
+        <!-- Search Button -->
+        <button class="action-icon-btn" id="headerSearchBtn" title="Search catalog" aria-label="Open search" onclick="if(window.openSearch) openSearch();">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </button>
+
+        <!-- Account / Profile Button (Person Outline) -->
+        <button class="action-icon-btn" id="accountBtn" title="My Account &amp; Profile" aria-label="My Account" onclick="window.goToAccount ? window.goToAccount() : goToPage('account');">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+
+        <!-- Shopping Cart Button (Amazon/Duroflex Trolley Icon) -->
+        <button class="action-icon-btn" id="cartBtn" title="Shopping Cart" aria-label="Shopping cart" style="position:relative;" onclick="if(window.openCart){openCart();}">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span class="action-badge" id="cartBadge">0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE VIEWS
+     ═══════════════════════════════════════════════ -->
+
+  <!-- MAIN STOREFRONT CONTAINER -->
+  <main id="mainContent" class="content-for-layout" role="main">
+    {{ content_for_layout }}
+  </main>
+
+<!-- /main -->
+
+<!-- ═══════════════════════════════════════════════
+     FOOTER
+     ═══════════════════════════════════════════════ -->
+<footer class="site-footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-top-grid">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <img src="{{ 'logo.jpeg' | asset_url }}" alt="Velvet Hug Logo" style="height:36px;width:auto;"
+               onerror="this.style.display='none'">
+          <div>
+            <div style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:#FDFBF7;">Velvet Hug</div>
+            <div style="font-size:0.62rem;letter-spacing:0.12em;color:rgba(253,251,247,0.5);text-transform:uppercase;">Be Held, Every Night</div>
+          </div>
+        </div>
+        <p style="font-size:0.82rem;color:rgba(253,251,247,0.5);line-height:1.65;max-width:200px;margin-bottom:16px;">
+          Sleep engineered for Indian bodies. Every body. Five layers. One promise: you will be held.
+        </p>
+        <div style="display:flex;gap:10px;">
+          <a href="#" class="action-icon-btn" style="width:34px;height:34px;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.1);color:#FDFBF7;" aria-label="Instagram">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+          <a href="#" class="action-icon-btn" style="width:34px;height:34px;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.1);color:#FDFBF7;" aria-label="YouTube">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-2.63A35.07 35.07 0 0 0 12 4a35 35 0 0 0-3.82.06 4.83 4.83 0 0 1-3.77 2.63A4.83 4.83 0 0 1 2 10.7a35 35 0 0 0 0 2.6 4.83 4.83 0 0 1 2.41 4 4.83 4.83 0 0 1 3.77 2.63A35.07 35.07 0 0 0 12 20a35 35 0 0 0 3.82-.06 4.83 4.83 0 0 1 3.77-2.63A4.83 4.83 0 0 1 22 13.3a35 35 0 0 0 0-2.6 4.83 4.83 0 0 1-2.41-4zM10 15V9l5 3z"/></svg>
+          </a>
+          <a href="https://wa.me/918069008358" class="action-icon-btn" style="width:34px;height:34px;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.1);color:#25D366;" aria-label="WhatsApp">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Products & Services</div>
+        <ul class="footer-links-list">
+          <li><a class="footer-link" href="/mattresses" onclick="goToPage('mattresses')">Mattresses</a></li>
+          <li><a class="footer-link" href="/pillows" onclick="goToPage('pillows')">Pillows</a></li>
+          <li><a class="footer-link" href="/cushions" onclick="goToPage('cushions')">Cushions &amp; Bolsters</a></li>
+          <li><a class="footer-link" href="/accessories" onclick="goToPage('accessories')">Accessories</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Customer Trust</div>
+        <ul class="footer-links-list">
+          <li><a class="footer-link" href="/returns" onclick="goToPage('returns')">100-Night Free Trial</a></li>
+          <li><a class="footer-link" href="/returns" onclick="goToPage('returns')">Return &amp; Exchange Policy</a></li>
+          <li><a class="footer-link" href="/emi" onclick="goToPage('emi')">No-Cost EMI Schemes</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="window.openEmiModal(28000)">EMI Calculator Widget</a></li>
+          <li><a class="footer-link" href="/account" onclick="goToPage('account')">Track My Order</a></li>
+          <li><a class="footer-link" href="https://wa.me/918069008358" target="_blank" rel="noopener">WhatsApp Concierge</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Company &amp; Ethos</div>
+        <ul class="footer-links-list">
+          <li><a class="footer-link" href="/" onclick="goToPage('home')">About Velvet Hug</a></li>
+          <li><a class="footer-link" href="/" onclick="goToPage('home')">5-Layer Sleep Science</a></li>
+          <li><a class="footer-link" href="/care" onclick="goToPage('care')">Care &amp; Mattress Renewal</a></li>
+          <li><a class="footer-link" href="javascript:void(0)" onclick="window.openCorporateInquiry()">Business &amp; Bulk Enquiries</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-col-title">Stay Connected</div>
+        <p style="font-size:0.78rem;color:rgba(253,251,247,0.5);margin-bottom:12px;line-height:1.5;">Ergonomic sleep insights, care guides, and founding privileges.</p>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <input class="form-input" placeholder="Your email address" style="font-size:0.82rem;background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:#FDFBF7;" id="newsletterInput">
+          <button class="btn btn-gold btn-sm btn-block" onclick="toast('✓ Subscribed to Velvet Hug Sleep Letters.')">Subscribe</button>
+        </div>
+        <div style="margin-top:16px;">
+          <div class="footer-col-title" style="font-size:0.78rem;margin-bottom:8px;">Rest Ambassador Program</div>
+          <p style="font-size:0.72rem;color:rgba(253,251,247,0.4);line-height:1.5;margin-bottom:8px;">Refer friends. Earn sleep credits. Build the rest revolution with us.</p>
+          <button class="btn btn-outline-light btn-sm" onclick="goToPage('account')">Join as Ambassador</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom-bar">
+      <div>© 2026 Velvet Hug India Pvt. Ltd. All rights reserved.</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <a href="/privacy-policy" onclick="window.openPrivacyPolicyModal();return false;" class="footer-link">Privacy Policy</a>
+        <a href="/terms" onclick="window.openTermsModal();return false;" class="footer-link">Terms of Service</a>
+        <a href="/returns" onclick="goToPage('returns')" class="footer-link">Return &amp; Trial Policy</a>
+        <a href="/sitemap.xml" class="footer-link" target="_blank" rel="noopener">Sitemap</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span>Secure payments:</span>
+        <span style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:3px;font-size:0.7rem;font-weight:700;">UPI</span>
+        <span style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:3px;font-size:0.7rem;font-weight:700;">Razorpay</span>
+        <span style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:3px;font-size:0.7rem;font-weight:700;">EMI</span>
+        <span style="background:rgba(255,255,255,0.1);padding:2px 8px;border-radius:3px;font-size:0.7rem;font-weight:700;">COD</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════
+     OVERLAYS & MODALS
+     ═══════════════════════════════════════════════ -->
+
+<!-- SEARCH MODAL -->
+<div class="modal-backdrop" id="searchModal" role="dialog" aria-modal="true" aria-label="Search products" onclick="if(event.target===this) window.closeSearch();">
+  <div class="modal-card search-modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h2 style="font-family:var(--font-serif);font-size:1.15rem;color:var(--midnight-blue);margin:0;">Find Your Perfect Sleep</h2>
+      <button class="modal-close-icon" style="position:static;" onclick="window.closeSearch()" aria-label="Close search">✕</button>
+    </div>
+    <div class="search-modal-input-wrap">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--text-muted);flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input class="search-modal-input" id="searchInput" placeholder="Ortho mattress, memory foam pillow, latex…" autocomplete="off" aria-label="Search query">
+      <button id="searchModalClose" onclick="window.closeSearch()" aria-label="Close search" style="color:var(--text-muted);font-size:1.1rem;background:none;border:none;cursor:pointer;">✕</button>
+    </div>
+    <div style="margin-bottom:10px;font-size:0.76rem;color:var(--text-muted);">Popular Searches</div>
+    <div class="search-quick-tags">
+      <span class="search-quick-tag" onclick="window.searchQuickTag('Ortho mattress')">Ortho mattress</span>
+      <span class="search-quick-tag" onclick="window.searchQuickTag('Memory foam pillow')">Memory foam pillow</span>
+      <span class="search-quick-tag" onclick="window.searchQuickTag('Natural latex')">Natural latex</span>
+      <span class="search-quick-tag" onclick="window.searchQuickTag('Kids mattress')">Kids mattress</span>
+      <span class="search-quick-tag" onclick="window.searchQuickTag('Cooling mattress')">Cooling mattress</span>
+      <span class="search-quick-tag" onclick="window.searchQuickTag('Pregnancy bolster')">Pregnancy bolster</span>
+      <span class="search-quick-tag" onclick="window.searchQuickTag('Sleep mask')">Sleep mask</span>
+    </div>
+    <div class="search-results-list" id="searchResults" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- PRODUCT DETAIL MODAL (PDP) -->
+<div class="modal-backdrop" id="pdpModal" role="dialog" aria-modal="true" aria-label="Product details">
+  <div class="pdp-modal-content" id="pdpContent">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- CART DRAWER -->
+<div id="cartDrawerBackdrop" class="cart-drawer-backdrop" role="dialog" aria-modal="true" aria-label="Shopping cart" onclick="if(event.target===this) window.closeCart();">
+  <div class="cart-drawer">
+    <div class="cart-drawer-header">
+      <div class="cart-drawer-title" style="display:inline-flex;align-items:center;gap:8px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span>Your Cart</span>
+      </div>
+      <button class="modal-close-icon" style="position:static;" id="cartDrawerClose" aria-label="Close cart" onclick="window.closeCart();">✕</button>
+    </div>
+    <div class="cart-items-scroll" id="cartItemsScroll" aria-live="polite">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="cart-drawer-footer">
+      <div style="margin-bottom:12px;">
+        <div class="pincode-check-wrap">
+          <input class="form-input" placeholder="Delivery Pincode (e.g. 600028)" maxlength="6" id="cartPincodeInput" value="600028">
+          <button class="btn btn-outline btn-sm" onclick="window.checkPincodeDeliveryUI(document.getElementById('cartPincodeInput').value, 'cartPincodeResult')">Check Delivery</button>
+        </div>
+        <div id="cartPincodeResult" style="margin-top:6px;"></div>
+      </div>
+      <div class="cart-totals-row">
+        <span>Total</span>
+        <span id="cartTotal">₹0</span>
+      </div>
+      <div style="font-size:0.74rem;color:var(--text-muted);">Free shipping · No-cost EMI available</div>
+      <button class="btn btn-gold btn-lg btn-block" id="checkoutBtn">Proceed to Checkout →</button>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE FLOATING BAR -->
+<div class="compare-bar-float" id="compareBar" aria-live="polite">
+  <span style="font-size:0.82rem;color:#FDFBF7;font-weight:600;"><span id="compareBarCount">0</span> products to compare</span>
+  <button class="btn btn-gold btn-sm" id="compareBtn" aria-label="Open comparison">Compare Now</button>
+  <button class="btn btn-outline-light btn-sm" id="clearCompareBtn" aria-label="Clear comparison">Clear</button>
+</div>
+
+<!-- COMPARE MODAL -->
+<div class="modal-backdrop" id="compareModalBackdrop" role="dialog" aria-modal="true" aria-label="Product comparison" onclick="if(event.target===this) { document.getElementById('compareModalBackdrop').classList.remove('active'); }">
+  <div class="compare-modal-content">
+    <button class="modal-close-icon" id="compareModalClose" aria-label="Close comparison" onclick="document.getElementById('compareModalBackdrop').classList.remove('active');">✕</button>
+    <h2 style="font-family:var(--font-serif);font-size:1.3rem;color:var(--midnight-blue);margin-bottom:16px;">Compare Mattresses</h2>
+    <div style="overflow-x:auto;">
+      <table class="compare-table" aria-label="Product comparison table">
+        <tbody id="compareTableBody"><!-- Rendered by JS --></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="modal-backdrop" id="quizModalBackdrop" role="dialog" aria-modal="true" aria-label="Sleep style quiz" onclick="if(event.target===this) window.closeQuiz();">
+  <div class="modal-card quiz-modal-card">
+    <button class="modal-close-icon" id="quizModalClose" aria-label="Close quiz" onclick="window.closeQuiz();">✕</button>
+    <div style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;color:var(--midnight-blue);margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+      <span>Sleep Style Finder</span>
+    </div>
+    <div id="quizContent"><!-- Rendered by JS --></div>
+  </div>
+</div>
+
+<!-- DOCTOR MODAL -->
+<div class="modal-backdrop" id="doctorModalBackdrop" role="dialog" aria-modal="true" aria-label="Doctor recommendation">
+  <div class="modal-card" style="max-width:480px;width:100%;" id="doctorModalContent"><!-- Rendered by JS --></div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-backdrop" id="checkoutModalBackdrop" role="dialog" aria-modal="true" aria-label="Checkout">
+  <div class="checkout-modal-content" id="checkoutContent">
+    <button class="modal-close-icon" id="checkoutModalClose" aria-label="Close checkout">✕</button>
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- LOGIN & AUTH MODAL -->
+<!-- LOGIN & AUTH MODAL -->
+<div class="modal-backdrop" id="loginModal" role="dialog" aria-modal="true" aria-label="Sign in" onclick="if(event.target===this) window.closeLoginModal();">
+  <div class="modal-card" style="max-width:460px;width:100%;border-radius:18px;padding:32px 28px;">
+    <button class="modal-close-icon" onclick="window.closeLoginModal();" aria-label="Close">✕</button>
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="width:48px;height:48px;margin:0 auto 8px;border-radius:50%;background:rgba(212,175,55,0.12);display:flex;align-items:center;justify-content:center;color:var(--champagne-gold,#D4AF37);">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </div>
+      <h2 style="font-family:var(--font-serif);font-size:1.4rem;color:var(--midnight-blue);margin-bottom:4px;">Sleep Partner Access</h2>
+      <p style="font-size:0.82rem;color:var(--text-muted);margin:0;">Instant passwordless OTP access</p>
+    </div>
+
+    <!-- Modal 2-Tab Switcher -->
+    <div class="auth-mode-pill-tabs" style="margin-bottom:18px;">
+      <button type="button" id="modalTabSignUp" class="auth-mode-tab active" onclick="window.switchModalAuthTab('signup')">
+        <span>📝 Sign Up</span>
+      </button>
+      <button type="button" id="modalTabLogin" class="auth-mode-tab" onclick="window.switchModalAuthTab('login')">
+        <span>🔑 Log In</span>
+      </button>
+    </div>
+
+    <!-- Modal Sign Up Panel -->
+    <div id="modalSignUpContainer">
+      <form id="modalSignupForm" onsubmit="event.preventDefault(); window.handleModalSignupSendOtp();" style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:3px;display:block;">Full Name *</label>
+          <input class="form-input" id="modalSignupName" type="text" placeholder="e.g. Rahul Sharma" style="width:100%;padding:10px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.88rem;" required>
+        </div>
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:3px;display:block;">10-Digit Mobile Number *</label>
+          <div style="display:flex;gap:6px;">
+            <span style="background:var(--bg-secondary);border:1px solid rgba(76,63,94,0.18);padding:10px 12px;border-radius:8px;font-weight:700;font-size:0.85rem;color:var(--midnight-blue);">+91</span>
+            <input class="form-input" id="modalSignupPhone" type="tel" maxlength="10" placeholder="9807564321" style="flex:1;padding:10px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.88rem;" required>
+          </div>
+        </div>
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:3px;display:block;">Email Address *</label>
+          <input class="form-input" id="modalSignupEmail" type="email" placeholder="rahul@gmail.com" style="width:100%;padding:10px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.88rem;" required>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:3px;display:block;">Delivery Address *</label>
+          <input class="form-input" id="modalSignupAddrLine" type="text" placeholder="Flat/House No, Street, Landmark" style="width:100%;padding:9px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.82rem;margin-bottom:6px;" required>
+          <div style="display:grid;grid-template-columns:1.2fr 1.2fr 1fr;gap:6px;">
+            <input class="form-input" id="modalSignupAddrCity" type="text" placeholder="City" style="padding:9px 10px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.82rem;" required>
+            <input class="form-input" id="modalSignupAddrState" type="text" placeholder="State" style="padding:9px 10px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.82rem;" required>
+            <input class="form-input" id="modalSignupAddrPin" type="tel" maxlength="6" placeholder="Pincode" style="padding:9px 10px;border:1px solid rgba(76,63,94,0.18);border-radius:6px;font-size:0.82rem;" required>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:4px;display:block;">Receive Verification OTP via *</label>
+          <div class="otp-channel-selector" style="margin:0;">
+            <div class="otp-channel-card active" id="modalSignupChanPhoneCard" onclick="window.selectModalSignupOtpChannel('phone')">
+              <input type="radio" id="modalSignupChanPhone" name="modalSignupOtpChannel" value="phone" checked>
+              <span>📱 Mobile</span>
+            </div>
+            <div class="otp-channel-card" id="modalSignupChanEmailCard" onclick="window.selectModalSignupOtpChannel('email')">
+              <input type="radio" id="modalSignupChanEmail" name="modalSignupOtpChannel" value="email">
+              <span>✉️ Email</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="modalSignupSubmitBtn" class="btn btn-gold btn-lg btn-block" style="margin-top:4px;width:100%;padding:12px;font-weight:700;font-size:0.92rem;">
+          Get Verification OTP →
+        </button>
+      </form>
+
+      <!-- Modal Sign Up OTP Verification -->
+      <div id="modalSignupOtpStep" style="display:none;padding:6px 0;">
+        <div style="text-align:center;margin-bottom:14px;">
+          <div style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:3px;">
+            Enter 4-digit code sent to
+          </div>
+          <div id="modalSignupOtpTargetText" style="font-weight:700;color:var(--midnight-blue);font-size:0.92rem;">
+            +91 ••••• •••••
+          </div>
+        </div>
+
+        <div class="otp-input-group">
+          <input class="otp-box" maxlength="1" id="modalSignupOtp1" type="tel" autofocus>
+          <input class="otp-box" maxlength="1" id="modalSignupOtp2" type="tel">
+          <input class="otp-box" maxlength="1" id="modalSignupOtp3" type="tel">
+          <input class="otp-box" maxlength="1" id="modalSignupOtp4" type="tel">
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <span style="font-size:0.78rem;color:var(--text-muted);"><button type="button" class="btn btn-outline-light btn-sm" onclick="window.handleModalSignupSendOtp()" style="padding:3px 8px;font-size:0.72rem;">Resend OTP</button></span>
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="modalSignupOtpTimer">00:45</span>
+        </div>
+
+        <button type="button" onclick="window.handleModalSignupVerifyOtp()" class="btn btn-gold btn-lg btn-block" style="width:100%;padding:12px;font-weight:700;font-size:0.92rem;">
+          Verify &amp; Enter Sleep Partner Hub →
+        </button>
+        <button type="button" class="btn btn-outline-light btn-sm btn-block" onclick="window.backToModalSignupForm()" style="margin-top:8px;width:100%;color:var(--text-muted);border:none;background:transparent;cursor:pointer;">
+          ← Back / Edit Info
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal Log In Panel -->
+    <div id="modalLoginContainer" style="display:none;">
+      <form id="modalLoginForm" onsubmit="event.preventDefault(); window.handleModalLoginSendOtp();" style="display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:4px;display:block;">
+            Mobile Number or Email Address *
+          </label>
+          <input class="form-input" id="modalLoginIdentifier" type="text" placeholder="e.g. 9807564321 or rahul@gmail.com" style="width:100%;padding:11px 12px;border:1px solid rgba(76,63,94,0.18);border-radius:8px;font-size:0.88rem;" required>
+        </div>
+
+        <div>
+          <label class="form-label" style="font-weight:700;color:var(--midnight-blue);font-size:0.8rem;margin-bottom:4px;display:block;">Send Verification OTP via *</label>
+          <div class="otp-channel-selector" style="margin:0;">
+            <div class="otp-channel-card active" id="modalLoginChanPhoneCard" onclick="window.selectModalLoginOtpChannel('phone')">
+              <input type="radio" id="modalLoginChanPhone" name="modalLoginOtpChannel" value="phone" checked>
+              <span>📱 Mobile</span>
+            </div>
+            <div class="otp-channel-card" id="modalLoginChanEmailCard" onclick="window.selectModalLoginOtpChannel('email')">
+              <input type="radio" id="modalLoginChanEmail" name="modalLoginOtpChannel" value="email">
+              <span>✉️ Email</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="modalLoginSubmitBtn" class="btn btn-gold btn-lg btn-block" style="margin-top:4px;width:100%;padding:12px;font-weight:700;font-size:0.92rem;">
+          Send Verification Code →
+        </button>
+      </form>
+
+      <!-- Modal Login OTP Verification -->
+      <div id="modalLoginOtpStep" style="display:none;padding:6px 0;">
+        <div style="text-align:center;margin-bottom:14px;">
+          <div style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:3px;">
+            Enter 4-digit code sent to
+          </div>
+          <div id="modalLoginOtpTargetText" style="font-weight:700;color:var(--midnight-blue);font-size:0.92rem;">
+            +91 ••••• •••••
+          </div>
+        </div>
+
+        <div class="otp-input-group">
+          <input class="otp-box" maxlength="1" id="modalLoginOtp1" type="tel" autofocus>
+          <input class="otp-box" maxlength="1" id="modalLoginOtp2" type="tel">
+          <input class="otp-box" maxlength="1" id="modalLoginOtp3" type="tel">
+          <input class="otp-box" maxlength="1" id="modalLoginOtp4" type="tel">
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <span style="font-size:0.78rem;color:var(--text-muted);"><button type="button" class="btn btn-outline-light btn-sm" onclick="window.handleModalLoginSendOtp()" style="padding:3px 8px;font-size:0.72rem;">Resend OTP</button></span>
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="modalLoginOtpTimer">00:45</span>
+        </div>
+
+        <button type="button" onclick="window.handleModalLoginVerifyOtp()" class="btn btn-gold btn-lg btn-block" style="width:100%;padding:12px;font-weight:700;font-size:0.92rem;">
+          Verify &amp; Access My Account →
+        </button>
+        <button type="button" class="btn btn-outline-light btn-sm btn-block" onclick="window.backToModalLoginForm()" style="margin-top:8px;width:100%;color:var(--text-muted);border:none;background:transparent;cursor:pointer;">
+          ← Back / Use Different Details
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOMER ACCOUNT DASHBOARD MODAL -->
+<div class="modal-backdrop" id="accountModal" role="dialog" aria-modal="true" aria-label="Customer Account">
+  <div class="account-modal-content" id="accountDashboardContent">
+    <button class="modal-close-icon" onclick="document.getElementById('accountModal').classList.remove('active')" aria-label="Close">✕</button>
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- FOUNDING PARTNER DIGITAL CERTIFICATE MODAL -->
+<div class="modal-backdrop" id="certificateModal" role="dialog" aria-modal="true" aria-label="Founding Sleep Partner Certificate">
+  <div class="certificate-modal-content" id="certificateContent">
+    <button class="modal-close-icon" onclick="document.getElementById('certificateModal').classList.remove('active')" aria-label="Close">✕</button>
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- 3D SECURE BANK GATEWAY SIMULATOR MODAL -->
+<div class="modal-backdrop" id="bankOtpModal" role="dialog" aria-modal="true" aria-label="Bank Authentication">
+  <div class="modal-card" style="max-width:440px;width:100%;border-top:5px solid var(--midnight-blue);" id="bankOtpContent">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- BUSINESS & BULK ENQUIRIES MODAL (Direct to WhatsApp & Email with Subashini) -->
+<div class="modal-backdrop" id="corporateInquiryModal" role="dialog" aria-modal="true" aria-label="Business & Bulk Enquiries">
+  <div class="modal-card" style="max-width:580px;width:100%;padding:28px;background:#FFFFFF;border-radius:16px;box-shadow:var(--shadow-xl);border:1px solid rgba(76,63,94,0.12);">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.1);padding-bottom:14px;">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(212,175,55,0.12);color:var(--midnight-blue);padding:4px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;margin-bottom:6px;">
+          <span>&starf; Direct Founder Route</span>
+        </div>
+        <h3 style="font-family:var(--font-serif);font-size:1.45rem;color:var(--midnight-blue);margin:0;">Business &amp; Bulk Enquiries</h3>
+        <p style="font-size:0.84rem;color:var(--text-secondary);margin-top:4px;line-height:1.45;">
+          Custom corporate hampers, institutional orders, and hotel suites. Subashini handles each enquiry personally with tailored, case-by-case offers.
+        </p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeCorporateInquiry()" aria-label="Close">&times;</button>
+    </div>
+
+    <!-- Quick Inquiry Builder (Optional details for pre-filling) -->
+    <div style="background:var(--bg-secondary);border:1px solid rgba(76,63,94,0.08);border-radius:10px;padding:16px;margin-bottom:20px;">
+      <div style="font-size:0.8rem;font-weight:700;color:var(--midnight-blue);margin-bottom:8px;">Quick Message Customizer (Optional):</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <input class="form-input" id="corpInqCompany" placeholder="Company / Hotel Name" style="font-size:0.82rem;background:#fff;">
+        <input class="form-input" id="corpInqQty" type="number" placeholder="Est. Quantity (e.g. 50)" style="font-size:0.82rem;background:#fff;">
+      </div>
+      <select class="form-select" id="corpInqProduct" style="font-size:0.82rem;background:#fff;width:100%;">
+        <option value="Signature 8-Inch / 10-Inch Mattresses">Mattresses (Hospitality / Hotel Suites)</option>
+        <option value="Executive Sleep Gift Hampers (Pillow + Mist + Silk Mask)">Executive Sleep Hampers (Corporate Gifting)</option>
+        <option value="Ergonomic Lumbar Cushions for Desks">Employee Ergonomic Workstation Sets</option>
+        <option value="Custom Bespoke Order">Custom Bespoke Requirement</option>
+      </select>
+    </div>
+
+    <!-- Direct Route Channels -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <button class="btn btn-gold btn-lg btn-block" onclick="window.routeToWhatsAppInquiry()" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:0.95rem;padding:14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+        <span>Chat on WhatsApp with Subashini</span>
+      </button>
+
+      <button class="btn btn-outline btn-lg btn-block" onclick="window.routeToEmailInquiry()" style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:0.95rem;padding:14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <span>Email Subashini Directly (subashini@velvethug.in)</span>
+      </button>
+    </div>
+
+    <div style="margin-top:16px;text-align:center;font-size:0.78rem;color:var(--text-muted);">
+      Direct contact: <strong>+91 98800 11223</strong> &middot; Typically responds within 1&ndash;2 hours
+    </div>
+  </div>
+</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label class="form-label">Official Work Email *</label>
+<!-- SUBMIT SLEEP STORY MODAL -->
+<div class="modal-backdrop" id="submitStoryModal" role="dialog" aria-modal="true" aria-label="Submit Sleep Story">
+  <div class="modal-card" style="max-width:540px;width:100%;padding:28px;background:#FFFFFF;border-radius:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.12);padding-bottom:12px;">
+      <div>
+        <h3 style="font-family:var(--font-serif);font-size:1.35rem;color:var(--midnight-blue);margin:0;display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>
+          <span>Share Your Sleep Journey</span>
+        </h3>
+        <p style="font-size:0.8rem;color:var(--champagne-gold);font-weight:700;margin-top:2px;">Get ₹5,000 Cash Reward / Store Credit upon feature!</p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeSubmitStoryModal()" aria-label="Close">✕</button>
+    </div>
+    <form onsubmit="window.submitCustomerStoryForm(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label class="form-label">Your Name *</label>
+          <input class="form-input" id="storyCustName" placeholder="e.g. Vikram & Sneha" required>
+        </div>
+        <div>
+          <label class="form-label">City *</label>
+          <input class="form-input" id="storyCustCity" placeholder="e.g. Bangalore" required>
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Your Sleep Transformation / Experience *</label>
+        <textarea class="form-input" id="storyCustText" rows="4" placeholder="How did Velvet Hug change your sleep, morning stiffness, or spinal rest?..." required></textarea>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Media Type</label>
+        <select class="form-select" id="storyCustMediaType">
+          <option value="WhatsApp Video Reel (0:45)">WhatsApp Video Reel (0:45)</option>
+          <option value="Photo with Mattress & Quote">Photo with Mattress & Quote</option>
+          <option value="Doctor Clinical Testimonial">Doctor / Specialist Testimonial</option>
+        </select>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;">
+          <input type="checkbox" id="storyCustDpdp" checked required>
+          <span>I provide statutory DPDP consent for Velvet Hug to feature my story and review on their website.</span>
+        </label>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.closeSubmitStoryModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold btn-sm">Submit Story for ₹5,000 Reward →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- POST-DELIVERY REVIEW MODAL -->
+<div class="modal-backdrop" id="orderReviewModal" role="dialog" aria-modal="true" aria-label="Write a Review">
+  <div class="modal-card" style="max-width:520px;width:100%;padding:28px;background:#FFFFFF;border-radius:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.12);padding-bottom:12px;">
+      <div>
+        <h3 style="font-family:var(--font-serif);font-size:1.35rem;color:var(--midnight-blue);margin:0;display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <span>Write a Verified Review</span>
+        </h3>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;" id="orderReviewProductLabel">Product: Elara Cloud Mattress</p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeOrderReviewModal()" aria-label="Close">✕</button>
+    </div>
+    <form onsubmit="window.submitOrderReviewForm(event)">
+      <input type="hidden" id="orderReviewOrderId">
+      <input type="hidden" id="orderReviewProductName">
+      <div style="margin-bottom:14px;text-align:center;">
+        <label class="form-label" style="margin-bottom:6px;">Your Overall Sleep Rating</label>
+        <div style="font-size:1.8rem;color:var(--champagne-gold);cursor:pointer;letter-spacing:6px;" id="starRatingGroup">
+          <span onclick="window.setReviewRating(1)" data-star="1">★</span><span onclick="window.setReviewRating(2)" data-star="2">★</span><span onclick="window.setReviewRating(3)" data-star="3">★</span><span onclick="window.setReviewRating(4)" data-star="4">★</span><span onclick="window.setReviewRating(5)" data-star="5">★</span>
+        </div>
+        <input type="hidden" id="orderReviewRatingVal" value="5">
+      </div>
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Review Details &amp; Sleep Experience *</label>
+        <textarea class="form-input" id="orderReviewText" rows="3" placeholder="Tell us how it feels, unboxing experience, zero partner disturbance..." required></textarea>
+      </div>
+      <div style="margin-bottom:16px;background:var(--bg-secondary);padding:10px 12px;border-radius:6px;">
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;cursor:pointer;">
+          <input type="checkbox" id="orderReviewDoctor">
+          <span style="display:inline-flex;align-items:center;gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+            <span><strong>I am a Medical Doctor / Spine Physiotherapist</strong> (Endorse with Doctor Approved badge)</span>
+          </span>
+        </label>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.closeOrderReviewModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold btn-sm">Submit Verified Review →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- UNIVERSAL EMI CALCULATOR MODAL -->
+<div class="modal-backdrop" id="emiCalculatorModal" role="dialog" aria-modal="true" aria-label="No Cost EMI Calculator">
+  <div class="emi-modal-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.12);padding-bottom:12px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <h3 style="font-family:var(--font-serif);font-size:1.35rem;color:var(--midnight-blue);margin:0;display:flex;align-items:center;gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+            <span>No-Cost EMI Calculator</span>
+          </h3>
+          <span class="emi-badge-nocost">0% Interest</span>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:2px;" id="modalEmiProductTitle">Product: Elara Cloud (Queen)</p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeEmiModal()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Active Principal & Bank Selector -->
+    <div style="background:var(--bg-secondary);padding:14px;border-radius:var(--radius-sm);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <span style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Purchase Amount</span>
+        <div style="font-family:var(--font-serif);font-size:1.5rem;font-weight:800;color:var(--midnight-blue);" id="modalEmiPrincipalDisplay">₹28,000</div>
+      </div>
+      <div style="font-size:0.8rem;color:var(--accent-emerald);font-weight:700;">
+        ✓ Upfront Velvet Hug Interest Discount Included
+      </div>
+    </div>
+
+    <div style="font-size:0.8rem;font-weight:700;color:var(--midnight-blue);margin-bottom:8px;">Select Your Bank / Issuer:</div>
+    <div class="emi-bank-tabs-row" id="modalEmiBankTabs">
+      <!-- Rendered by JS -->
+    </div>
+
+    <div style="overflow-x:auto;max-height:260px;">
+      <table class="emi-table-wrap">
+        <thead>
+          <tr>
+            <th>Tenure</th>
+            <th>Monthly EMI</th>
+            <th>Bank Interest</th>
+            <th>Velvet Hug Subsidy</th>
+            <th>Total Cost</th>
+          </tr>
+        </thead>
+        <tbody id="modalEmiTenureTableBody">
+          <!-- Rendered by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:16px;background:rgba(200,169,110,0.1);padding:10px 14px;border-radius:6px;font-size:0.75rem;color:var(--text-secondary);display:flex;align-items:center;justify-content:space-between;">
+      <span style="display:inline-flex;align-items:center;gap:6px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>0% Processing Fee · Instant Approval on Credit/Debit Cards</span>
+      </span>
+      <button class="btn btn-gold btn-sm" onclick="window.closeEmiModal();goToPage('mattresses');">Shop Mattresses on EMI →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SELF-SERVICE 100-NIGHT RETURN & EXCHANGE MODAL -->
+<div class="modal-backdrop" id="returnRequestModal" role="dialog" aria-modal="true" aria-label="Initiate Return or Exchange">
+  <div class="modal-card" style="max-width:560px;width:100%;padding:28px;background:#FFFFFF;border-radius:12px;box-shadow:var(--shadow-xl);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid rgba(76,63,94,0.12);padding-bottom:12px;">
+      <div>
+        <h3 style="font-family:var(--font-serif);font-size:1.35rem;color:var(--midnight-blue);margin:0;display:flex;align-items:center;gap:8px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span>Initiate 100-Night Return / Exchange</span>
+        </h3>
+        <p style="font-size:0.8rem;color:var(--accent-emerald);font-weight:700;margin-top:2px;">100% Free Reverse Logistics · Zero Questions Asked</p>
+      </div>
+      <button class="modal-close-icon" onclick="window.closeReturnRequestModal()" aria-label="Close">✕</button>
+    </div>
+
+    <form onsubmit="window.submitReturnForm(event)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label class="form-label">Select Active Order *</label>
+          <select class="form-select" id="returnOrderSelect" required>
+            <option value="">Choose Order...</option>
+            <option value="VH-890214">Order #VH-890214 (Elara Cloud Queen - Night 28)</option>
+            <option value="VH-441029">Order #VH-441029 (Serenity Ortho King - Night 45)</option>
+            <option value="custom">Other Order (Enter Order ID)</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">Request Type *</label>
+          <select class="form-select" id="returnRequestType" required>
+            <option value="Firmness Exchange">1-Time Firmness Exchange (Free)</option>
+            <option value="Full Refund">Full Money-Back Return (100% Refund)</option>
+            <option value="Size Change">Size / Dimension Exchange</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Primary Reason for Request</label>
+        <select class="form-select" id="returnReason">
+          <option value="Spine requires firmer support">Spine requires firmer support (Prefer Serenity Ortho)</option>
+          <option value="Prefer softer cloud-like comfort">Prefer softer cloud-like comfort (Prefer Elara Cloud)</option>
+          <option value="Partner preference difference">Partner preference difference</option>
+          <option value="Bed frame dimensions mismatch">Bed frame dimensions mismatch</option>
+          <option value="Other feedback">Other personal sleep preference</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label class="form-label">Pickup Address &amp; Preferred Time *</label>
+        <input class="form-input" id="returnPickupAddress" placeholder="e.g. Flat 4B, Sunrise Apts, Bangalore - Weekend slot" required>
+      </div>
+
+      <div style="margin-bottom:14px;background:var(--bg-secondary);padding:12px;border-radius:6px;">
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:0.78rem;cursor:pointer;color:var(--text-secondary);">
+          <input type="checkbox" id="returnConfirmHygiene" checked required style="margin-top:3px;">
+          <span>I confirm the mattress is free of flood/fire damage and will be handed over to the white-glove reverse pickup crew for sanitization and charity donation.</span>
+        </label>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="window.closeReturnRequestModal()">Cancel</button>
+        <button type="submit" class="btn btn-gold btn-sm">Generate RMA &amp; Schedule Pickup →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PROMOTIONAL MODAL POPUP AD (LIMITED-TIME FESTIVAL OFFER) -->
+<div class="promo-modal-backdrop" id="promoAdModal" role="dialog" aria-modal="true" aria-label="Special Festive Offer" style="display:none;">
+  <div class="promo-modal-card" id="promoAdCard" role="document">
+    <button class="promo-modal-close-btn" id="promoAdCloseBtn" aria-label="Close promotional offer" onclick="window.closePromoAd(event)">✕</button>
+    
+    <div class="promo-modal-banner" onclick="window.claimPromoAd()">
+      <img src="{{ 'festival-banner.jpg' | asset_url }}" alt="Velvet Hug Grand Sleep Festival" onerror="this.src="{{ 'hero_bedroom.jpg' | asset_url }}"">
+      <div class="promo-modal-badge">
+        <span class="promo-pulse-dot"></span> LIMITED TIME FESTIVAL
+      </div>
+      <div class="promo-modal-timer-pill" id="promoAdTimerPill">
+        <span>Ends in: </span><strong id="promoAdCountdown">03d 14h 22m</strong>
+      </div>
+    </div>
+    
+    <div class="promo-modal-body">
+      <div class="promo-modal-pretitle">The Velvet Hug Celebration</div>
+      <h3 class="promo-modal-title">Grand Sleep Festival <span class="gold-gradient-text">Flat 30% OFF</span></h3>
+      <p class="promo-modal-subtitle">Wake up restored to zero backache. India's top doctor-recommended orthopaedic mattress at our lowest price ever.</p>
+      
+      <!-- Voucher Box with Click-to-Copy -->
+      <div class="promo-coupon-container" onclick="window.copyPromoCode('DIWALI30')" title="Click to copy coupon code">
+        <div class="promo-code-info">
+          <span class="promo-code-label">Use Voucher Code:</span>
+          <span class="promo-code-val" id="promoAdCodeVal">DIWALI30</span>
+        </div>
+        <button type="button" class="promo-copy-btn" id="promoAdCopyBtn" aria-label="Copy voucher code">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+          <span id="promoCopyBtnText">Copy</span>
+        </button>
+      </div>
+      
+      <!-- Perk Highlights -->
+      <div class="promo-perks-row">
+        <div class="promo-perk-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12V8H6a2 2 0 0 1-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><circle cx="18" cy="12" r="2"/></svg>
+          <span>Free ₹4,999 Sleep Suite</span>
+        </div>
+        <div class="promo-perk-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>100-Night Bedroom Trial</span>
+        </div>
+        <div class="promo-perk-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          <span>0% EMI from ₹1,499/mo</span>
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="promo-modal-actions">
+        <button class="btn btn-gold btn-lg w-100 promo-claim-cta" id="promoAdClaimBtn" onclick="window.claimPromoAd()">
+          Claim 30% OFF &amp; Shop Mattresses →
+        </button>
+      </div>
+      
+      <div class="promo-modal-footer-note">
+        <span>*Instant discount applied at checkout. 100% full money-back guarantee.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- PRIVACY POLICY MODAL (DPDP ACT 2023 COMPLIANT) -->
+<div id="privacyModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="privacyModalTitle" style="display:none;">
+  <div class="modal-card" style="max-width:720px;max-height:85vh;overflow-y:auto;background:var(--midnight,#0A1128);color:#FDFBF7;padding:32px;border:1px solid rgba(212,175,55,0.3);border-radius:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:12px;">
+      <h3 id="privacyModalTitle" style="font-family:'Lora',serif;color:var(--champagne-gold,#D4AF37);margin:0;">Privacy &amp; Data Protection Policy</h3>
+      <button onclick="window.closePrivacyPolicyModal()" style="background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:0.88rem;line-height:1.7;color:rgba(253,251,247,0.8);">
+      <p><strong>Effective Date:</strong> January 1, 2026 | <strong>Jurisdiction:</strong> Republic of India (Digital Personal Data Protection Act, 2023)</p>
+      
+      <h4 style="color:#fff;margin-top:16px;">1. Information We Collect</h4>
+      <p>Velvet Hug collects only necessary data required to fulfill mattress custom manufacturing, logistics delivery, and warranty fulfillment:</p>
+      <ul style="padding-left:20px;margin-bottom:12px;">
+        <li><strong>Contact Data:</strong> Name, delivery address, phone number, and email.</li>
+        <li><strong>Sleep Profile:</strong> Anonymous answers submitted through our 5-question Sleep Diagnostic Quiz.</li>
+        <li><strong>Transaction Data:</strong> Encrypted payment references (we never store raw credit card or UPI credentials).</li>
+      </ul>
+
+      <h4 style="color:#fff;margin-top:16px;">2. Purpose of Processing</h4>
+      <p>Your data is processed strictly for: (a) order dispatch, (b) 100-night trial and 10-year warranty tracking, and (c) logistics communication.</p>
+
+      <h4 style="color:#fff;margin-top:16px;">3. Data Rights &amp; Deletion</h4>
+      <p>Under the DPDP Act 2023, you have the right to access, rectify, or request permanent deletion of your data at any time by emailing <strong>privacy@velvethug.in</strong> or contacting our Data Protection Officer at +91 80 6900 8358.</p>
+    </div>
+    <button class="btn btn-gold btn-block" style="margin-top:24px;" onclick="window.closePrivacyPolicyModal()">I Understand</button>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE MODAL -->
+<div id="termsModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="termsModalTitle" style="display:none;">
+  <div class="modal-card" style="max-width:720px;max-height:85vh;overflow-y:auto;background:var(--midnight,#0A1128);color:#FDFBF7;padding:32px;border:1px solid rgba(212,175,55,0.3);border-radius:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:12px;">
+      <h3 id="termsModalTitle" style="font-family:'Lora',serif;color:var(--champagne-gold,#D4AF37);margin:0;">Terms of Service &amp; Trial Agreement</h3>
+      <button onclick="window.closeTermsModal()" style="background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;">✕</button>
+    </div>
+    <div style="font-size:0.88rem;line-height:1.7;color:rgba(253,251,247,0.8);">
+      <h4 style="color:#fff;margin-top:16px;">1. 100-Night Bedroom Trial Terms</h4>
+      <p>Every Velvet Hug mattress includes a 100-night trial starting from the verified delivery date. We require a minimum 30-night break-in period for musculoskeletal adaptation. If you are not satisfied, you may request a firmness adjustment or full return with zero restocking fees.</p>
+
+      <h4 style="color:#fff;margin-top:16px;">2. 10-Year Limited Warranty</h4>
+      <p>Mattress cores are warrantied against visible indentation greater than 1 inch and structural manufacturing defects across 10 years of domestic use.</p>
+
+      <h4 style="color:#fff;margin-top:16px;">3. Governing Law</h4>
+      <p>These terms are governed by the laws of India. Any disputes are subject to the exclusive jurisdiction of courts in Bengaluru, Karnataka.</p>
+    </div>
+    <button class="btn btn-gold btn-block" style="margin-top:24px;" onclick="window.closeTermsModal()">Accept &amp; Close</button>
+  </div>
+</div>
+
+<!-- GLOBAL TOAST -->
+<div id="globalToast" class="notification-toast" role="alert" aria-live="assertive"></div>
+
+<!-- FLOATING BACK TO TOP BUTTON -->
+<button class="floating-back-to-top" id="floatingBackToTop" title="Scroll to top" aria-label="Back to top">↑</button>
+
+<!-- WHATSAPP FLOATING BUTTON -->
+<a href="https://wa.me/918069008358?text=Hi%20Velvet%20Hug!%20I%20need%20help%20choosing%20a%20mattress."
+   class="whatsapp-floating-btn" id="whatsappBtn" aria-label="Chat on WhatsApp" target="_blank" rel="noopener">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+</a>
+
+<!-- MOBILE BOTTOM APP NAVIGATION BAR (Phone 1st Storefront Experience) -->
+<nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile Navigation">
+  <button type="button" class="mobile-nav-item active" data-mobile-page="home" onclick="window.goToPage('home')">
+    <div class="mobile-nav-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <span class="mobile-nav-label">Home</span>
+  </button>
+
+  <button type="button" class="mobile-nav-item" data-mobile-page="mattresses" onclick="window.goToPage('mattresses')">
+    <div class="mobile-nav-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="M5 20v-4"/><path d="M19 20v-4"/><path d="M2 12a10 10 0 0 1 20 0v4H2v-4z"/></svg>
+    </div>
+    <span class="mobile-nav-label">Mattresses</span>
+  </button>
+
+  <button type="button" class="mobile-nav-item mobile-nav-quiz-highlight" data-mobile-page="quiz" onclick="if(window.openQuiz) openQuiz();" aria-label="Find Your Hug Sleep Quiz">
+    <div class="mobile-nav-quiz-bubble">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+    </div>
+    <span class="mobile-nav-label">Find Hug</span>
+  </button>
+
+  <button type="button" class="mobile-nav-item" data-mobile-page="accessories" onclick="window.goToPage('accessories')">
+    <div class="mobile-nav-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+    </div>
+    <span class="mobile-nav-label">Accessories</span>
+  </button>
+
+  <button type="button" class="mobile-nav-item" data-mobile-page="account" onclick="window.goToAccount ? window.goToAccount() : window.goToPage('account');">
+    <div class="mobile-nav-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
+    <span class="mobile-nav-label">Profile</span>
+  </button>
+</nav>
+
+<!-- JS Module Entry -->
+
+  <!-- Velvet Hug Master Production Application Script -->
+  <script src="{{ 'main.js' | asset_url }}" defer></script>
+</body>
 </html>

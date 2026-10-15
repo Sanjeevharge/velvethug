@@ -1,11 +1,11 @@
 {
   "sections": {
-    "cart_items": {
-      "type": "categories-rail",
+    "main_storefront": {
+      "type": "main-storefront",
       "settings": {}
     }
   },
   "order": [
-    "cart_items"
+    "main_storefront"
   ]
 }
