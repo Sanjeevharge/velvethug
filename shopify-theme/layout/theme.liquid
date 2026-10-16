@@ -33,9 +33,17 @@
   <!-- Three.js for 3D Layer Visualizer -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
 
-  <!-- Global Shopify Asset CDN Resolver & Navigation Helpers -->
+  <!-- Global Shopify Asset CDN Resolver & Settings -->
   <script>
     window.SHOPIFY_CDN = {{ 'logo.jpeg' | asset_url | json }}.replace('logo.jpeg', '');
+
+    window.SHOPIFY_SETTINGS = {
+      foundingTarget: {{ settings.founding_target | default: '1000' | json }},
+      foundingClaimed: {{ settings.founding_claimed | default: '348' | json }},
+      promoCode: {{ settings.festival_promo_code | default: 'FOUNDING15' | json }},
+      promoHeadline: {{ settings.festival_discount_headline | default: 'First 1,000 Sleep Partners' | json }},
+      whatsappNumber: {{ settings.whatsapp_business_number | default: '918069008358' | json }}
+    };
 
     // Global SPA Page Navigation
     window.goToPage = function(page) {
@@ -221,7 +229,7 @@
   <div class="promo-topbar-inner">
     <div class="promo-actions">
       <span class="promo-tag-badge" id="promoTag">FOUNDING EXCLUSIVE</span>
-      <span id="promoMessage">First 1,000 Sleep Partners — 15% Lifetime Price Lock (348 Claimed)</span>
+      <span id="promoMessage">First {{ settings.founding_target | default: '1,000' }} Sleep Partners — 15% Lifetime Price Lock ({{ settings.founding_claimed | default: '348' }} Claimed)</span>
     </div>
     <div class="promo-actions">
       <span style="font-size:0.78rem;color:rgba(255,255,255,0.6);">Ends in:</span>

@@ -232,6 +232,10 @@ function saveStoredCart(cart) {
 }
 
 function getStoredFoundingCount() {
+  if (typeof window !== 'undefined' && window.SHOPIFY_SETTINGS && window.SHOPIFY_SETTINGS.foundingClaimed) {
+    const sVal = parseInt(window.SHOPIFY_SETTINGS.foundingClaimed, 10);
+    if (!isNaN(sVal) && sVal > 0) return sVal;
+  }
   try {
     const val = localStorage.getItem(STORAGE_KEY_FOUNDING);
     if (val) return parseInt(val, 10);
@@ -510,9 +514,21 @@ function initPromoBanner() {
     const msgEl = qs('#promoMessage', banner);
     const tagEl = qs('#promoTag', banner);
     const couponEl = qs('#promoCoupon', banner);
-    if (msgEl) msgEl.textContent = promo.message;
+    if (msgEl) {
+      if (typeof window !== 'undefined' && window.SHOPIFY_SETTINGS && window.SHOPIFY_SETTINGS.foundingClaimed) {
+        const target = window.SHOPIFY_SETTINGS.foundingTarget || '1,000';
+        const claimed = window.SHOPIFY_SETTINGS.foundingClaimed;
+        msgEl.textContent = `First ${target} Sleep Partners — 15% Lifetime Price Lock (${claimed} Claimed)`;
+      } else {
+        msgEl.textContent = promo.message;
+      }
+    }
     if (tagEl) tagEl.textContent = promo.tag;
-    if (couponEl) couponEl.textContent = promo.coupon;
+    if (couponEl) {
+      couponEl.textContent = (typeof window !== 'undefined' && window.SHOPIFY_SETTINGS && window.SHOPIFY_SETTINGS.promoCode)
+        ? window.SHOPIFY_SETTINGS.promoCode
+        : promo.coupon;
+    }
   }
   updatePromo();
   initUnifiedCountdown();
@@ -539,23 +555,29 @@ function initFoundingCounter() {
   const promoMsgEl = qs('#promoMessage');
   if (!counterEl) return;
 
+  const targetTotal = (typeof window !== 'undefined' && window.SHOPIFY_SETTINGS && window.SHOPIFY_SETTINGS.foundingTarget)
+    ? (parseInt(window.SHOPIFY_SETTINGS.foundingTarget, 10) || 1000)
+    : 1000;
+
   function update(count) {
     state.foundingCount = count;
-    setStoredFoundingCount(state.foundingCount);
+    if (!window.SHOPIFY_SETTINGS?.foundingClaimed) {
+      setStoredFoundingCount(state.foundingCount);
+    }
     if (counterEl) counterEl.textContent = state.foundingCount.toLocaleString('en-IN');
-    const pct = Math.min(100, Math.round((state.foundingCount / 1000) * 100));
+    const pct = Math.min(100, Math.round((state.foundingCount / targetTotal) * 100));
     if (fillEl) fillEl.style.width = pct + '%';
     if (labelEl) {
-      if (state.foundingCount >= 1000) {
-        labelEl.textContent = `All 1,000 Founding spots claimed! Now welcoming Sleep Partner #${state.foundingCount + 1}`;
+      if (state.foundingCount >= targetTotal) {
+        labelEl.textContent = `All ${targetTotal.toLocaleString('en-IN')} Founding spots claimed! Now welcoming Sleep Partner #${state.foundingCount + 1}`;
       } else {
-        const remaining = 1000 - state.foundingCount;
-        labelEl.textContent = `${remaining} Founding spots remaining of 1,000`;
+        const remaining = targetTotal - state.foundingCount;
+        labelEl.textContent = `${remaining} Founding spots remaining of ${targetTotal.toLocaleString('en-IN')}`;
       }
     }
     if (promoMsgEl) {
-      if (state.foundingCount <= 1000) {
-        promoMsgEl.textContent = `First 1,000 Sleep Partners — 15% Lifetime Price Lock (${state.foundingCount} Claimed)`;
+      if (state.foundingCount <= targetTotal) {
+        promoMsgEl.textContent = `First ${targetTotal.toLocaleString('en-IN')} Sleep Partners — 15% Lifetime Price Lock (${state.foundingCount} Claimed)`;
       } else {
         promoMsgEl.textContent = `Over ${state.foundingCount.toLocaleString('en-IN')} Rested Sleep Partners Across India — Code FOUNDING15`;
       }
